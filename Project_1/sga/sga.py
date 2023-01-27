@@ -50,4 +50,22 @@ class SGA:
         self.max_generations = max_generations
         self.crossover_rate = crossover_rate
         self.mutation_rate = mutation_rate
-        self.generations = {}
+        self.generations = []
+
+    def init_population(self) -> Population:
+        """Initialize a population in the SGA
+
+        Returns:
+            Population: A new population in the SGA
+        """
+        new_population = Population()
+        for _ in range(self.pop_size):
+            bitstring = np.random.randint(0, 2, self.individual_size).tolist()
+
+            individual = Individual(bitstring=bitstring)
+            individual.calc_phenotype()
+
+            # Append new individual
+            new_population.individuals.append(individual)
+        self.generations.append(new_population)
+        return new_population
