@@ -60,12 +60,22 @@ class SGA:
         """
         new_population = Population()
         for _ in range(self.pop_size):
-            bitstring = np.random.randint(0, 2, self.individual_size).tolist()
-
-            individual = Individual(bitstring=bitstring)
+            individual = Individual(bitstring=generate_bitstring(self.individual_size))
             individual.calc_phenotype()
 
             # Append new individual
             new_population.individuals.append(individual)
         self.generations.append(new_population)
         return new_population
+
+
+def generate_bitstring(individual_size: int) -> "list[int]":
+    """Generate a bitstring for an individual: [1,1,1,0,1,0,1,0,1]
+
+    Args:
+        individual_size (int): bitstring size/shape
+
+    Returns:
+        list[int]: bitstring as a list of integers
+    """
+    return np.random.randint(0, 2, individual_size).tolist()
