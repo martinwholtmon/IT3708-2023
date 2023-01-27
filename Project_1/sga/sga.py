@@ -8,17 +8,19 @@ class Individual:
     def __init__(
         self,
         bitstring: list[int],
-        fitness: float = 0,
         parents: "list[Individual]" = None,
     ) -> None:
         self.bitstring = bitstring
-        self.fitness = fitness
         self.parents = parents or []
-        self.phenotype: int = 0
+        self.phenotype: int = self.calc_phenotype()
+        self.fitness: float = self.calc_fitness()
 
-    def calc_phenotype(self) -> None:
+    def calc_phenotype(self) -> int:
         """Will calculate the phenotype (binary to integer) given the individuals bitstring."""
-        self.phenotype = int("".join(map(str, self.bitstring)), 2)
+        return int("".join(map(str, self.bitstring)), 2)
+
+    def calc_fitness(self) -> float:
+        return 0
 
 
 class Population:
@@ -42,7 +44,9 @@ class Population:
         """
         # Get all the individuals fitness and find the two largest
         individuals = [i.fitness for i in self.individuals]
-        p_bit = heapq.nlargest(2, enumerate(individuals), key=lambda x: x[1])
+        p_bit = heapq.nlargest(
+            2, enumerate(individuals), key=lambda x: x[1]
+        )  # [(index, fitness), ...}
 
         # Get get parents
         parents = []
@@ -77,11 +81,9 @@ class SGA:
         """
         new_population = Population()
         for _ in range(self.pop_size):
-            individual = Individual(bitstring=generate_bitstring(self.individual_size))
-            individual.calc_phenotype()
-
-            # Append new individual
-            new_population.individuals.append(individual)
+            new_population.individuals.append(
+                Individual(bitstring=generate_bitstring(self.individual_size))
+            )
         self.generations.append(new_population)
         return new_population
 
