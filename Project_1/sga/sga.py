@@ -1,4 +1,6 @@
 class Individual:
+    """This class represent an individual in a population"""
+
     def __init__(
         self,
         bitstring: list[int],
@@ -13,6 +15,8 @@ class Individual:
 
 
 class Population:
+    """This class represent a population in the SGA"""
+
     def __init__(
         self,
         individuals: "list[Individual]" = None,
@@ -25,6 +29,8 @@ class Population:
 
 
 class SGA:
+    """This class represent a simple genetic algorithm"""
+
     def __init__(
         self,
         init_pop_size: int = 1000,
