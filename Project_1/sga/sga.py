@@ -1,4 +1,5 @@
 import numpy as np
+import heapq
 
 
 class Individual:
@@ -32,6 +33,22 @@ class Population:
         self.individuals = individuals or []
         self.prev_gen = prev_gen
         self.generation_nr = generation_nr
+
+    def parent_selection(self) -> "list[Individual]":
+        """Select the two fittest individuals in a population
+
+        Returns:
+            tuple[Individual, Individual]: The two fittest individuals
+        """
+        # Get all the individuals fitness and find the two largest
+        individuals = [i.fitness for i in self.individuals]
+        p_bit = heapq.nlargest(2, enumerate(individuals), key=lambda x: x[1])
+
+        # Get get parents
+        parents = []
+        for index, _ in p_bit:
+            parents.append(self.individuals[index])
+        return parents
 
 
 class SGA:
