@@ -3,8 +3,7 @@ class Individual:
 
     def __init__(
         self,
-        bitstring: list[float],
-        phenotype: str,
+        bitstring: list[int],
         fitness: float = 0,
         parents: "list[Individual]" = None,
     ) -> None:
