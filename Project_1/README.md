@@ -11,6 +11,10 @@ Goals:
 Create a genetic algorithm for feature selection in a linear regression problem scored by RMSE (fitness function).
 Objective: Minimize RMSE. 
 
+Why feature selection?
+- Good approximation, sometimes better model. 
+- Reducing dimentions: Less overfitting, less data entries, faster training time. 
+
 ### Genetic Algorithms
 - Implement a Genetic Algorithm (GA) as demonstrated in the lectures. Focus on
   - A Simple Genetic Algorithm (SGA)
@@ -40,6 +44,29 @@ Crowding:
 Tip: Use enthropy to measure the diversity within the population over generations. 
 
 ### Fitness Functions
-Implement two different fitness functions that operate on the bitstrings.
+Implement two synthetic fitness functions that operate on the bitstrings, before implementing the natural fitness function for feature selection.
 #### Sine Function
+- Sine function in the interval `[0,128]`
+- Goal: Maximize the sine function
+- Convert bitstrings to a real value, then scale it to fit the interval. E.g. Bitstring of size 15: 
+  - Max value of 2<sup>15</sup>
+  - Gives scaling factor of 2<sup>-8</sup>
+- Handle constraints by adding penalty to the fitness function:
+  - f(x) -> f'(x) = f(x) + P(d(x,F))
+  - P(d(x,F)) - distance metric of the infeasible point to the feasible region F
+  - The penalty function P is zero for feasible solutions and increases proportionally with the distance to the feasible region
+
 #### Feature Selection
+Using the Machine Learning Algorithm provided in `LinReg.py`:
+- Simple linear regression
+- Return the RMSE. Use this value as a fitness function for the GA.
+- Goal: Minimize RMSE
+- Methods to use from `LinReg.py`:
+  - `get_fitness(x, y)`: Gives the root-mean-square error on the data `x` with targets `y`. 
+  - `get_columns(x, bitstring)`: Selects features from data `x` based on the bits in `bitstring`. Filter out columns by providing data and bitstring. 
+
+## Dataset
+- 1994 rows
+- 102 columns. 
+  - First 101 columns represent the data (`x`)
+  - Last column represent the value (`y`)
