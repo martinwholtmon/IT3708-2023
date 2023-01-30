@@ -1,4 +1,5 @@
 import numpy as np
+import heapq
 
 
 class Individual:
@@ -7,17 +8,11 @@ class Individual:
     def __init__(
         self,
         bitstring: list[int],
-        fitness: float = 0,
         parents: "list[Individual]" = None,
     ) -> None:
         self.bitstring = bitstring
-        self.fitness = fitness
         self.parents = parents or []
-        self.phenotype: int = 0
-
-    def calc_phenotype(self) -> None:
-        """Will calculate the phenotype (binary to integer) given the individuals bitstring."""
-        self.phenotype = int("".join(map(str, self.bitstring)), 2)
+        self.fitness: float = 0
 
 
 class Population:
@@ -60,12 +55,61 @@ class SGA:
         """
         new_population = Population()
         for _ in range(self.pop_size):
-            bitstring = np.random.randint(0, 2, self.individual_size).tolist()
-
-            individual = Individual(bitstring=bitstring)
-            individual.calc_phenotype()
-
-            # Append new individual
-            new_population.individuals.append(individual)
+            new_population.individuals.append(
+                Individual(bitstring=generate_bitstring(self.individual_size))
+            )
         self.generations.append(new_population)
         return new_population
+
+
+def generate_bitstring(individual_size: int) -> "list[int]":
+    """Generate a bitstring for an individual: [1,1,1,0,1,0,1,0,1]
+
+    Args:
+        individual_size (int): bitstring size/shape
+
+    Returns:
+        list[int]: bitstring as a list of integers
+    """
+    return np.random.randint(0, 2, individual_size).tolist()
+
+
+def calc_fitness(population) -> float:
+    """calculate the fitness value in the range [0, 128]
+    Lower = 0
+    Upper = 2^7 = 128
+    15-7 = 8
+    scaling factor = upper bound / max value = 2^(7-15) = 2^(-8)
+
+    Returns:
+        float: fitness value
+    """
+    scaling_factor = 2 ** (-8)
+    for individual in population.individuals:
+        value = int("".join(map(str, individual.bitstring)), 2)
+        individual.fitness = value * scaling_factor
+
+
+def parent_selection(
+    population: Population, num_parents: int = 2
+) -> "list[Individual]":
+    """Select the fittest individuals in a population
+
+    Args:
+        population (Population): A population
+        num_parents (int, optional): How many parents to select. Defaults to 2.
+
+    Returns:
+        list[Individual]: The fittest individuals
+    """
+    # Get all the individuals fitness and find the two largest
+    individuals = [i.fitness for i in population.individuals]
+    p_bit = heapq.nlargest(
+        num_parents, enumerate(individuals), key=lambda x: x[1]
+    )  # [(index, fitness), ...}
+
+    # Get get parents
+    parents = []
+    for index, _ in p_bit:
+        parents.append(population.individuals[index])
+    return parents
