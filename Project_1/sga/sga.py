@@ -1,5 +1,7 @@
 import numpy as np
 import heapq
+import copy
+from random import random
 
 
 class Individual:
@@ -74,20 +76,17 @@ def generate_bitstring(individual_size: int) -> "list[int]":
     return np.random.randint(0, 2, individual_size).tolist()
 
 
-def calc_fitness(population) -> float:
-    """calculate the fitness value in the range [0, 128]
-    Lower = 0
-    Upper = 2^7 = 128
-    15-7 = 8
-    scaling factor = upper bound / max value = 2^(7-15) = 2^(-8)
+def calc_fitness(population: Population) -> float:
+    """calculate the fitness value in the range [0, 1]
+    scaling factor = upper bound / max value
 
     Returns:
         float: fitness value
     """
     scaling_factor = 2 ** (-8)
     for individual in population.individuals:
-        value = int("".join(map(str, individual.bitstring)), 2)
-        individual.fitness = value * scaling_factor
+        phenotype = int("".join(map(str, individual.bitstring)), 2)
+        individual.fitness = phenotype * scaling_factor
 
 
 def parent_selection(
@@ -102,7 +101,13 @@ def parent_selection(
     Returns:
         list[Individual]: The fittest individuals
     """
-    # Get all the individuals fitness and find the two largest
+    # check for even number
+    if num_parents % 2 != 0:
+        raise ValueError(
+            f"num_parents={num_parents} is invalid! Number of parents must be even"
+        )
+
+    # Get all the individuals fitness and find the largest
     individuals = [i.fitness for i in population.individuals]
     p_bit = heapq.nlargest(
         num_parents, enumerate(individuals), key=lambda x: x[1]
@@ -113,3 +118,42 @@ def parent_selection(
     for index, _ in p_bit:
         parents.append(population.individuals[index])
     return parents
+
+
+def crossover(
+    parents: "list[Individual]", crossover_rate: float
+) -> "tuple[Individual, Individual]":
+    """Creates offsprings from pairs of parents through single point crossover
+
+    Returns:
+        list[Individual]: The offsprings
+    """
+    # Chance of crossover
+    if random() < crossover_rate:
+        crossover_point = 0.5  # TODO: Figure out how to handle this
+        c_parents = []
+        for i in range(0, len(c_parents), 2):  # Every other, e.g. pairs
+            p1, p2 = parents[i - 1], parents[i]
+            c1 = p1.bitstring[:crossover_point] + p2.bitstring[crossover_point:]
+            c2 = p2.bitstring[:crossover_point] + p1.bitstring[crossover_point:]
+            c_parents.extend([c1, c2])
+    else:
+        c_parents = copy.deepcopy(parents)
+    return c_parents
+
+
+def mutation(individual: Individual, mutation_rate) -> Individual:
+    """Mutate the individual. Controlled by the mutation_rate
+    Iterate over the bits, and given a chance, mutate.
+
+    Args:
+        individual (Individual): An individual
+        mutation_rate (float): Probability of mutation
+
+    Returns:
+        Individual: Mutated individual
+    """
+    for bit_idx in individual.bitstring:
+        if random() < mutation_rate:
+            # XOR -> flip bit
+            individual.bitstring[bit_idx] = individual.bitstring[bit_idx] ^ 1
