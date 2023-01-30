@@ -13,14 +13,11 @@ class Individual:
         self.bitstring = bitstring
         self.parents = parents or []
         self.phenotype: int = self.calc_phenotype()
-        self.fitness: float = self.calc_fitness()
+        self.fitness: float = 0
 
     def calc_phenotype(self) -> int:
         """Will calculate the phenotype (binary to integer) given the individuals bitstring."""
         return int("".join(map(str, self.bitstring)), 2)
-
-    def calc_fitness(self) -> float:
-        return 0
 
 
 class Population:
@@ -35,24 +32,6 @@ class Population:
         self.individuals = individuals or []
         self.prev_gen = prev_gen
         self.generation_nr = generation_nr
-
-    def parent_selection(self) -> "list[Individual]":
-        """Select the two fittest individuals in a population
-
-        Returns:
-            tuple[Individual, Individual]: The two fittest individuals
-        """
-        # Get all the individuals fitness and find the two largest
-        individuals = [i.fitness for i in self.individuals]
-        p_bit = heapq.nlargest(
-            2, enumerate(individuals), key=lambda x: x[1]
-        )  # [(index, fitness), ...}
-
-        # Get get parents
-        parents = []
-        for index, _ in p_bit:
-            parents.append(self.individuals[index])
-        return parents
 
 
 class SGA:
@@ -98,3 +77,33 @@ def generate_bitstring(individual_size: int) -> "list[int]":
         list[int]: bitstring as a list of integers
     """
     return np.random.randint(0, 2, individual_size).tolist()
+
+
+def calc_pop_fitness():
+    """Calculate the fitness value for each individual"""
+    raise NotImplementedError
+
+
+def parent_selection(
+    population: Population, num_parents: int = 2
+) -> "list[Individual]":
+    """Select the fittest individuals in a population
+
+    Args:
+        population (Population): A population
+        num_parents (int, optional): How many parents to select. Defaults to 2.
+
+    Returns:
+        list[Individual]: The fittest individuals
+    """
+    # Get all the individuals fitness and find the two largest
+    individuals = [i.fitness for i in population.individuals]
+    p_bit = heapq.nlargest(
+        num_parents, enumerate(individuals), key=lambda x: x[1]
+    )  # [(index, fitness), ...}
+
+    # Get get parents
+    parents = []
+    for index, _ in p_bit:
+        parents.append(population.individuals[index])
+    return parents
