@@ -12,12 +12,7 @@ class Individual:
     ) -> None:
         self.bitstring = bitstring
         self.parents = parents or []
-        self.phenotype: int = self.calc_phenotype()
         self.fitness: float = 0
-
-    def calc_phenotype(self) -> int:
-        """Will calculate the phenotype (binary to integer) given the individuals bitstring."""
-        return int("".join(map(str, self.bitstring)), 2)
 
 
 class Population:
@@ -79,9 +74,20 @@ def generate_bitstring(individual_size: int) -> "list[int]":
     return np.random.randint(0, 2, individual_size).tolist()
 
 
-def calc_pop_fitness():
-    """Calculate the fitness value for each individual"""
-    raise NotImplementedError
+def calc_fitness(population) -> float:
+    """calculate the fitness value in the range [0, 128]
+    Lower = 0
+    Upper = 2^7 = 128
+    15-7 = 8
+    scaling factor = upper bound / max value = 2^(7-15) = 2^(-8)
+
+    Returns:
+        float: fitness value
+    """
+    scaling_factor = 2 ** (-8)
+    for individual in population.individuals:
+        value = int("".join(map(str, individual.bitstring)), 2)
+        individual.fitness = value * scaling_factor
 
 
 def parent_selection(
