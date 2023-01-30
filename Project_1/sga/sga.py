@@ -99,7 +99,13 @@ def parent_selection(
     Returns:
         list[Individual]: The fittest individuals
     """
-    # Get all the individuals fitness and find the two largest
+    # check for even number
+    if num_parents % 2 != 0:
+        raise ValueError(
+            f"num_parents={num_parents} is invalid! Number of parents must be even"
+        )
+
+    # Get all the individuals fitness and find the largest
     individuals = [i.fitness for i in population.individuals]
     p_bit = heapq.nlargest(
         num_parents, enumerate(individuals), key=lambda x: x[1]
