@@ -74,20 +74,17 @@ def generate_bitstring(individual_size: int) -> "list[int]":
     return np.random.randint(0, 2, individual_size).tolist()
 
 
-def calc_fitness(population) -> float:
-    """calculate the fitness value in the range [0, 128]
-    Lower = 0
-    Upper = 2^7 = 128
-    15-7 = 8
-    scaling factor = upper bound / max value = 2^(7-15) = 2^(-8)
+def calc_fitness(population: Population) -> float:
+    """calculate the fitness value in the range [0, 1]
+    scaling factor = upper bound / max value
 
     Returns:
         float: fitness value
     """
     scaling_factor = 2 ** (-8)
     for individual in population.individuals:
-        value = int("".join(map(str, individual.bitstring)), 2)
-        individual.fitness = value * scaling_factor
+        phenotype = int("".join(map(str, individual.bitstring)), 2)
+        individual.fitness = phenotype * scaling_factor
 
 
 def parent_selection(
