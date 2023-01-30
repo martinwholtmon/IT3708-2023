@@ -1,5 +1,7 @@
 import numpy as np
 import heapq
+import copy
+from random import random
 
 
 class Individual:
@@ -116,3 +118,25 @@ def parent_selection(
     for index, _ in p_bit:
         parents.append(population.individuals[index])
     return parents
+
+
+def crossover(
+    parents: "list[Individual]", crossover_rate: float
+) -> "tuple[Individual, Individual]":
+    """Creates offsprings from pairs of parents through single point crossover
+
+    Returns:
+        list[Individual]: The offsprings
+    """
+    # Chance of crossover
+    if random() < crossover_rate:
+        crossover_point = 0.5  # TODO: Figure out how to handle this
+        c_parents = []
+        for i in range(0, len(c_parents), 2):  # Every other, e.g. pairs
+            p1, p2 = parents[i - 1], parents[i]
+            c1 = p1.bitstring[:crossover_point] + p2.bitstring[crossover_point:]
+            c2 = p2.bitstring[:crossover_point] + p1.bitstring[crossover_point:]
+            c_parents.extend([c1, c2])
+    else:
+        c_parents = copy.deepcopy(parents)
+    return c_parents
