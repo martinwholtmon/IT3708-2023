@@ -140,3 +140,20 @@ def crossover(
     else:
         c_parents = copy.deepcopy(parents)
     return c_parents
+
+
+def mutation(individual: Individual, mutation_rate) -> Individual:
+    """Mutate the individual. Controlled by the mutation_rate
+    Iterate over the bits, and given a chance, mutate.
+
+    Args:
+        individual (Individual): An individual
+        mutation_rate (float): Probability of mutation
+
+    Returns:
+        Individual: Mutated individual
+    """
+    for bit_idx in individual.bitstring:
+        if random() < mutation_rate:
+            # XOR -> flip bit
+            individual.bitstring[bit_idx] = individual.bitstring[bit_idx] ^ 1
