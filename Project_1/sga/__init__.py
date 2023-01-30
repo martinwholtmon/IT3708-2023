@@ -1,4 +1,4 @@
-from sga import SGA, calc_fitness, parent_selection
+from sga import SGA, calc_fitness, parent_selection, crossover, mutation
 
 
 def main():
@@ -10,6 +10,10 @@ def main():
     print(parents[0].fitness)
     print(f"Population size: {len(a_pop.individuals)}")
     print(f"phenotype of first individual: {a_pop.individuals[0].fitness}")
+
+    # test
+    for i in crossover(parents, 0.6):
+        mutation(i, 0.6)
 
 
 if __name__ == "__main__":
