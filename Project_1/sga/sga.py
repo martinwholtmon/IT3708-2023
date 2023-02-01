@@ -1,3 +1,4 @@
+import math
 import numpy as np
 import heapq
 import copy
@@ -128,17 +129,25 @@ def crossover(
     Returns:
         list[Individual]: The offsprings
     """
+    # Prepare copies
+    c_parents = copy.deepcopy(parents)
+    print(c_parents)
+
     # Chance of crossover
     if random() < crossover_rate:
-        crossover_point = 0.5  # TODO: Figure out how to handle this
-        c_parents = []
-        for i in range(0, len(c_parents), 2):  # Every other, e.g. pairs
+        # TODO: How to handle crossover point
+        crossover_point = math.floor(0.5 * len(parents[0].bitstring))
+        for i in range(1, len(c_parents), 2):  # Every other, e.g. pairs
+            # Prepare parents
             p1, p2 = parents[i - 1], parents[i]
-            c1 = p1.bitstring[:crossover_point] + p2.bitstring[crossover_point:]
-            c2 = p2.bitstring[:crossover_point] + p1.bitstring[crossover_point:]
-            c_parents.extend([c1, c2])
-    else:
-        c_parents = copy.deepcopy(parents)
+
+            # Mutate copies
+            c_parents[i - 1].bitstring = (
+                p1.bitstring[:crossover_point] + p2.bitstring[crossover_point:]
+            )
+            c_parents[i].bitstring = (
+                p2.bitstring[:crossover_point] + p1.bitstring[crossover_point:]
+            )
     return c_parents
 
 
