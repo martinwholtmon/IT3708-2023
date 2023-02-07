@@ -70,3 +70,17 @@ Using the Machine Learning Algorithm provided in `LinReg.py`:
 - 102 columns. 
   - First 101 columns represent the data (`x`)
   - Last column represent the value (`y`)
+
+## Syllabus:
+- A. E. Eiben and J. E. Smith. “Introduction to Evolutionary Computing,” 2nd
+Edition, Springer 2015
+  - Page 99-100: Table 6.1 (SGA)
+  - Page 91-95: Population diversity and crowding
+  - Page 203-211: Constraint handling
+- D. Simon. “Evolutionary Optimization Algorithms,” Wiley 2013
+  - Page 44-55: SGA
+  - Page 192-198: Population diversity, crowding
+- D. E. Goldberg “Genetic Algorithms in Search, Optimization, and Machine Learning,” Addison-Wesley, 1989
+  - Oage 59-75
+- O. J. Mengshoel and D. E. Goldberg. 2008. “The Crowding Approach to Niching in Genetic Algorithms.” Evol. Comput. 16, 3 (Fall 2008)
+  - Page 315-354
