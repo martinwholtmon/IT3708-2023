@@ -171,7 +171,7 @@ def survivor_selection(population: Population, pop_size: int) -> Population:
     # Prepare new generation
     new_generation = Population()
     new_generation.prev_gen = population
-    new_generation.generation_nr = population.generation_nr
+    new_generation.generation_nr = population.generation_nr + 1
     new_generation.individuals = select_fittest_individuals(population, pop_size)
     return new_generation
 
