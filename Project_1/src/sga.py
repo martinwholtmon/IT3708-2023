@@ -130,7 +130,7 @@ def crossover(
     return offspring
 
 
-def mutation(individual: Individual, mutation_rate) -> Individual:
+def mutation(individual: Individual, mutation_rate):
     """Mutate the individual. Controlled by the mutation_rate
     Iterate over the bits, and given a chance, mutate.
 
@@ -145,7 +145,6 @@ def mutation(individual: Individual, mutation_rate) -> Individual:
         if random() < mutation_rate:
             # XOR -> flip bit
             individual.bitstring[bit_idx] = individual.bitstring[bit_idx] ^ 1
-    return individual
 
 
 def survivor_selection(population: Population, pop_size: int) -> Population:
