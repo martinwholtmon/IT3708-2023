@@ -107,18 +107,7 @@ def parent_selection(
         raise ValueError(
             f"num_parents={num_parents} is invalid! Number of parents must be even"
         )
-
-    # Get all the individuals fitness and find the largest
-    individuals = [i.fitness for i in population.individuals]
-    p_bit = heapq.nlargest(
-        num_parents, enumerate(individuals), key=lambda x: x[1]
-    )  # [(index, fitness), ...}
-
-    # Get get parents
-    parents = []
-    for index, _ in p_bit:
-        parents.append(population.individuals[index])
-    return parents
+    return select_fittest_individuals(population, num_parents)
 
 
 def crossover(
@@ -130,25 +119,24 @@ def crossover(
         list[Individual]: The offsprings
     """
     # Prepare copies
-    c_parents = copy.deepcopy(parents)
-    print(c_parents)
+    offspring = copy.deepcopy(parents)
 
     # Chance of crossover
     if random() < crossover_rate:
         # TODO: How to handle crossover point
         crossover_point = math.floor(0.5 * len(parents[0].bitstring))
-        for i in range(1, len(c_parents), 2):  # Every other, e.g. pairs
+        for i in range(1, len(offspring), 2):  # Every other, e.g. pairs
             # Prepare parents
             p1, p2 = parents[i - 1], parents[i]
 
             # Mutate copies
-            c_parents[i - 1].bitstring = (
+            offspring[i - 1].bitstring = (
                 p1.bitstring[:crossover_point] + p2.bitstring[crossover_point:]
             )
-            c_parents[i].bitstring = (
+            offspring[i].bitstring = (
                 p2.bitstring[:crossover_point] + p1.bitstring[crossover_point:]
             )
-    return c_parents
+    return offspring
 
 
 def mutation(individual: Individual, mutation_rate) -> Individual:
@@ -166,3 +154,46 @@ def mutation(individual: Individual, mutation_rate) -> Individual:
         if random() < mutation_rate:
             # XOR -> flip bit
             individual.bitstring[bit_idx] = individual.bitstring[bit_idx] ^ 1
+    return individual
+
+
+def survivor_selection(population: Population, pop_size: int) -> Population:
+    """Selects the survivors of a population based on the individuals fitness
+    Select the fittest individuals in the new population, to create the next generation.
+
+    Args:
+        poulation (Population): A population
+        pop_size (int): Target size of the population
+
+    Returns:
+        population: New generation
+    """
+    # Prepare new generation
+    new_generation = Population()
+    new_generation.prev_gen = population
+    new_generation.generation_nr = population.generation_nr + 1
+    new_generation.individuals = select_fittest_individuals(population, pop_size)
+    return new_generation
+
+
+def select_fittest_individuals(pop: Population, n_individuals) -> "list[Individual]":
+    """Select fittest individuals in a population
+
+    Args:
+        pop (Population): A population
+        n_individuals (int): Number of individuals to select
+
+    Returns:
+        list[Individual]: Fittest individuals
+    """
+    # Get all the individuals fitness and find the largest
+    individuals = [i.fitness for i in pop.individuals]
+    p_bit = heapq.nlargest(
+        n_individuals, enumerate(individuals), key=lambda x: x[1]
+    )  # [(index, fitness), ...}
+
+    # Get get parents
+    parents = []
+    for index, _ in p_bit:
+        parents.append(pop.individuals[index])
+    return parents
