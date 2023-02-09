@@ -119,24 +119,24 @@ def crossover(
         list[Individual]: The offsprings
     """
     # Prepare copies
-    c_parents = copy.deepcopy(parents)
+    offspring = copy.deepcopy(parents)
 
     # Chance of crossover
     if random() < crossover_rate:
         # TODO: How to handle crossover point
         crossover_point = math.floor(0.5 * len(parents[0].bitstring))
-        for i in range(1, len(c_parents), 2):  # Every other, e.g. pairs
+        for i in range(1, len(offspring), 2):  # Every other, e.g. pairs
             # Prepare parents
             p1, p2 = parents[i - 1], parents[i]
 
             # Mutate copies
-            c_parents[i - 1].bitstring = (
+            offspring[i - 1].bitstring = (
                 p1.bitstring[:crossover_point] + p2.bitstring[crossover_point:]
             )
-            c_parents[i].bitstring = (
+            offspring[i].bitstring = (
                 p2.bitstring[:crossover_point] + p1.bitstring[crossover_point:]
             )
-    return c_parents
+    return offspring
 
 
 def mutation(individual: Individual, mutation_rate) -> Individual:
