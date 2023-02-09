@@ -156,6 +156,26 @@ def mutation(individual: Individual, mutation_rate) -> Individual:
             individual.bitstring[bit_idx] = individual.bitstring[bit_idx] ^ 1
     return individual
 
+
+def survivor_selection(population: Population, pop_size: int) -> Population:
+    """Selects the survivors of a population based on the individuals fitness
+    Select the fittest individuals in the new population, to create the next generation.
+
+    Args:
+        poulation (Population): A population
+        pop_size (int): Target size of the population
+
+    Returns:
+        population: New generation
+    """
+    # Prepare new generation
+    new_generation = Population()
+    new_generation.prev_gen = population
+    new_generation.generation_nr = population.generation_nr
+    new_generation.individuals = select_fittest_individuals(population, pop_size)
+    return new_generation
+
+
 def select_fittest_individuals(pop: Population, n_individuals) -> "list[Individual]":
     """Select fittest individuals in a population
 
