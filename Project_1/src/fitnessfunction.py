@@ -9,12 +9,20 @@ def sine(population: Population) -> float:
     scaling factor = ((upper_bound - lower_bound) / max_value) + lower_bound
 
     Returns:
-        float: fitness value
+        float: average fitness value for a population
     """
     scaling_factor = 2 ** (-8)
+    total_fitness = 0
     for individual in population.individuals:
+        # Get fitness
         phenotype = int("".join(map(str, individual.bitstring)), 2)
-        individual.fitness = math.sin(phenotype * scaling_factor)
+        fitness = math.sin(phenotype * scaling_factor)
+
+        # Set fitness
+        individual.fitness = fitness
+        total_fitness = total_fitness + fitness
+    # Set avg fitness for population
+    population.fitness = total_fitness / len(population.individuals)
 
 
 def lin_reg(population: Population) -> float:

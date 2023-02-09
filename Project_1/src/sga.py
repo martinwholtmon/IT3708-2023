@@ -30,6 +30,7 @@ class Population:
         self.individuals = individuals or []
         self.prev_gen = prev_gen
         self.generation_nr = generation_nr
+        self.fitness = 0
 
 
 class SGA:
