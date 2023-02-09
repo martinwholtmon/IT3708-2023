@@ -41,9 +41,9 @@ class SGA:
         objective_function: callable,
         pop_size: int = 1000,
         individual_size: int = 15,
-        max_generations: int = 0,
-        crossover_rate: float = 0,
-        mutation_rate: float = 0,
+        max_generations: int = 15,
+        crossover_rate: float = 0.6,
+        mutation_rate: float = 0.06,
     ) -> None:
         self.objective_function = objective_function
         self.pop_size = pop_size
@@ -51,9 +51,15 @@ class SGA:
         self.max_generations = max_generations
         self.crossover_rate = crossover_rate
         self.mutation_rate = mutation_rate
-        self.generations = []
 
-    def init_population(self) -> Population:
+    def simulate(self):
+        population = self.__init_population()
+        while population.generation_nr < self.max_generations:
+            self.objective_function(population)  # calculate fitness
+            population = self.__generation(population)
+        return population
+
+    def __init_population(self) -> Population:
         """Initialize a population in the SGA
 
         Returns:
@@ -64,9 +70,32 @@ class SGA:
             new_population.individuals.append(
                 Individual(bitstring=generate_bitstring(self.individual_size))
             )
-        self.generations.append(new_population)
-        self.objective_function(new_population)  # calc fitness
         return new_population
+
+    def __generation(self, population: Population) -> Population:
+        """Create a new generation
+
+        Args:
+            population (Population): Old population
+
+        Returns:
+            Population: New population
+        """
+        children: "list[Individual]" = []
+        while len(children) < self.pop_size:
+            # Select parents
+            parents = parent_selection(population, 2)
+
+            # Create offspring with chance of mutation
+            offsprings = crossover(parents, self.crossover_rate)
+            for offspring in offsprings:
+                mutation(offspring, self.mutation_rate)
+
+            # Add offsprings to new population
+            children.extend(offsprings)
+
+        # return new generation
+        return survivor_selection(children, population)
 
 
 def generate_bitstring(individual_size: int) -> "list[int]":
