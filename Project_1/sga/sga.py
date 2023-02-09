@@ -107,18 +107,7 @@ def parent_selection(
         raise ValueError(
             f"num_parents={num_parents} is invalid! Number of parents must be even"
         )
-
-    # Get all the individuals fitness and find the largest
-    individuals = [i.fitness for i in population.individuals]
-    p_bit = heapq.nlargest(
-        num_parents, enumerate(individuals), key=lambda x: x[1]
-    )  # [(index, fitness), ...}
-
-    # Get get parents
-    parents = []
-    for index, _ in p_bit:
-        parents.append(population.individuals[index])
-    return parents
+    return select_fittest_individuals(population, num_parents)
 
 
 def crossover(
@@ -166,3 +155,25 @@ def mutation(individual: Individual, mutation_rate) -> Individual:
             # XOR -> flip bit
             individual.bitstring[bit_idx] = individual.bitstring[bit_idx] ^ 1
     return individual
+
+def select_fittest_individuals(pop: Population, n_individuals) -> "list[Individual]":
+    """Select fittest individuals in a population
+
+    Args:
+        pop (Population): A population
+        n_individuals (int): Number of individuals to select
+
+    Returns:
+        list[Individual]: Fittest individuals
+    """
+    # Get all the individuals fitness and find the largest
+    individuals = [i.fitness for i in pop.individuals]
+    p_bit = heapq.nlargest(
+        n_individuals, enumerate(individuals), key=lambda x: x[1]
+    )  # [(index, fitness), ...}
+
+    # Get get parents
+    parents = []
+    for index, _ in p_bit:
+        parents.append(pop.individuals[index])
+    return parents
