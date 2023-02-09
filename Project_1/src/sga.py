@@ -30,6 +30,7 @@ class Population:
         self.individuals = individuals or []
         self.prev_gen = prev_gen
         self.generation_nr = generation_nr
+        self.fitness = 0
 
 
 class SGA:
@@ -40,9 +41,9 @@ class SGA:
         objective_function: callable,
         pop_size: int = 1000,
         individual_size: int = 15,
-        max_generations: int = 0,
-        crossover_rate: float = 0,
-        mutation_rate: float = 0,
+        max_generations: int = 15,
+        crossover_rate: float = 0.6,
+        mutation_rate: float = 0.06,
     ) -> None:
         self.objective_function = objective_function
         self.pop_size = pop_size
@@ -50,9 +51,15 @@ class SGA:
         self.max_generations = max_generations
         self.crossover_rate = crossover_rate
         self.mutation_rate = mutation_rate
-        self.generations = []
 
-    def init_population(self) -> Population:
+    def simulate(self):
+        population = self.__init_population()
+        while population.generation_nr < self.max_generations:
+            self.objective_function(population)  # calculate fitness
+            population = self.__generation(population)
+        return population
+
+    def __init_population(self) -> Population:
         """Initialize a population in the SGA
 
         Returns:
@@ -63,9 +70,32 @@ class SGA:
             new_population.individuals.append(
                 Individual(bitstring=generate_bitstring(self.individual_size))
             )
-        self.generations.append(new_population)
-        self.objective_function(new_population)  # calc fitness
         return new_population
+
+    def __generation(self, population: Population) -> Population:
+        """Create a new generation
+
+        Args:
+            population (Population): Old population
+
+        Returns:
+            Population: New population
+        """
+        children: "list[Individual]" = []
+        while len(children) < self.pop_size:
+            # Select parents
+            parents = parent_selection(population, 2)
+
+            # Create offspring with chance of mutation
+            offsprings = crossover(parents, self.crossover_rate)
+            for offspring in offsprings:
+                mutation(offspring, self.mutation_rate)
+
+            # Add offsprings to new population
+            children.extend(offsprings)
+
+        # return new generation
+        return survivor_selection(children, population)
 
 
 def generate_bitstring(individual_size: int) -> "list[int]":
@@ -129,7 +159,7 @@ def crossover(
     return offspring
 
 
-def mutation(individual: Individual, mutation_rate) -> Individual:
+def mutation(individual: Individual, mutation_rate):
     """Mutate the individual. Controlled by the mutation_rate
     Iterate over the bits, and given a chance, mutate.
 
@@ -144,25 +174,23 @@ def mutation(individual: Individual, mutation_rate) -> Individual:
         if random() < mutation_rate:
             # XOR -> flip bit
             individual.bitstring[bit_idx] = individual.bitstring[bit_idx] ^ 1
-    return individual
 
 
-def survivor_selection(population: Population, pop_size: int) -> Population:
-    """Selects the survivors of a population based on the individuals fitness
-    Select the fittest individuals in the new population, to create the next generation.
+def survivor_selection(
+    individuals: "list[Individual]", old_population: Population
+) -> Population:
+    """For the SGA, the survivor selection is simply a generational replacement of the prior population
 
     Args:
-        poulation (Population): A population
-        pop_size (int): Target size of the population
+        individuals (list[Individual]): The new individuals
 
     Returns:
-        population: New generation
+        Population: The new population
     """
-    # Prepare new generation
     new_generation = Population()
-    new_generation.prev_gen = population
-    new_generation.generation_nr = population.generation_nr + 1
-    new_generation.individuals = select_fittest_individuals(population, pop_size)
+    new_generation.prev_gen = old_population
+    new_generation.generation_nr = old_population.generation_nr + 1
+    new_generation.individuals = individuals
     return new_generation
 
 
