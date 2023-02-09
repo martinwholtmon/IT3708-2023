@@ -147,22 +147,21 @@ def mutation(individual: Individual, mutation_rate):
             individual.bitstring[bit_idx] = individual.bitstring[bit_idx] ^ 1
 
 
-def survivor_selection(population: Population, pop_size: int) -> Population:
-    """Selects the survivors of a population based on the individuals fitness
-    Select the fittest individuals in the new population, to create the next generation.
+def survivor_selection(
+    individuals: "list[Individual]", old_population: Population
+) -> Population:
+    """For the SGA, the survivor selection is simply a generational replacement of the prior population
 
     Args:
-        poulation (Population): A population
-        pop_size (int): Target size of the population
+        individuals (list[Individual]): The new individuals
 
     Returns:
-        population: New generation
+        Population: The new population
     """
-    # Prepare new generation
     new_generation = Population()
-    new_generation.prev_gen = population
-    new_generation.generation_nr = population.generation_nr + 1
-    new_generation.individuals = select_fittest_individuals(population, pop_size)
+    new_generation.prev_gen = old_population
+    new_generation.generation_nr = old_population.generation_nr + 1
+    new_generation.individuals = individuals
     return new_generation
 
 
