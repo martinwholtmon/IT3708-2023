@@ -37,12 +37,14 @@ class SGA:
 
     def __init__(
         self,
+        objective_function: callable,
         pop_size: int = 1000,
         individual_size: int = 15,
         max_generations: int = 0,
         crossover_rate: float = 0,
         mutation_rate: float = 0,
     ) -> None:
+        self.objective_function = objective_function
         self.pop_size = pop_size
         self.individual_size = individual_size
         self.max_generations = max_generations
@@ -62,6 +64,7 @@ class SGA:
                 Individual(bitstring=generate_bitstring(self.individual_size))
             )
         self.generations.append(new_population)
+        self.objective_function(new_population)  # calc fitness
         return new_population
 
 
@@ -75,19 +78,6 @@ def generate_bitstring(individual_size: int) -> "list[int]":
         list[int]: bitstring as a list of integers
     """
     return np.random.randint(0, 2, individual_size).tolist()
-
-
-def calc_fitness(population: Population) -> float:
-    """calculate the fitness value in the range [0, 1]
-    scaling factor = upper bound / max value
-
-    Returns:
-        float: fitness value
-    """
-    scaling_factor = 2 ** (-8)
-    for individual in population.individuals:
-        phenotype = int("".join(map(str, individual.bitstring)), 2)
-        individual.fitness = phenotype * scaling_factor
 
 
 def parent_selection(

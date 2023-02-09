@@ -1,11 +1,11 @@
-from sga import SGA, calc_fitness, parent_selection, crossover, mutation
+from sga import SGA, parent_selection, crossover, mutation
+from fitnessfunction import sine, lin_reg
 
 
 def main():
     """Entry point for the application script"""
-    sga = SGA()
+    sga = SGA(objective_function=sine)
     a_pop = sga.init_population()
-    calc_fitness(a_pop)
     parents = parent_selection(a_pop)
     print(parents[0].fitness)
     print(f"Population size: {len(a_pop.individuals)}")
