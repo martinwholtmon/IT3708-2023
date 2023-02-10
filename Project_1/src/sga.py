@@ -113,7 +113,7 @@ def generate_bitstring(individual_size: int) -> "list[int]":
 def parent_selection(
     population: Population, num_parents: int = 2
 ) -> "list[Individual]":
-    """Select the fittest individuals in a population
+    """Select the fittest individuals in a population proportionally, by the use of roulette wheel
 
     Args:
         population (Population): A population
@@ -127,7 +127,28 @@ def parent_selection(
         raise ValueError(
             f"num_parents={num_parents} is invalid! Number of parents must be even"
         )
-    return select_fittest_individuals(population, num_parents)
+
+    # Get all fitness values
+    population_fitness = [individual.fitness for individual in population.individuals]
+
+    # Scale to positive values -> keep proportions
+    min_fitness = min(population_fitness)
+    if min_fitness < 0:
+        shift_fitness = abs(min_fitness)
+    else:
+        shift_fitness = 0
+    population_fitness = [fitness + shift_fitness for fitness in population_fitness]
+    population_fitness_sum = sum(population_fitness)
+
+    # Create probabilities
+    individual_probabilities = [
+        fitness / population_fitness_sum for fitness in population_fitness
+    ]
+
+    # Return the parents
+    return np.random.choice(
+        population.individuals, size=num_parents, p=individual_probabilities
+    ).tolist()
 
 
 def crossover(
@@ -194,7 +215,30 @@ def survivor_selection(
     return new_generation
 
 
-def select_fittest_individuals(pop: Population, n_individuals) -> "list[Individual]":
+def survivor_selection_fittest(
+    individuals: "list[Individual]", old_population: Population
+) -> Population:
+    """Select the fittest individuals in a set of individuals
+
+    Args:
+        individuals (list[Individual]): _description_
+        old_population (Population): _description_
+
+    Returns:
+        Population: _description_
+    """
+    new_generation = Population()
+    new_generation.prev_gen = old_population
+    new_generation.generation_nr = old_population.generation_nr + 1
+    new_generation.individuals = select_fittest_individuals(
+        individuals, len(old_population.individuals)
+    )
+    return new_generation
+
+
+def select_fittest_individuals(
+    individuals: "list[Individual]", n_individuals
+) -> "list[Individual]":
     """Select fittest individuals in a population
 
     Args:
@@ -205,13 +249,13 @@ def select_fittest_individuals(pop: Population, n_individuals) -> "list[Individu
         list[Individual]: Fittest individuals
     """
     # Get all the individuals fitness and find the largest
-    individuals = [i.fitness for i in pop.individuals]
+    individuals_fitness = [i.fitness for i in individuals]
     p_bit = heapq.nlargest(
-        n_individuals, enumerate(individuals), key=lambda x: x[1]
+        n_individuals, enumerate(individuals_fitness), key=lambda x: x[1]
     )  # [(index, fitness), ...}
 
     # Get get parents
     parents = []
     for index, _ in p_bit:
-        parents.append(pop.individuals[index])
+        parents.append(individuals[index])
     return parents
