@@ -23,6 +23,7 @@ def sine(population: Population) -> float:
         total_fitness = total_fitness + fitness
     # Set avg fitness for population
     population.fitness = total_fitness / len(population.individuals)
+    print(population.fitness)
 
 
 def lin_reg(population: Population) -> float:

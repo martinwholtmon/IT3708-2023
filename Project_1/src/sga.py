@@ -127,7 +127,28 @@ def parent_selection(
         raise ValueError(
             f"num_parents={num_parents} is invalid! Number of parents must be even"
         )
-    raise NotImplementedError
+
+    # Get all fitness values
+    population_fitness = [individual.fitness for individual in population.individuals]
+
+    # Scale to positive values -> keep proportions
+    min_fitness = min(population_fitness)
+    if min_fitness < 0:
+        shift_fitness = abs(min_fitness)
+    else:
+        shift_fitness = 0
+    population_fitness = [fitness + shift_fitness for fitness in population_fitness]
+    population_fitness_sum = sum(population_fitness)
+
+    # Create probabilities
+    individual_probabilities = [
+        fitness / population_fitness_sum for fitness in population_fitness
+    ]
+
+    # Return the parents
+    return np.random.choice(
+        population.individuals, size=num_parents, p=individual_probabilities
+    ).tolist()
 
 
 def crossover(
