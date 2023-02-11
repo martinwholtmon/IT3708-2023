@@ -1,7 +1,7 @@
 """The fitness (objective) functions that operate on the individuals
 """
 import math
-from sga import Population
+from src.sga import Population
 
 
 def sine(population: Population) -> float:
