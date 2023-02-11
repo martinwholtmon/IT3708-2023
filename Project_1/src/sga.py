@@ -15,6 +15,7 @@ class Individual:
     ) -> None:
         self.bitstring = bitstring
         self.parents = parents or []
+        self.value: float = 0
         self.fitness: float = 0
 
 

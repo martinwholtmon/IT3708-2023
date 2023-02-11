@@ -19,6 +19,7 @@ def sine(individuals: "list[Individual]") -> float:
 
         # Set fitness
         individual.fitness = fitness
+        individual.value = phenotype
 
 
 # def lin_reg(population: Population) -> float:
