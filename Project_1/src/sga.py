@@ -32,6 +32,10 @@ class Population:
         self.generation_nr = generation_nr
         self.fitness = 0
 
+    def calc_avg_fitness(self):
+        fitness = sum([individual.fitness for individual in self.individuals])
+        self.fitness = fitness / len(self.individuals)
+
 
 class SGA:
     """This class represent a simple genetic algorithm"""
@@ -55,8 +59,8 @@ class SGA:
     def simulate(self):
         population = self.__init_population()
         while population.generation_nr < self.max_generations:
-            self.objective_function(population)  # calculate fitness
             population = self.__generation(population)
+            print(f"Generation {population.generation_nr}: {population.fitness}")
         return population
 
     def __init_population(self) -> Population:
@@ -70,6 +74,8 @@ class SGA:
             new_population.individuals.append(
                 Individual(bitstring=generate_bitstring(self.individual_size))
             )
+            self.objective_function(new_population.individuals)
+            new_population.calc_avg_fitness()
         return new_population
 
     def __generation(self, population: Population) -> Population:
@@ -81,21 +87,21 @@ class SGA:
         Returns:
             Population: New population
         """
-        children: "list[Individual]" = []
-        while len(children) < self.pop_size:
-            # Select parents
-            parents = parent_selection(population, 2)
+        # Select pool of parents
+        mating_pool = parent_selection(population, self.pop_size)
 
-            # Create offspring with chance of mutation
-            offsprings = crossover(parents, self.crossover_rate)
-            for offspring in offsprings:
-                mutation(offspring, self.mutation_rate)
+        # Create offspring with chance of mutation
+        offsprings = crossover(mating_pool, self.crossover_rate)
+        for offspring in offsprings:
+            mutation(offspring, self.mutation_rate)
 
-            # Add offsprings to new population
-            children.extend(offsprings)
+        # TODO: calculate fitness of offspring
+        self.objective_function(offsprings)
 
         # return new generation
-        return survivor_selection(children, population)
+        new_generation = survivor_selection(offsprings, population)
+        new_generation.calc_avg_fitness()
+        return new_generation
 
 
 def generate_bitstring(individual_size: int) -> "list[int]":
@@ -134,10 +140,9 @@ def parent_selection(
     # Scale to positive values -> keep proportions
     min_fitness = min(population_fitness)
     if min_fitness < 0:
-        shift_fitness = abs(min_fitness)
-    else:
-        shift_fitness = 0
-    population_fitness = [fitness + shift_fitness for fitness in population_fitness]
+        population_fitness = [
+            fitness + abs(min_fitness) for fitness in population_fitness
+        ]
     population_fitness_sum = sum(population_fitness)
 
     # Create probabilities
@@ -147,7 +152,9 @@ def parent_selection(
 
     # Return the parents
     return np.random.choice(
-        population.individuals, size=num_parents, p=individual_probabilities
+        population.individuals,
+        size=num_parents,
+        p=individual_probabilities,
     ).tolist()
 
 
