@@ -29,11 +29,15 @@ class Population:
         self.individuals = individuals or []
         self.prev_gen = prev_gen
         self.generation_nr = generation_nr
-        self.fitness = 0
 
-    def calc_avg_fitness(self):
+    def __str__(self):
+        return (
+            f"Generation {self.generation_nr} avg. fitness: {self.__calc_avg_fitness()}"
+        )
+
+    def __calc_avg_fitness(self):
         fitness = sum([individual.fitness for individual in self.individuals])
-        self.fitness = fitness / len(self.individuals)
+        return fitness / len(self.individuals)
 
 
 class SGA:
@@ -59,9 +63,10 @@ class SGA:
 
     def simulate(self) -> Individual:
         population = self.__init_population()
+        print(population)
         while population.generation_nr < self.max_generations:
             population = self.__generation(population)
-            print(f"Generation {population.generation_nr}: {population.fitness}")
+            print(population)
         return select_fittest_individuals(population.individuals, 1, self.maximize)[0]
 
     def __init_population(self) -> Population:
