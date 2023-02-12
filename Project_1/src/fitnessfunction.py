@@ -33,3 +33,15 @@ class ObjectiveLinReg:
         self.X = X
         self.y = y
         self.model: LinReg = LinReg()
+
+    def get_fitness(self, individuals: "list[Individual]") -> float:
+        for individual in individuals:
+            # Get columns
+            X_sub = self.model.get_columns(self.X, individual.bitstring)
+
+            # Get fitness
+            fitness = self.model.get_fitness(X_sub, self.y)
+
+            # Set fitness
+            individual.fitness = fitness
+            print(fitness)
