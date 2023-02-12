@@ -144,7 +144,7 @@ def parent_selection(
             individual.fitness for individual in population.individuals
         ]
     else:
-        # To minimize, take the negative value
+        # To minimize, take the negative fitness value
         population_fitness = [
             -individual.fitness for individual in population.individuals
         ]
@@ -180,9 +180,9 @@ def crossover(parents: "list[Individual]", crossover_rate: float) -> "list[Indiv
     offspring = copy.deepcopy(parents)
 
     # Chance of crossover
-    if random() < crossover_rate:
-        # TODO: How to handle crossover point
-        x_point = math.floor(0.5 * len(parents[0].bitstring))
+    if random() <= crossover_rate:
+        # Select a point between (0,len(bitstring)-1) -> [1,len(bitstring)-2]
+        x_point = np.random.randint(1, len(parents[0].bitstring) - 1)
         for i in range(1, len(offspring), 2):  # Every other, e.g. pairs
             # Prepare parents
             p1, p2 = parents[i - 1], parents[i]
@@ -208,7 +208,7 @@ def mutation(individual: Individual, mutation_rate):
         Individual: Mutated individual
     """
     for bit_idx in individual.bitstring:
-        if random() < mutation_rate:
+        if random() <= mutation_rate:
             # XOR -> flip bit
             individual.bitstring[bit_idx] = individual.bitstring[bit_idx] ^ 1
 
