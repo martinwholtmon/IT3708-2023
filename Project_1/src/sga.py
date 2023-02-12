@@ -57,12 +57,12 @@ class SGA:
         self.crossover_rate = crossover_rate
         self.mutation_rate = mutation_rate
 
-    def simulate(self):
+    def simulate(self) -> Individual:
         population = self.__init_population()
         while population.generation_nr < self.max_generations:
             population = self.__generation(population)
             print(f"Generation {population.generation_nr}: {population.fitness}")
-        return population
+        return select_fittest_individuals(population.individuals, 1)[0]
 
     def __init_population(self) -> Population:
         """Initialize a population in the SGA
