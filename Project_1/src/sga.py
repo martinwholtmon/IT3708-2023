@@ -148,7 +148,7 @@ def parent_selection(
             individual.fitness for individual in population.individuals
         ]
     else:
-        # To minimize, take the negative fitness value
+        # To minimize, negate the fitness value (maximize the negation of the fitness)
         population_fitness = [
             -individual.fitness for individual in population.individuals
         ]
@@ -156,8 +156,9 @@ def parent_selection(
     # Scale to positive values -> keep proportions
     min_fitness = min(population_fitness)
     if min_fitness < 0:
+        # Scale with a base of 1 to not have the sum be zero.
         population_fitness = [
-            (fitness + 2 * abs(min_fitness)) for fitness in population_fitness
+            (fitness + abs(min_fitness) + 1) for fitness in population_fitness
         ]
     population_fitness_sum = sum(population_fitness)
 
