@@ -139,7 +139,15 @@ def parent_selection(
         )
 
     # Get all fitness values
-    population_fitness = [individual.fitness for individual in population.individuals]
+    if maximize:
+        population_fitness = [
+            individual.fitness for individual in population.individuals
+        ]
+    else:
+        # To minimize, take the negative value
+        population_fitness = [
+            -individual.fitness for individual in population.individuals
+        ]
 
     # Scale to positive values -> keep proportions
     min_fitness = min(population_fitness)
@@ -153,10 +161,6 @@ def parent_selection(
     individual_probabilities = [
         fitness / population_fitness_sum for fitness in population_fitness
     ]
-
-    # For minimization problem, reverse probabilities
-    if maximize == False:
-        individual_probabilities = 1 - np.array(individual_probabilities)
 
     # Return the parents
     return np.random.choice(
