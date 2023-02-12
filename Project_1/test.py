@@ -36,9 +36,9 @@ def ss_linreg():
     params = {
         "objective_function": ObjectiveLinReg(X, y, seed=seed).get_fitness,
         "maximize": False,
-        "pop_size": 50,
+        "pop_size": 150,
         "individual_size": X.shape[1],
-        "max_generations": 20,
+        "max_generations": 25,
         "crossover_rate": 0.6,
         "mutation_rate": 0.05,
     }
