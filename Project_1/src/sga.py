@@ -43,6 +43,7 @@ class SGA:
     def __init__(
         self,
         objective_function: callable,
+        maximize: bool = True,
         pop_size: int = 1000,
         individual_size: int = 15,
         max_generations: int = 15,
@@ -50,6 +51,7 @@ class SGA:
         mutation_rate: float = 0.06,
     ) -> None:
         self.objective_function = objective_function
+        self.maximize = maximize
         self.pop_size = pop_size
         self.individual_size = individual_size
         self.max_generations = max_generations
@@ -61,7 +63,7 @@ class SGA:
         while population.generation_nr < self.max_generations:
             population = self.__generation(population)
             print(f"Generation {population.generation_nr}: {population.fitness}")
-        return select_fittest_individuals(population.individuals, 1)[0]
+        return select_fittest_individuals(population.individuals, 1, self.maximize)[0]
 
     def __init_population(self) -> Population:
         """Initialize a population in the SGA
@@ -88,7 +90,7 @@ class SGA:
             Population: New population
         """
         # Select pool of parents
-        mating_pool = parent_selection(population, self.pop_size)
+        mating_pool = parent_selection(population, self.pop_size, self.maximize)
 
         # Create offspring with chance of mutation
         offsprings = crossover(mating_pool, self.crossover_rate)
@@ -99,7 +101,9 @@ class SGA:
         self.objective_function(offsprings)
 
         # return new generation
-        new_generation = survivor_selection_fittest(offsprings, population)
+        new_generation = survivor_selection_fittest(
+            offsprings, population, self.maximize
+        )
         new_generation.calc_avg_fitness()
         return new_generation
 
@@ -116,7 +120,9 @@ def generate_bitstring(individual_size: int) -> np.ndarray[int]:
     return np.random.randint(0, 2, individual_size)
 
 
-def parent_selection(population: Population, num_parents: int) -> "list[Individual]":
+def parent_selection(
+    population: Population, num_parents: int, maximize: bool
+) -> "list[Individual]":
     """Select the fittest individuals in a population proportionally, by the use of roulette wheel
 
     Args:
@@ -147,6 +153,10 @@ def parent_selection(population: Population, num_parents: int) -> "list[Individu
     individual_probabilities = [
         fitness / population_fitness_sum for fitness in population_fitness
     ]
+
+    # For minimization problem, reverse probabilities
+    if maximize == False:
+        individual_probabilities = 1 - np.array(individual_probabilities)
 
     # Return the parents
     return np.random.choice(
@@ -218,8 +228,7 @@ def survivor_selection(
 
 
 def survivor_selection_fittest(
-    individuals: "list[Individual]",
-    old_population: Population,
+    individuals: "list[Individual]", old_population: Population, maximize: bool
 ) -> Population:
     """Select the fittest individuals in a set of individuals
 
@@ -238,13 +247,13 @@ def survivor_selection_fittest(
     new_generation.prev_gen = old_population
     new_generation.generation_nr = old_population.generation_nr + 1
     new_generation.individuals = select_fittest_individuals(
-        individuals, len(old_population.individuals)
+        individuals, len(old_population.individuals), maximize
     )
     return new_generation
 
 
 def select_fittest_individuals(
-    individuals: "list[Individual]", n_individuals
+    individuals: "list[Individual]", n_individuals, maximize: bool
 ) -> "list[Individual]":
     """Select fittest individuals in a population
 
@@ -255,4 +264,6 @@ def select_fittest_individuals(
     Returns:
         list[Individual]: Fittest individuals
     """
-    return sorted(individuals, key=lambda i: i.fitness, reverse=True)[:n_individuals]
+    return sorted(individuals, key=lambda i: i.fitness, reverse=maximize)[
+        :n_individuals
+    ]
