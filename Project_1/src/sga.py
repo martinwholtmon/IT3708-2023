@@ -76,8 +76,8 @@ class SGA:
             new_population.individuals.append(
                 Individual(bitstring=generate_bitstring(self.individual_size))
             )
-            self.objective_function(new_population.individuals)
-            new_population.calc_avg_fitness()
+        self.objective_function(new_population.individuals)
+        new_population.calc_avg_fitness()
         return new_population
 
     def __generation(self, population: Population) -> Population:
