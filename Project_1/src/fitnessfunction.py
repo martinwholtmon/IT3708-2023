@@ -29,9 +29,10 @@ class ObjectiveSine:
 
 
 class ObjectiveLinReg:
-    def __init__(self, X, y) -> None:
+    def __init__(self, X, y, seed=None) -> None:
         self.X = X
         self.y = y
+        self.seed = seed
         self.model: LinReg = LinReg()
 
     def get_fitness(self, individuals: "list[Individual]") -> float:
@@ -40,7 +41,7 @@ class ObjectiveLinReg:
             X_sub = self.model.get_columns(self.X, individual.bitstring)
 
             # Get fitness
-            fitness = self.model.get_fitness(X_sub, self.y)
+            fitness = self.model.get_fitness(X_sub, self.y, self.seed)
 
             # Set fitness
             individual.fitness = fitness
