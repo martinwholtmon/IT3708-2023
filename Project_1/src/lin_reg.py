@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 
 
-class LinReg():
+class LinReg:
     def __init__(self):
         pass
 
@@ -46,9 +46,9 @@ class LinReg():
         if rng is None:
             rng = np.random.default_rng().integers(1000)
 
-        x_train, x_test, y_train, y_test = train_test_split(x, y,
-                                                            test_size=0.2,
-                                                            random_state=rng)
+        x_train, x_test, y_train, y_test = train_test_split(
+            x, y, test_size=0.2, random_state=rng
+        )
         model = self.train(x_train, y_train)
         predictions = model.predict(x_test)
         error = np.sqrt(mean_squared_error(predictions, y_test))
