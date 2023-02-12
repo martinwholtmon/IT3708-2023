@@ -81,7 +81,6 @@ class SGA:
                 Individual(bitstring=generate_bitstring(self.individual_size))
             )
         self.objective_function(new_population.individuals)
-        new_population.calc_avg_fitness()
         return new_population
 
     def __generation(self, population: Population) -> Population:
@@ -108,7 +107,6 @@ class SGA:
         new_generation = survivor_selection_fittest(
             offsprings, population, self.maximize
         )
-        new_generation.calc_avg_fitness()
         return new_generation
 
 
