@@ -15,11 +15,12 @@ def sine(individuals: "list[Individual]") -> float:
     for individual in individuals:
         # Get fitness
         phenotype = int("".join(map(str, individual.bitstring)), 2)
-        fitness = math.sin(phenotype * scaling_factor)
+        value = phenotype * scaling_factor
+        fitness = math.sin(value)
 
         # Set fitness
         individual.fitness = fitness
-        individual.value = phenotype
+        individual.value = value
 
 
 # def lin_reg(population: Population) -> float:

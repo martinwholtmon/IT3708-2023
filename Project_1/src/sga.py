@@ -57,12 +57,12 @@ class SGA:
         self.crossover_rate = crossover_rate
         self.mutation_rate = mutation_rate
 
-    def simulate(self):
+    def simulate(self) -> Individual:
         population = self.__init_population()
         while population.generation_nr < self.max_generations:
             population = self.__generation(population)
             print(f"Generation {population.generation_nr}: {population.fitness}")
-        return population
+        return select_fittest_individuals(population.individuals, 1)[0]
 
     def __init_population(self) -> Population:
         """Initialize a population in the SGA
@@ -100,7 +100,7 @@ class SGA:
         self.objective_function(offsprings)
 
         # return new generation
-        new_generation = survivor_selection(offsprings, population)
+        new_generation = survivor_selection_fittest(offsprings, population)
         new_generation.calc_avg_fitness()
         return new_generation
 
@@ -117,9 +117,7 @@ def generate_bitstring(individual_size: int) -> "list[int]":
     return np.random.randint(0, 2, individual_size).tolist()
 
 
-def parent_selection(
-    population: Population, num_parents: int = 2
-) -> "list[Individual]":
+def parent_selection(population: Population, num_parents: int) -> "list[Individual]":
     """Select the fittest individuals in a population proportionally, by the use of roulette wheel
 
     Args:
@@ -142,7 +140,7 @@ def parent_selection(
     min_fitness = min(population_fitness)
     if min_fitness < 0:
         population_fitness = [
-            fitness + abs(min_fitness) for fitness in population_fitness
+            (fitness + 2 * abs(min_fitness)) for fitness in population_fitness
         ]
     population_fitness_sum = sum(population_fitness)
 
@@ -159,9 +157,7 @@ def parent_selection(
     ).tolist()
 
 
-def crossover(
-    parents: "list[Individual]", crossover_rate: float
-) -> "tuple[Individual, Individual]":
+def crossover(parents: "list[Individual]", crossover_rate: float) -> "list[Individual]":
     """Creates offsprings from pairs of parents through single point crossover
 
     Returns:
@@ -224,7 +220,8 @@ def survivor_selection(
 
 
 def survivor_selection_fittest(
-    individuals: "list[Individual]", old_population: Population
+    individuals: "list[Individual]",
+    old_population: Population,
 ) -> Population:
     """Select the fittest individuals in a set of individuals
 
@@ -235,6 +232,10 @@ def survivor_selection_fittest(
     Returns:
         Population: _description_
     """
+    # add parents to individuals
+    individuals.extend(old_population.individuals)
+
+    # Create new generation
     new_generation = Population()
     new_generation.prev_gen = old_population
     new_generation.generation_nr = old_population.generation_nr + 1
