@@ -1,10 +1,10 @@
-from src.fitnessfunction import sine
+from src.fitnessfunction import ObjectiveSine, ObjectiveLinReg
 from src.sga import SGA
 
 
-def main():
+def ss_sine():
     params = {
-        "objective_function": sine,
+        "objective_function": ObjectiveSine().get_fitness,
         "pop_size": 100,
         "individual_size": 15,
         "max_generations": 15,
@@ -18,4 +18,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    ss_sine()

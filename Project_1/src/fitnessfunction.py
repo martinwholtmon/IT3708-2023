@@ -2,26 +2,34 @@
 """
 import math
 from src.sga import Individual
+from src.lin_reg import LinReg
 
 
-def sine(individuals: "list[Individual]") -> float:
-    """calculate the fitness value in the interval [0, 128]
-    scaling factor = ((upper_bound - lower_bound) / max_value) + lower_bound
+class ObjectiveSine:
+    def __init__(self) -> None:
+        pass
 
-    Returns:
-        float: average fitness value for a population
-    """
-    scaling_factor = 2 ** (-8)
-    for individual in individuals:
-        # Get fitness
-        phenotype = int("".join(map(str, individual.bitstring)), 2)
-        value = phenotype * scaling_factor
-        fitness = math.sin(value)
+    def get_fitness(self, individuals: "list[Individual]") -> float:
+        """calculate the fitness value in the interval [0, 128]
+        scaling factor = ((upper_bound - lower_bound) / max_value) + lower_bound
 
-        # Set fitness
-        individual.fitness = fitness
-        individual.value = value
+        Returns:
+            float: average fitness value for a population
+        """
+        scaling_factor = 2 ** (-8)
+        for individual in individuals:
+            # Get fitness
+            phenotype = int("".join(map(str, individual.bitstring)), 2)
+            value = phenotype * scaling_factor
+            fitness = math.sin(value)
+
+            # Set fitness
+            individual.fitness = fitness
+            individual.value = value
 
 
-# def lin_reg(population: Population) -> float:
-#     return NotImplementedError
+class ObjectiveLinReg:
+    def __init__(self, X, y) -> None:
+        self.X = X
+        self.y = y
+        self.model: LinReg = LinReg()
