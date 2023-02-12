@@ -10,7 +10,7 @@ class Individual:
 
     def __init__(
         self,
-        bitstring: list[int],
+        bitstring: np.ndarray[int],
         parents: "list[Individual]" = None,
     ) -> None:
         self.bitstring = bitstring
@@ -105,8 +105,8 @@ class SGA:
         return new_generation
 
 
-def generate_bitstring(individual_size: int) -> "list[int]":
-    """Generate a bitstring for an individual: [1,1,1,0,1,0,1,0,1]
+def generate_bitstring(individual_size: int) -> np.ndarray[int]:
+    """Generate a bitstring for an individual: [1 1 1 0 1 0 1 0 1]
 
     Args:
         individual_size (int): bitstring size/shape
@@ -114,7 +114,7 @@ def generate_bitstring(individual_size: int) -> "list[int]":
     Returns:
         list[int]: bitstring as a list of integers
     """
-    return np.random.randint(0, 2, individual_size).tolist()
+    return np.random.randint(0, 2, individual_size)
 
 
 def parent_selection(population: Population, num_parents: int) -> "list[Individual]":
@@ -169,18 +169,17 @@ def crossover(parents: "list[Individual]", crossover_rate: float) -> "list[Indiv
     # Chance of crossover
     if random() < crossover_rate:
         # TODO: How to handle crossover point
-        crossover_point = math.floor(0.5 * len(parents[0].bitstring))
+        x_point = math.floor(0.5 * len(parents[0].bitstring))
         for i in range(1, len(offspring), 2):  # Every other, e.g. pairs
             # Prepare parents
             p1, p2 = parents[i - 1], parents[i]
 
             # Mutate copies
-            offspring[i - 1].bitstring = (
-                p1.bitstring[:crossover_point] + p2.bitstring[crossover_point:]
-            )
-            offspring[i].bitstring = (
-                p2.bitstring[:crossover_point] + p1.bitstring[crossover_point:]
-            )
+            # Keep the beginning of the bitstring, swap the last part from the other parent
+            # Could have been done in place without the use of parents, but this improves readability.
+            # E.g. o1[x:], o2[x:] = o2[x:].copy, o1[x:].copy()
+            offspring[i - 1].bitstring[x_point:] = p2.bitstring[x_point:].copy()
+            offspring[i].bitstring[x_point:] = p1.bitstring[x_point:].copy()
     return offspring
 
 
