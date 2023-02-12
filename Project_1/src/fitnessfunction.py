@@ -44,4 +44,3 @@ class ObjectiveLinReg:
 
             # Set fitness
             individual.fitness = fitness
-            print(fitness)

@@ -1,6 +1,5 @@
 import math
 import numpy as np
-import heapq
 import copy
 from random import random
 
@@ -256,14 +255,4 @@ def select_fittest_individuals(
     Returns:
         list[Individual]: Fittest individuals
     """
-    # Get all the individuals fitness and find the largest
-    individuals_fitness = [i.fitness for i in individuals]
-    p_bit = heapq.nlargest(
-        n_individuals, enumerate(individuals_fitness), key=lambda x: x[1]
-    )  # [(index, fitness), ...}
-
-    # Get get parents
-    parents = []
-    for index, _ in p_bit:
-        parents.append(individuals[index])
-    return parents
+    return sorted(individuals, key=lambda i: i.fitness, reverse=True)[:n_individuals]
