@@ -52,4 +52,4 @@ def ss_linreg():
 
 if __name__ == "__main__":
     ss_sine()
-    ss_linreg()
+    # ss_linreg()

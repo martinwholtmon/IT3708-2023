@@ -17,6 +17,7 @@ class SGA:
         max_generations: int = 15,
         crossover_rate: float = 0.6,
         mutation_rate: float = 0.06,
+        survivor_selection_type: str = "fittest",
     ) -> None:
         self.objective_function = objective_function
         self.maximize = maximize
@@ -25,6 +26,7 @@ class SGA:
         self.max_generations = max_generations
         self.crossover_rate = crossover_rate
         self.mutation_rate = mutation_rate
+        self.survivor_selection_type = survivor_selection_type
         self.generations = []
 
     def simulate(self):
@@ -89,8 +91,8 @@ class SGA:
         self.objective_function(offsprings)
 
         # return new generation
-        new_generation = survivor_selection_fittest(
-            offsprings, population, self.maximize
+        new_generation = survivor_selection(
+            self.survivor_selection_type, offsprings, population, self.maximize
         )
         return new_generation
 
@@ -207,17 +209,37 @@ def mutation(individual: Individual, mutation_rate):
 
 
 def survivor_selection(
-    individuals: "list[Individual]", old_population: Population
+    survivor_selection_type: str,
+    individuals: "list[Individual]",
+    old_population: Population,
+    maximize: bool,
 ) -> Population:
-    """For the SGA, the survivor selection is simply a generational replacement of the prior population
+    """Select a survivor selection function.
+    "Replacement", "Fittest", "restricted_tournament"
 
     Args:
-        individuals (list[Individual]): The new individuals
+        survivor_selection_type (str): _description_
+        individuals (list[Individual]): _description_
+        old_population (Population): _description_
+        maximize (bool): _description_
+
+    Raises:
+        NotImplementedError: _description_
 
     Returns:
-        Population: The new population
+        Population: _description_
     """
-    return create_new_generation(individuals, old_population)
+    match survivor_selection_type.lower():
+        case "replacement":
+            return create_new_generation(individuals, old_population)
+        case "fittest":
+            return survivor_selection_fittest(individuals, old_population, maximize)
+        case "restricted_tournament":
+            return survivor_selection_restricted_tournament(
+                individuals, old_population, maximize
+            )
+        case _:
+            raise NotImplementedError("Use another survivor selection function")
 
 
 def survivor_selection_fittest(
