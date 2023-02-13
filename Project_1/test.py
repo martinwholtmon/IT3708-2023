@@ -4,16 +4,18 @@ from src.lin_reg import LinReg
 import numpy as np
 
 
-def ss_sine():
+def ss_sine(survivor_selection_type=None):
     params = {
         "objective_function": ObjectiveSine().get_fitness,
         "maximize": True,
-        "pop_size": 100,
+        "pop_size": 50,
         "individual_size": 15,
         "max_generations": 15,
         "crossover_rate": 0.6,
         "mutation_rate": 0.05,
     }
+    if survivor_selection_type is not None:
+        params.update({"survivor_selection_type": survivor_selection_type})
 
     sga = SGA(**params)
     sga.simulate()
@@ -21,9 +23,9 @@ def ss_sine():
     print(solution.bitstring, solution.value, solution.fitness)
 
 
-def ss_linreg():
+def ss_linreg(survivor_selection_type=None):
     # Load dataset
-    data_path = r"./data/dataset.txt"
+    data_path = r"Project_1/data/dataset.txt"
     df = np.genfromtxt(data_path, delimiter=",")
     y = df[:, -1]
     X = np.delete(df, -1, axis=1)
@@ -43,6 +45,8 @@ def ss_linreg():
         "crossover_rate": 0.6,
         "mutation_rate": 0.05,
     }
+    if survivor_selection_type is not None:
+        params.update({"survivor_selection_type": survivor_selection_type})
 
     sga = SGA(**params)
     sga.simulate()
@@ -51,5 +55,7 @@ def ss_linreg():
 
 
 if __name__ == "__main__":
-    ss_sine()
-    # ss_linreg()
+    # ss_sine()
+    # ss_sine("restricted_tournament")
+    ss_linreg()
+    # ss_linreg("restricted_tournament")
