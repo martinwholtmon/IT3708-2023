@@ -100,7 +100,7 @@ class SGA:
         for offspring in offsprings:
             mutation(offspring, self.mutation_rate)
 
-        # TODO: calculate fitness of offspring
+        # Calculate fitness of offspring
         self.objective_function(offsprings)
 
         # return new generation
@@ -182,13 +182,14 @@ def crossover(parents: "list[Individual]", crossover_rate: float) -> "list[Indiv
     # Prepare copies
     offspring = copy.deepcopy(parents)
 
-    # Chance of crossover
-    if random() <= crossover_rate:
-        # Select a point between (0,len(bitstring)-1) -> [1,len(bitstring)-2]
-        x_point = np.random.randint(1, len(parents[0].bitstring) - 1)
-        for i in range(1, len(offspring), 2):  # Every other, e.g. pairs
-            # Prepare parents
-            p1, p2 = parents[i - 1], parents[i]
+    for i in range(1, len(offspring), 2):  # Every other, e.g. pairs
+        # Prepare parents
+        p1, p2 = parents[i - 1], parents[i]
+
+        # Chance of crossover
+        if random() <= crossover_rate:
+            # Select a point between (0,len(bitstring)-1) -> [1,len(bitstring)-2]
+            x_point = np.random.randint(1, len(parents[0].bitstring) - 1)
 
             # Mutate copies
             # Keep the beginning of the bitstring, swap the last part from the other parent
@@ -196,6 +197,10 @@ def crossover(parents: "list[Individual]", crossover_rate: float) -> "list[Indiv
             # E.g. o1[x:], o2[x:] = o2[x:].copy, o1[x:].copy()
             offspring[i - 1].bitstring[x_point:] = p2.bitstring[x_point:].copy()
             offspring[i].bitstring[x_point:] = p1.bitstring[x_point:].copy()
+
+        # Set parents
+        offspring[i - 1].parents = [p1, p2]
+        offspring[i].parents = [p1, p2]
     return offspring
 
 
