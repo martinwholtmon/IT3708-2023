@@ -10,15 +10,15 @@ def ss_sine():
         "maximize": True,
         "pop_size": 100,
         "individual_size": 15,
-        "max_generations": 10,
+        "max_generations": 3,
         "crossover_rate": 0.6,
         "mutation_rate": 0.05,
     }
 
     sga = SGA(**params)
-    solution = sga.simulate()
+    sga.simulate()
+    solution = sga.get_solution()
     print(solution.bitstring, solution.value, solution.fitness)
-
 
 def ss_linreg():
     # Load dataset
@@ -38,7 +38,7 @@ def ss_linreg():
         "maximize": False,
         "pop_size": 250,
         "individual_size": X.shape[1],
-        "max_generations": 30,
+        "max_generations": 3,
         "crossover_rate": 0.6,
         "mutation_rate": 0.05,
     }

@@ -60,16 +60,34 @@ class SGA:
         self.max_generations = max_generations
         self.crossover_rate = crossover_rate
         self.mutation_rate = mutation_rate
+        self.generations = []
 
-    def simulate(self) -> "list[Individual]":
+    def simulate(self):
         population = self.__init_population()
         print(population)
         while population.generation_nr < self.max_generations:
             population = self.__generation(population)
             print(population)
-        return select_fittest_individuals(
-            population.individuals, len(population.individuals), self.maximize
+            self.generations.append(population)
+
+    def get_solution(self, constraint=None) -> Individual:
+        pop: Population = self.generations[-1]
+        individuals = select_fittest_individuals(
+            pop.individuals, len(pop.individuals), self.maximize
         )
+
+        if constraint is None:
+            return individuals[0]
+        else:
+            solution = None
+            for s in individuals:
+                if s.value <= constraint[0] <= constraint[1]:
+                    solution = s
+                    break
+            return solution
+
+    def get_generations(self) -> "list[Population]":
+        return self.generations
 
     def __init_population(self) -> Population:
         """Initialize a population in the SGA
