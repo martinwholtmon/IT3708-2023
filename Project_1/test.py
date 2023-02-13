@@ -39,16 +39,17 @@ def ss_linreg():
         "maximize": False,
         "pop_size": 250,
         "individual_size": X.shape[1],
-        "max_generations": 3,
+        "max_generations": 30,
         "crossover_rate": 0.6,
         "mutation_rate": 0.05,
     }
 
     sga = SGA(**params)
-    solution = sga.simulate()
+    sga.simulate()
+    solution = sga.get_solution()
     print(solution.bitstring, solution.value, solution.fitness)
 
 
 if __name__ == "__main__":
     ss_sine()
-    # ss_linreg()
+    ss_linreg()

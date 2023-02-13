@@ -223,14 +223,14 @@ def survivor_selection(
 def survivor_selection_fittest(
     individuals: "list[Individual]", old_population: Population, maximize: bool
 ) -> Population:
-    """Select the fittest individuals in a set of individuals
+    """Select the fittest individuals in a set of individuals and the prior population
 
     Args:
-        individuals (list[Individual]): _description_
-        old_population (Population): _description_
+        individuals (list[Individual]): Offsprings from parents
+        old_population (Population): The old population
 
     Returns:
-        Population: _description_
+        Population: Fittest individuals as a new population
     """
     # add parents to individuals
     individuals.extend(old_population.individuals)
