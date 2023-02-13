@@ -1,43 +1,8 @@
+from src.individual import Individual
+from src.population import Population
 import numpy as np
 import copy
 from random import random, sample
-
-
-class Individual:
-    """This class represent an individual in a population"""
-
-    def __init__(
-        self,
-        bitstring: np.ndarray[int],
-        parents: "list[Individual]" = None,
-    ) -> None:
-        self.bitstring = bitstring
-        self.parents = parents or []
-        self.value: float = 0
-        self.fitness: float = 0
-
-
-class Population:
-    """This class represent a population in the SGA"""
-
-    def __init__(
-        self,
-        individuals: "list[Individual]" = None,
-        prev_gen: "Population" = None,
-        generation_nr: int = 0,
-    ) -> None:
-        self.individuals = individuals or []
-        self.prev_gen = prev_gen
-        self.generation_nr = generation_nr
-
-    def __str__(self):
-        return (
-            f"Generation {self.generation_nr} avg. fitness: {self.__calc_avg_fitness()}"
-        )
-
-    def __calc_avg_fitness(self):
-        fitness = sum([individual.fitness for individual in self.individuals])
-        return fitness / len(self.individuals)
 
 
 class SGA:
@@ -277,23 +242,6 @@ def survivor_selection_fittest(
     return create_new_generation(selected, old_population)
 
 
-def select_fittest_individuals(
-    individuals: "list[Individual]", n_individuals, maximize: bool
-) -> "list[Individual]":
-    """Select fittest individuals in a population
-
-    Args:
-        pop (Population): A population
-        n_individuals (int): Number of individuals to select
-
-    Returns:
-        list[Individual]: Fittest individuals
-    """
-    return sorted(individuals, key=lambda i: i.fitness, reverse=maximize)[
-        :n_individuals
-    ]
-
-
 def survivor_selection_restricted_tournament(
     individuals: "list[Individual]",
     old_population: Population,
@@ -352,3 +300,20 @@ def create_new_generation(
     new_generation.generation_nr = old_population.generation_nr + 1
     new_generation.individuals = individuals
     return new_generation
+
+
+def select_fittest_individuals(
+    individuals: "list[Individual]", n_individuals, maximize: bool
+) -> "list[Individual]":
+    """Select fittest individuals in a population
+
+    Args:
+        pop (Population): A population
+        n_individuals (int): Number of individuals to select
+
+    Returns:
+        list[Individual]: Fittest individuals
+    """
+    return sorted(individuals, key=lambda i: i.fitness, reverse=maximize)[
+        :n_individuals
+    ]
