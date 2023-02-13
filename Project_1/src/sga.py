@@ -242,23 +242,6 @@ def survivor_selection_fittest(
     return create_new_generation(selected, old_population)
 
 
-def select_fittest_individuals(
-    individuals: "list[Individual]", n_individuals, maximize: bool
-) -> "list[Individual]":
-    """Select fittest individuals in a population
-
-    Args:
-        pop (Population): A population
-        n_individuals (int): Number of individuals to select
-
-    Returns:
-        list[Individual]: Fittest individuals
-    """
-    return sorted(individuals, key=lambda i: i.fitness, reverse=maximize)[
-        :n_individuals
-    ]
-
-
 def survivor_selection_restricted_tournament(
     individuals: "list[Individual]",
     old_population: Population,
@@ -317,3 +300,20 @@ def create_new_generation(
     new_generation.generation_nr = old_population.generation_nr + 1
     new_generation.individuals = individuals
     return new_generation
+
+
+def select_fittest_individuals(
+    individuals: "list[Individual]", n_individuals, maximize: bool
+) -> "list[Individual]":
+    """Select fittest individuals in a population
+
+    Args:
+        pop (Population): A population
+        n_individuals (int): Number of individuals to select
+
+    Returns:
+        list[Individual]: Fittest individuals
+    """
+    return sorted(individuals, key=lambda i: i.fitness, reverse=maximize)[
+        :n_individuals
+    ]

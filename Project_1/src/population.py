@@ -1,3 +1,6 @@
+from src.individual import Individual
+
+
 class Population:
     """This class represent a population in the SGA"""
 

@@ -10,7 +10,7 @@ def ss_sine():
         "maximize": True,
         "pop_size": 100,
         "individual_size": 15,
-        "max_generations": 3,
+        "max_generations": 15,
         "crossover_rate": 0.6,
         "mutation_rate": 0.05,
     }
@@ -19,6 +19,7 @@ def ss_sine():
     sga.simulate()
     solution = sga.get_solution()
     print(solution.bitstring, solution.value, solution.fitness)
+
 
 def ss_linreg():
     # Load dataset

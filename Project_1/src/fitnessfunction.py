@@ -6,6 +6,8 @@ from src.lin_reg import LinReg
 
 
 class ObjectiveSine:
+    """Calculate fitess values using the sine function in the interval [1,128]"""
+
     def __init__(self) -> None:
         pass
 
@@ -29,6 +31,8 @@ class ObjectiveSine:
 
 
 class ObjectiveLinReg:
+    """Calculate the fitness values using the linear regression algorithm, provided a dataset."""
+
     def __init__(self, X, y, seed=None) -> None:
         self.X = X
         self.y = y
