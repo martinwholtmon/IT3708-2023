@@ -1,6 +1,6 @@
 import numpy as np
 import copy
-from random import random
+from random import random, sample
 
 
 class Individual:
@@ -100,7 +100,7 @@ class SGA:
         for offspring in offsprings:
             mutation(offspring, self.mutation_rate)
 
-        # TODO: calculate fitness of offspring
+        # Calculate fitness of offspring
         self.objective_function(offsprings)
 
         # return new generation
@@ -182,13 +182,14 @@ def crossover(parents: "list[Individual]", crossover_rate: float) -> "list[Indiv
     # Prepare copies
     offspring = copy.deepcopy(parents)
 
-    # Chance of crossover
-    if random() <= crossover_rate:
-        # Select a point between (0,len(bitstring)-1) -> [1,len(bitstring)-2]
-        x_point = np.random.randint(1, len(parents[0].bitstring) - 1)
-        for i in range(1, len(offspring), 2):  # Every other, e.g. pairs
-            # Prepare parents
-            p1, p2 = parents[i - 1], parents[i]
+    for i in range(1, len(offspring), 2):  # Every other, e.g. pairs
+        # Prepare parents
+        p1, p2 = parents[i - 1], parents[i]
+
+        # Chance of crossover
+        if random() <= crossover_rate:
+            # Select a point between (0,len(bitstring)-1) -> [1,len(bitstring)-2]
+            x_point = np.random.randint(1, len(parents[0].bitstring) - 1)
 
             # Mutate copies
             # Keep the beginning of the bitstring, swap the last part from the other parent
@@ -196,6 +197,10 @@ def crossover(parents: "list[Individual]", crossover_rate: float) -> "list[Indiv
             # E.g. o1[x:], o2[x:] = o2[x:].copy, o1[x:].copy()
             offspring[i - 1].bitstring[x_point:] = p2.bitstring[x_point:].copy()
             offspring[i].bitstring[x_point:] = p1.bitstring[x_point:].copy()
+
+        # Set parents
+        offspring[i - 1].parents = [p1, p2]
+        offspring[i].parents = [p1, p2]
     return offspring
 
 
@@ -227,11 +232,7 @@ def survivor_selection(
     Returns:
         Population: The new population
     """
-    new_generation = Population()
-    new_generation.prev_gen = old_population
-    new_generation.generation_nr = old_population.generation_nr + 1
-    new_generation.individuals = individuals
-    return new_generation
+    return create_new_generation(individuals, old_population)
 
 
 def survivor_selection_fittest(
@@ -250,13 +251,10 @@ def survivor_selection_fittest(
     individuals.extend(old_population.individuals)
 
     # Create new generation
-    new_generation = Population()
-    new_generation.prev_gen = old_population
-    new_generation.generation_nr = old_population.generation_nr + 1
-    new_generation.individuals = select_fittest_individuals(
+    selected = select_fittest_individuals(
         individuals, len(old_population.individuals), maximize
     )
-    return new_generation
+    return create_new_generation(selected, old_population)
 
 
 def select_fittest_individuals(
@@ -274,3 +272,63 @@ def select_fittest_individuals(
     return sorted(individuals, key=lambda i: i.fitness, reverse=maximize)[
         :n_individuals
     ]
+
+
+def survivor_selection_restricted_tournament(
+    individuals: "list[Individual]",
+    old_population: Population,
+    maximize: bool,
+    k: int = 5,
+) -> Population:
+    """A survivor selection teqchnique using restricted tournament selection
+
+    Args:
+        individuals (list[Individual]): offspring
+        old_population (Population): old population
+        maximize (bool): Select best or worst individual
+        k (int, optional): Number of individuals to select for each tournament. Defaults to 5.
+
+    Returns:
+        Population: The new population
+    """
+    maximize = not maximize
+    individuals.extend(old_population.individuals)
+    selected = []
+    for _ in range(len(old_population.individuals)):
+        # Select individuals
+        tournament = sample(individuals, k)
+        tournament.sort(key=lambda i: i.fitness, reverse=True)
+
+        # Calculate crowding distance
+        distances = [
+            abs(tournament[j + 1].fitness - tournament[j].fitness) for j in range(k - 1)
+        ]
+        distances.append(abs(tournament[0].fitness - tournament[k - 1].fitness))
+
+        # select winner
+        if not maximize:
+            winner_idx = distances.index(min(distances))
+        else:
+            winner_idx = distances.index(max(distances))
+        selected.append(tournament[winner_idx])
+        individuals.remove(tournament[winner_idx])
+    return create_new_generation(selected, old_population)
+
+
+def create_new_generation(
+    individuals: "list[Individual]", old_population: Population
+) -> Population:
+    """Create a new generation
+
+    Args:
+        individuals ("list[Individual]"): list of new individuals
+        old_population (Population): Old population
+
+    Returns:
+        Population: New population
+    """
+    new_generation = Population()
+    new_generation.prev_gen = old_population
+    new_generation.generation_nr = old_population.generation_nr + 1
+    new_generation.individuals = individuals
+    return new_generation
