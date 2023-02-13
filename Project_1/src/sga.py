@@ -32,6 +32,7 @@ class SGA:
     def simulate(self):
         population = self.__init_population()
         print(population)
+        self.generations.append(population)
         while population.generation_nr < self.max_generations:
             population = self.__generation(population)
             print(population)
@@ -141,7 +142,7 @@ def parent_selection(
     # Scale to positive values -> keep proportions
     min_fitness = min(population_fitness)
     if min_fitness < 0:
-        # Scale with a base of 1 to not have the sum be zero.
+        # Scale with a base value of 1 to not have the sum be zero.
         population_fitness = [
             (fitness + abs(min_fitness) + 1) for fitness in population_fitness
         ]
@@ -230,7 +231,7 @@ def survivor_selection(
         Population: _description_
     """
     match survivor_selection_type.lower():
-        case "replacement":
+        case "replace":
             return create_new_generation(individuals, old_population)
         case "fittest":
             return survivor_selection_fittest(individuals, old_population, maximize)
