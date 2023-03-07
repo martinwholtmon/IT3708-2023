@@ -2,6 +2,9 @@ package no.ntnu.it3708.Project_2;
 
 import java.util.ArrayList;
 
+/**
+ * The Sga.
+ */
 public class SGA {
     private final ObjectiveFunction objectiveFunction;
     private final Boolean maximize;
@@ -13,6 +16,17 @@ public class SGA {
 
     private ArrayList<Population> generations;
 
+    /**
+     * Instantiates a new Sga.
+     *
+     * @param objectiveFunction the objective function
+     * @param maximize          the maximize
+     * @param pop_size          the pop size
+     * @param individual_size   the individual size
+     * @param max_generations   the max generations
+     * @param crossover_rate    the crossover rate
+     * @param mutation_rate     the mutation rate
+     */
     public SGA(
             ObjectiveFunction objectiveFunction,
             Boolean maximize,
