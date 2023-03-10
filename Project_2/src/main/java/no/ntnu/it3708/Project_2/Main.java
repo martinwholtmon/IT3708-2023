@@ -20,6 +20,7 @@ public class Main {
 
         // Execute the SGA
         SGA sga = new SGA(objectiveFunction, maximize, pop_size, individual_size, max_generations, crossover_rate, mutation_rate);
-//        sga.simulate();
+        sga.simulate();
+
     }
 }
