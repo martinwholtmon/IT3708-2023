@@ -136,7 +136,7 @@ public class DataHandler {
         return travel_times;
     }
 
-    private static class Depot {
+    public static class Depot {
         private int return_time;
         private int x_coord;
         private int y_coord;
@@ -209,7 +209,7 @@ public class DataHandler {
         }
     }
 
-    private static class Patient {
+    public static class Patient {
         private final int x_coord;
         private final int y_coord;
         private final int demand;
