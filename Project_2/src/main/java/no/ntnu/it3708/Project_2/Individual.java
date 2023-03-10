@@ -6,7 +6,8 @@ import java.util.ArrayList;
  * The Individual.
  */
 public class Individual {
-    private final ArrayList<Integer> bitstring;
+    private final int nurse_id;
+    private final int[] bitstring;
     private ArrayList<Individual> parents;
     private Float fitness;
 
@@ -14,9 +15,11 @@ public class Individual {
     /**
      * Instantiates a new Individual.
      *
+     * @param nurse_id  the id of the nurse
      * @param bitstring the bitstring
      */
-    public Individual(ArrayList<Integer> bitstring) {
+    public Individual(int nurse_id, int[] bitstring) {
+        this.nurse_id = nurse_id;
         this.bitstring = bitstring;
         this.parents = new ArrayList<>();
         this.fitness = 0f;
@@ -25,11 +28,13 @@ public class Individual {
     /**
      * Instantiates a new Individual.
      *
+     * @param nurse_id  the id of the nurse
      * @param bitstring the bitstring
      * @param parents   the parents
      * @param fitness   the fitness
      */
-    public Individual(ArrayList<Integer> bitstring, ArrayList<Individual> parents, Float fitness) {
+    public Individual(int nurse_id, int[] bitstring, ArrayList<Individual> parents, Float fitness) {
+        this.nurse_id = nurse_id;
         this.bitstring = bitstring;
         this.parents = parents;
         this.fitness = fitness;
@@ -60,6 +65,24 @@ public class Individual {
      */
     public Float getFitness() {
         return fitness;
+    }
+
+    /**
+     * Gets nurse id.
+     *
+     * @return the nurse id
+     */
+    public int getNurse_id() {
+        return nurse_id;
+    }
+
+    /**
+     * Get bitstring int [ ].
+     *
+     * @return the int [ ]
+     */
+    public int[] getBitstring() {
+        return bitstring;
     }
 
     /**
