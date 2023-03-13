@@ -8,6 +8,7 @@ public class Main {
         // Load data
         DataHandler data = new DataHandler();
         data.loadData("/data/train_0.json");
+        data.cluster_patients();
 
         // Prepare params
         ObjectiveFunction objectiveFunction = new ObjectiveFunction(data);
