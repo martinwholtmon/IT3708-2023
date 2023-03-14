@@ -30,11 +30,10 @@ public class KMeansPP {
      */
     public HashMap<Integer, ArrayList<DataHandler.Patient>> run() {
         List<Point> centroids = getInitialCentroids();
-        this.cluster = null;
 
         for (int i=0; i<n_iterations; i++) {
             System.out.println(i);
-            // Assign clusters
+            // Assign Patients to clusters
             this.cluster = assignPatientToCluster(centroids);
 
             // Calculate new centroids
@@ -45,7 +44,6 @@ public class KMeansPP {
             }
             centroids = newCentroids;
         }
-
         return this.cluster;
     }
 
