@@ -13,14 +13,13 @@ public class Main {
         // Prepare params
         ObjectiveFunction objectiveFunction = new ObjectiveFunction(data);
         boolean maximize = false;
-        int pop_size = data.getNbr_nurses();
-        int individual_size = data.getPatients().size();
+        int pop_size = 100;
         int max_generations = 5;
         float crossover_rate = 0.6f;
         float mutation_rate = 0.05f;
 
         // Execute the SGA
-        SGA sga = new SGA(objectiveFunction, maximize, pop_size, individual_size, max_generations, crossover_rate, mutation_rate);
+        SGA sga = new SGA(objectiveFunction, maximize, pop_size, max_generations, crossover_rate, mutation_rate, data);
         sga.simulate();
     }
 }

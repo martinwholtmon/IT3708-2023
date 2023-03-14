@@ -12,12 +12,12 @@ import java.util.*;
  */
 public class DataHandler {
     private String instance_name;
-    private  int nbr_nurses;
+    private int nbr_nurses;
     private int capacity_nurse;
-    private final Depot depot;
-    private final HashMap<Integer, Patient> patients;
+    private Depot depot;
+    private HashMap<Integer, Patient> patients;
     private HashMap<Integer, Cluster> clusters;
-    private final Vector<Vector<Double>> travel_times; // TODO: Refactor to double[][] ?
+    private Vector<Vector<Double>> travel_times; // TODO: Refactor to double[][] ?
 
     /**
      * Instantiates a new Data handler.
@@ -50,7 +50,7 @@ public class DataHandler {
         this.capacity_nurse = obj.get("capacity_nurse").getAsInt();
 
         // Get Depot
-        Depot depot = gson.fromJson(obj.get("depot"), Depot.class);
+        this.depot = gson.fromJson(obj.get("depot"), Depot.class);
 
         // Get patients
         JsonObject patients_json = obj.getAsJsonObject("patients");

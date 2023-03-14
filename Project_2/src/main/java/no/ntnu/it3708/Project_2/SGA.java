@@ -1,7 +1,11 @@
 package no.ntnu.it3708.Project_2;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * The Sga.
@@ -10,11 +14,10 @@ public class SGA {
     private final ObjectiveFunction objectiveFunction;
     private final Boolean maximize;
     private final Integer pop_size;
-    private final Integer individual_size;
     private final Integer max_generations;
     private final Float crossover_rate;
     private final Float mutation_rate;
-
+    private final DataHandler data;
     private ArrayList<Population> generations;
 
     /**
@@ -23,7 +26,6 @@ public class SGA {
      * @param objectiveFunction the objective function
      * @param maximize          if maximize
      * @param pop_size          the pop size
-     * @param individual_size   the individual size
      * @param max_generations   the max generations
      * @param crossover_rate    the crossover rate
      * @param mutation_rate     the mutation rate
@@ -32,17 +34,17 @@ public class SGA {
             ObjectiveFunction objectiveFunction,
             Boolean maximize,
             Integer pop_size,
-            Integer individual_size,
             Integer max_generations,
             Float crossover_rate,
-            Float mutation_rate) {
+            Float mutation_rate,
+            DataHandler data) {
         this.objectiveFunction = objectiveFunction;
         this.maximize = maximize;
         this.pop_size = pop_size;
-        this.individual_size = individual_size;
         this.max_generations = max_generations;
         this.crossover_rate = crossover_rate;
         this.mutation_rate = mutation_rate;
+        this.data = data;
         this.generations = new ArrayList<>();
     }
 
@@ -60,45 +62,48 @@ public class SGA {
 
     private Population init_population() {
         Population population = new Population();
-        int nurse_id = 1;
+        for (int i=0; i<this.pop_size; i++) {
+            Individual individual = new Individual(generate_random_bitstring());
+            objectiveFunction.calculate_fitness(individual);
 
-
-        while (true) {
-            while (population.getFeasible_individuals().size() < pop_size) {
-                // Create individual
-                Individual individual = new Individual(nurse_id, generate_bitstring(individual_size));
-                objectiveFunction.calculate_fitness(individual);
-
-                // check constraints and add individual
-                if (objectiveFunction.check_individual_constraints(individual)) {
-                    population.getFeasible_individuals().add(individual);
-                    nurse_id++;
-                    System.out.println(nurse_id);
-                }
+            // Check constraints
+            if (objectiveFunction.check_constraints(individual)) {
+                population.getFeasible_individuals().add(individual);
+            } else {
+                population.getInfeasible_individuals().add(individual);
             }
-
-            if (objectiveFunction.check_population_constraints(population)) {
-                return population;
-            }
-
-            // Try again :/
-            population = new Population();
         }
+
+        System.out.println("Feasible solutions: " + population.getFeasible_individuals().size());
+        return population;
     }
 
     /**
-     * Generate a random bitstring
-     * @param individual_size   size of the individual
-     * @return  the bitstring
+     * Generate a random bitstring:
+     *  [
+     *      [1,5,7],    // nurse 1 visits patient 1, 5 and 7
+     *      [2,8,4]     // nurse 2 visits patient 2, 8 and 4
+     *  ]
+     * @return the bitstring
      */
-    private int[] generate_bitstring(Integer individual_size) {
-        Random rd = new Random();
-        int min = 0;
-        int max = 1;
+    private HashMap<Integer, ArrayList<Integer>> generate_random_bitstring() {
+        // Prepare bitstring
+        HashMap<Integer, ArrayList<Integer>> bitstring = new HashMap<>();
+        for (int i=0; i<this.data.getNbr_nurses(); i++) {
+            bitstring.put(i, new ArrayList<>());
+        }
 
-        int[] bitstring = new int[individual_size];
-        for (int i = 0; i < bitstring.length; i++) {
-            bitstring[i] = rd.nextInt(max-min+1) + min;
+        // Prepare list of patients
+        List<Integer> patients = IntStream.rangeClosed(1, this.data.getNbr_nurses()).boxed().collect(Collectors.toList());
+
+        // Randomly assign patient to nurse
+        Random rand = new Random();
+        while (patients.size() > 0) {
+            int nurse_id = rand.nextInt(this.data.getNbr_nurses());
+            int patient_idx = rand.nextInt(patients.size());
+            int patient_id = patients.get(patient_idx);
+            bitstring.get(nurse_id).add(patient_id);
+            patients.remove(patient_idx);
         }
         return bitstring;
     }
