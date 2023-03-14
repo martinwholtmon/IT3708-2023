@@ -1,13 +1,13 @@
 package no.ntnu.it3708.Project_2;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * The Individual.
  */
 public class Individual {
-    private final int nurse_id;
-    private final int[] bitstring;
+    private HashMap<Integer, ArrayList<Integer>> bitstring;    // represented as matrix [nurse_id][patients]
     private ArrayList<Individual> parents;
     private Float fitness;
 
@@ -18,8 +18,7 @@ public class Individual {
      * @param nurse_id  the id of the nurse
      * @param bitstring the bitstring
      */
-    public Individual(int nurse_id, int[] bitstring) {
-        this.nurse_id = nurse_id;
+    public Individual(HashMap<Integer, ArrayList<Integer>> bitstring) {
         this.bitstring = bitstring;
         this.parents = new ArrayList<>();
         this.fitness = 0f;
@@ -28,13 +27,11 @@ public class Individual {
     /**
      * Instantiates a new Individual.
      *
-     * @param nurse_id  the id of the nurse
      * @param bitstring the bitstring
      * @param parents   the parents
      * @param fitness   the fitness
      */
-    public Individual(int nurse_id, int[] bitstring, ArrayList<Individual> parents, Float fitness) {
-        this.nurse_id = nurse_id;
+    public Individual(HashMap<Integer, ArrayList<Integer>> bitstring, ArrayList<Individual> parents, Float fitness) {
         this.bitstring = bitstring;
         this.parents = parents;
         this.fitness = fitness;
@@ -68,20 +65,11 @@ public class Individual {
     }
 
     /**
-     * Gets nurse id.
-     *
-     * @return the nurse id
-     */
-    public int getNurse_id() {
-        return nurse_id;
-    }
-
-    /**
      * Get bitstring int [ ].
      *
      * @return the int [ ]
      */
-    public int[] getBitstring() {
+    public HashMap<Integer, ArrayList<Integer>> getBitstring() {
         return bitstring;
     }
 
