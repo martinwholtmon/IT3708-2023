@@ -143,7 +143,7 @@ public class SGA {
             ArrayList<DataHandler.Patient> cluster_patients = cluster.getPatients();
 
             // Sort patients by start time
-            cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getRange));
+            cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getStart_time));
 
 
             // Assign nurses
@@ -219,7 +219,7 @@ public class SGA {
             }
 
             // Sort nurses
-            nurses.sort(Comparator.comparing(Nurse::getOccupied_until));
+//            nurses.sort(Comparator.comparing(Nurse::getOccupied_until));
         }
         return bitstring;
     }
