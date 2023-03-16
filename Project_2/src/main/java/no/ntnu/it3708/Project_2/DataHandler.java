@@ -77,19 +77,21 @@ public class DataHandler {
         }
     }
 
+
     /**
-     * KNN+ Clustering
+     * Run the KNN+ Clustering on the patients
+     * @param tolerance tolerance when selecting k-value
      */
-    void cluster_patients() {
+    void cluster_patients(int tolerance) {
         // Run KNN+
-        KMeansPP kMeansPP = new KMeansPP(12,5, this.patients);
-        HashMap<Integer, ArrayList<DataHandler.Patient>> knn_clusters = kMeansPP.run();
+        KMeansPP kMeansPP = new KMeansPP(this.nbr_nurses*2,50, this.patients);
+        HashMap<Integer, KMeansPP.Cluster> knn_clusters = kMeansPP.run(tolerance);
 
 
         // Create clusters
-        for (Map.Entry<Integer, ArrayList<Patient>> entry : knn_clusters.entrySet()) {
+        for (Map.Entry<Integer, KMeansPP.Cluster> entry : knn_clusters.entrySet()) {
             int cluster_idx = entry.getKey();
-            ArrayList<Patient> cluster_patients = entry.getValue();
+            ArrayList<Patient> cluster_patients = entry.getValue().getMembers();
             this.clusters.put(cluster_idx, new Cluster(cluster_idx, cluster_patients));
         }
     }
