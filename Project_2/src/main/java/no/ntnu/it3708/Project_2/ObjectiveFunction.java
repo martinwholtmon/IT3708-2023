@@ -1,9 +1,6 @@
 package no.ntnu.it3708.Project_2;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The Objective function.
@@ -94,7 +91,20 @@ public class ObjectiveFunction {
      * @param individual the individual
      * @return the fitness
      */
-    public float calculate_fitness(Individual individual) {
-        return 0f;
+    public void calculate_fitness(Individual individual) {
+        // Sum all travel times
+        Double travel_time = 0d;
+
+        for (Map.Entry<Integer, ArrayList<Integer>> entry : individual.getBitstring().entrySet()) {
+            int nurse_idx = entry.getKey();
+            ArrayList<Integer> patients = entry.getValue();
+
+            int current_pos = 0;
+            for (int patient_idx : patients) {
+                travel_time += data.getTravel_times().get(current_pos).get(patient_idx);
+                current_pos = patient_idx;
+            }
+        }
+        individual.setFitness(travel_time);
     }
 }

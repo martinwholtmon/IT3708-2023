@@ -65,16 +65,30 @@ public class Population {
 
     @Override
     public String toString() {
-        return "Generation " + generation_nr + " avg. fitness: " + calc_avg_fitness();
+        return "Generation " + generation_nr + " avg. fitness: " + calc_avg_fitness() + "\n" +
+                "Best solution: " + get_best_solution().toString();
     }
 
     /**
      * Calculate the average fitness of a population
      * @return the average fitness
      */
-    private Float calc_avg_fitness() {
-        Float total_fitness = 0f;
+    private double calc_avg_fitness() {
+        double total_fitness = 0f;
         for (Individual i : feasible_individuals) total_fitness += i.getFitness();
         return total_fitness / feasible_individuals.size();
+    }
+
+    private Individual get_best_solution() {
+        Individual best_individual = null;
+        double best_fitness = Double.MAX_VALUE;
+
+        for (Individual individual : this.getFeasible_individuals()) {
+            if (individual.getFitness() < best_fitness) {
+                best_individual = individual;
+                best_fitness = individual.getFitness();
+            }
+        }
+        return best_individual;
     }
 }
