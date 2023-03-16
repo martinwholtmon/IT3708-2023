@@ -9,7 +9,7 @@ import java.util.HashMap;
 public class Individual {
     private HashMap<Integer, ArrayList<Integer>> bitstring;    // represented as matrix [nurse_id][patients]
     private ArrayList<Individual> parents;
-    private Float fitness;
+    private double fitness;
 
 
     /**
@@ -60,7 +60,7 @@ public class Individual {
      *
      * @return the fitness
      */
-    public Float getFitness() {
+    public double getFitness() {
         return fitness;
     }
 
@@ -78,7 +78,7 @@ public class Individual {
      *
      * @param fitness the fitness
      */
-    public void setFitness(Float fitness) {
+    public void setFitness(double fitness) {
         this.fitness = fitness;
     }
 
@@ -86,7 +86,7 @@ public class Individual {
     public String toString() {
         return "Individual{" +
                 "bitstring=" + bitstring +
-                ", fitness=" + fitness +
+                ",\nfitness=" + fitness +
                 '}';
     }
 }
