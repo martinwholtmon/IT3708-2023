@@ -174,7 +174,7 @@ public class SGA {
                         continue;
                     }
 
-                    // Finish before depoit limit
+                    // Finish before depot limit
                     Double depot_arrival_time = end_time + data.getTravel_times().get(nurse.getPosition()).get(0);
                     if (depot_arrival_time > data.getDepot().getReturn_time()) {
                         continue;
