@@ -5,20 +5,19 @@ import com.google.gson.*;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * The Data handler.
  */
 public class DataHandler {
     private String instance_name;
-    private  int nbr_nurses;
+    private int nbr_nurses;
     private int capacity_nurse;
-    private final Depot depot;
-    private final HashMap<Integer, Patient> patients;
-    private final Vector<Vector<Double>> travel_times;
+    private Depot depot;
+    private HashMap<Integer, Patient> patients;
+    private HashMap<Integer, Cluster> clusters;
+    private Vector<Vector<Double>> travel_times; // TODO: Refactor to double[][] ?
 
     /**
      * Instantiates a new Data handler.
@@ -29,6 +28,7 @@ public class DataHandler {
         this.capacity_nurse = 0;
         this.depot = null;
         this.patients = new HashMap<>();
+        this.clusters = new HashMap<>();
         this.travel_times = new Vector<>();
     }
 
@@ -50,15 +50,17 @@ public class DataHandler {
         this.capacity_nurse = obj.get("capacity_nurse").getAsInt();
 
         // Get Depot
-        Depot depot = gson.fromJson(obj.get("depot"), Depot.class);
+        this.depot = gson.fromJson(obj.get("depot"), Depot.class);
 
         // Get patients
         JsonObject patients_json = obj.getAsJsonObject("patients");
         for (Map.Entry<String, JsonElement> entry : patients_json.entrySet()) {
             Patient patient = gson.fromJson(entry.getValue(), Patient.class);
+            int patient_id = Integer.valueOf(entry.getKey());
+            patient.setId(patient_id);
 
             // add patient
-            this.patients.put(Integer.valueOf(entry.getKey()), patient);
+            this.patients.put(patient_id, patient);
         }
 
         // Get travel time
@@ -72,6 +74,23 @@ public class DataHandler {
             for (int y = 0; y < travel_times_y.size(); y++) {
                 row.add(travel_times_y.get(y).getAsDouble());
             }
+        }
+    }
+
+    /**
+     * KNN+ Clustering
+     */
+    void cluster_patients() {
+        // Run KNN+
+        KMeansPP kMeansPP = new KMeansPP(12,5, this.patients);
+        HashMap<Integer, ArrayList<DataHandler.Patient>> knn_clusters = kMeansPP.run();
+
+
+        // Create clusters
+        for (Map.Entry<Integer, ArrayList<Patient>> entry : knn_clusters.entrySet()) {
+            int cluster_idx = entry.getKey();
+            ArrayList<Patient> cluster_patients = entry.getValue();
+            this.clusters.put(cluster_idx, new Cluster(cluster_idx, cluster_patients));
         }
     }
 
@@ -121,13 +140,22 @@ public class DataHandler {
     }
 
     /**
+     * Gets clusters.
+     *
+     * @return the clusters
+     */
+    public HashMap<Integer, Cluster> getClusters() {
+        return clusters;
+    }
+
+    /**
      * Gets travel times in the form of a matrix. The depot is the first row/column, patient 1 the
      * second row/column, and so on. For example, index (2, 3) and (3, 2) the distance between
      * patient 1 and 2. The travel times are floats, so do not round them
      * [
-     *     [0, 2, 5, ...],
-     *     [2, 0, 3, ...],
-     *     ...
+     * [0, 2, 5, ...],
+     * [2, 0, 3, ...],
+     * ...
      * ]
      *
      * @return the travel times matrix
@@ -136,6 +164,9 @@ public class DataHandler {
         return travel_times;
     }
 
+    /**
+     * The type Depot.
+     */
     public static class Depot {
         private int return_time;
         private int x_coord;
@@ -209,7 +240,11 @@ public class DataHandler {
         }
     }
 
+    /**
+     * The type Patient.
+     */
     public static class Patient {
+        private int id;
         private final int x_coord;
         private final int y_coord;
         private final int demand;
@@ -217,9 +252,12 @@ public class DataHandler {
         private final int end_time;
         private final int care_time;
 
+        private int cluster;
+
         /**
          * Instantiates a new Patient.
          *
+         * @param id
          * @param x_coord    the x coord
          * @param y_coord    the y coord
          * @param demand     the demand
@@ -227,13 +265,28 @@ public class DataHandler {
          * @param end_time   the end time
          * @param care_time  the care time
          */
-        public Patient(int x_coord, int y_coord, int demand, int start_time, int end_time, int care_time) {
+        public Patient(int id, int x_coord, int y_coord, int demand, int start_time, int end_time, int care_time) {
+            this.id = id;
             this.x_coord = x_coord;
             this.y_coord = y_coord;
             this.demand = demand;
             this.start_time = start_time;
             this.end_time = end_time;
             this.care_time = care_time;
+            this.cluster = -1;
+        }
+
+        /**
+         * Gets id.
+         *
+         * @return the id
+         */
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
         }
 
         /**
@@ -288,6 +341,127 @@ public class DataHandler {
          */
         public int getCare_time() {
             return care_time;
+        }
+
+        /**
+         * Gets cluster.
+         *
+         * @return the cluster
+         */
+        public int getCluster() {
+            return cluster;
+        }
+
+        /**
+         * Sets cluster.
+         *
+         * @param cluster the cluster
+         */
+        public void setCluster(int cluster) {
+            this.cluster = cluster;
+        }
+
+        @Override
+        public String toString() {
+            return "Patient{" +
+                    "id=" + id +
+                    ", x_coord=" + x_coord +
+                    ", y_coord=" + y_coord +
+                    ", demand=" + demand +
+                    ", start_time=" + start_time +
+                    ", end_time=" + end_time +
+                    ", care_time=" + care_time +
+                    ", cluster=" + cluster +
+                    '}';
+        }
+    }
+
+    public static class Cluster {
+        private ArrayList<Patient> patients;
+        private int demand;
+        private int concurrentOverlaps;
+        private int start_time;
+        private int end_time;
+
+        /**
+         * Instantiates a new Cluster.
+         *
+         * @param cluster_idx the cluster idx
+         * @param patients    the patients
+         */
+        public Cluster(int cluster_idx, ArrayList<Patient> patients) {
+            this.patients = patients;
+            this.demand = 0;
+            this.concurrentOverlaps = 0;
+            this.start_time = Integer.MAX_VALUE;
+            this.end_time = 0;
+
+            // Iterate over all patients and set fields
+            for (Patient patient : patients) {
+                // Set cluster_idx for the patient
+                patient.setCluster(cluster_idx);
+
+                // Update cluster demand
+                this.demand += patient.getDemand();
+
+                // Update cluster start_time
+                if (this.start_time < patient.getStart_time()) {
+                    this.start_time = patient.getStart_time();
+                }
+
+                // Update cluster end_time
+                if (this.end_time > patient.getEnd_time()) {
+                    this.end_time = patient.getEnd_time();
+                }
+
+                // TODO: Update concurrentOverlaps in cluster
+                int maxOverlaps = 0;
+            }
+        }
+
+        /**
+         * Gets patients.
+         *
+         * @return the patients
+         */
+        public ArrayList<Patient> getPatients() {
+            return patients;
+        }
+
+        /**
+         * Gets demand.
+         *
+         * @return the demand
+         */
+        public int getDemand() {
+            return demand;
+        }
+
+        /**
+         * Gets concurrent overlaps.
+         *
+         * @return the concurrent overlaps
+         */
+        public int getConcurrentOverlaps() {
+            return concurrentOverlaps;
+        }
+
+        /**
+         * Gets start time.
+         *
+         * @return the start time
+         */
+        public int getStart_time() {
+            return start_time;
+        }
+
+        /**
+         * Gets end time.
+         *
+         * @return the end time
+         */
+        public int getEnd_time() {
+            return end_time;
         }
     }
 }
