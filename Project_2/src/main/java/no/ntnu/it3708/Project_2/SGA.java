@@ -146,7 +146,6 @@ public class SGA {
                     nurse_idx++;
                     try {
                         // Try to get the nurse
-                        System.out.println(nurse_idx);
                         nurse = cluster_nurses.get(nurse_idx);
                     } catch (IndexOutOfBoundsException exception) {
                         // Does not exist, try to add a new nurse
