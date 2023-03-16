@@ -13,7 +13,7 @@ public class Main {
         // Prepare params
         ObjectiveFunction objectiveFunction = new ObjectiveFunction(data);
         boolean maximize = false;
-        int pop_size = 100;
+        int pop_size = 1000;
         int max_generations = 5;
         float crossover_rate = 0.6f;
         float mutation_rate = 0.05f;
