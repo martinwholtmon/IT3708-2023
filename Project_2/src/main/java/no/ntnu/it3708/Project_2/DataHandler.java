@@ -360,6 +360,20 @@ public class DataHandler {
         public void setCluster(int cluster) {
             this.cluster = cluster;
         }
+
+        @Override
+        public String toString() {
+            return "Patient{" +
+                    "id=" + id +
+                    ", x_coord=" + x_coord +
+                    ", y_coord=" + y_coord +
+                    ", demand=" + demand +
+                    ", start_time=" + start_time +
+                    ", end_time=" + end_time +
+                    ", care_time=" + care_time +
+                    ", cluster=" + cluster +
+                    '}';
+        }
     }
 
     public static class Cluster {
