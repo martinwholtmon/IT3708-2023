@@ -56,9 +56,11 @@ public class DataHandler {
         JsonObject patients_json = obj.getAsJsonObject("patients");
         for (Map.Entry<String, JsonElement> entry : patients_json.entrySet()) {
             Patient patient = gson.fromJson(entry.getValue(), Patient.class);
+            int patient_id = Integer.valueOf(entry.getKey());
+            patient.setId(patient_id);
 
             // add patient
-            this.patients.put(Integer.valueOf(entry.getKey()), patient);
+            this.patients.put(patient_id, patient);
         }
 
         // Get travel time
@@ -80,7 +82,7 @@ public class DataHandler {
      */
     void cluster_patients() {
         // Run KNN+
-        KMeansPP kMeansPP = new KMeansPP(10,100000, this.patients);
+        KMeansPP kMeansPP = new KMeansPP(12,5, this.patients);
         HashMap<Integer, ArrayList<DataHandler.Patient>> knn_clusters = kMeansPP.run();
 
 
@@ -135,6 +137,15 @@ public class DataHandler {
      */
     public HashMap<Integer, Patient> getPatients() {
         return patients;
+    }
+
+    /**
+     * Gets clusters.
+     *
+     * @return the clusters
+     */
+    public HashMap<Integer, Cluster> getClusters() {
+        return clusters;
     }
 
     /**
@@ -233,6 +244,7 @@ public class DataHandler {
      * The type Patient.
      */
     public static class Patient {
+        private int id;
         private final int x_coord;
         private final int y_coord;
         private final int demand;
@@ -245,6 +257,7 @@ public class DataHandler {
         /**
          * Instantiates a new Patient.
          *
+         * @param id
          * @param x_coord    the x coord
          * @param y_coord    the y coord
          * @param demand     the demand
@@ -252,7 +265,8 @@ public class DataHandler {
          * @param end_time   the end time
          * @param care_time  the care time
          */
-        public Patient(int x_coord, int y_coord, int demand, int start_time, int end_time, int care_time) {
+        public Patient(int id, int x_coord, int y_coord, int demand, int start_time, int end_time, int care_time) {
+            this.id = id;
             this.x_coord = x_coord;
             this.y_coord = y_coord;
             this.demand = demand;
@@ -260,6 +274,19 @@ public class DataHandler {
             this.end_time = end_time;
             this.care_time = care_time;
             this.cluster = -1;
+        }
+
+        /**
+         * Gets id.
+         *
+         * @return the id
+         */
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
         }
 
         /**
@@ -335,9 +362,9 @@ public class DataHandler {
         }
     }
 
-    private static class Cluster {
+    public static class Cluster {
         private ArrayList<Patient> patients;
-        private Double demand;
+        private int demand;
         private int concurrentOverlaps;
         private int start_time;
         private int end_time;
@@ -350,7 +377,7 @@ public class DataHandler {
          */
         public Cluster(int cluster_idx, ArrayList<Patient> patients) {
             this.patients = patients;
-            this.demand = 0d;
+            this.demand = 0;
             this.concurrentOverlaps = 0;
             this.start_time = Integer.MAX_VALUE;
             this.end_time = 0;
@@ -392,7 +419,7 @@ public class DataHandler {
          *
          * @return the demand
          */
-        public Double getDemand() {
+        public int getDemand() {
             return demand;
         }
 

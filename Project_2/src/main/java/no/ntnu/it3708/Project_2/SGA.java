@@ -107,4 +107,56 @@ public class SGA {
         }
         return bitstring;
     }
+
+    /**
+     * Generate a bitstring using the heuristic in data: clusters of patients
+     * @return the bitstring
+     */
+    private HashMap<Integer, ArrayList<Integer>> generate_bitstring_heuristic() {
+        // create bitstring
+        HashMap<Integer, ArrayList<Integer>> bitstring = create_bitstring();
+
+        // Prepare list of nurses
+        List<Integer> nurses = IntStream.rangeClosed(0, this.data.getNbr_nurses()-1).boxed().collect(Collectors.toList());
+
+        // Find out how many nurses to assign
+        int nurses_per_cluster = 2;
+
+        // Iterate over the clusters and assign  nurses
+        Random rand = new Random();
+        HashMap<Integer, DataHandler.Cluster> clusters = data.getClusters();
+        for (int cluster_idx = 0; cluster_idx < clusters.size(); cluster_idx++) {
+            DataHandler.Cluster cluster = clusters.get(cluster_idx);
+            ArrayList<DataHandler.Patient> cluster_patients = cluster.getPatients();
+
+            List<Integer> cluster_nurses = new ArrayList<>();
+            for (int i=0; i < nurses_per_cluster; i++) {
+                int nurse_idx = rand.nextInt(nurses.size());
+                cluster_nurses.add(nurses.get(nurse_idx));
+                nurses.remove(nurse_idx);
+            }
+
+            // Randomly add patients to assigned nurses
+            for (DataHandler.Patient patient : cluster_patients) {
+                int nurse_id = rand.nextInt(cluster_nurses.size());
+                bitstring.get(cluster_nurses.get(nurse_id)).add(patient.getId());
+            }
+
+            // TODO: Sort patients
+        }
+        return bitstring;
+    }
+
+    /**
+     * Create a bitstring representation where each key represent a nurse and the arraylist represent visited patients
+     * @return the bitstring
+     */
+    private HashMap<Integer, ArrayList<Integer>> create_bitstring() {
+        // Prepare bitstring
+        HashMap<Integer, ArrayList<Integer>> bitstring = new HashMap<>();
+        for (int i=0; i<this.data.getNbr_nurses(); i++) {
+            bitstring.put(i, new ArrayList<>());
+        }
+        return bitstring;
+    }
 }

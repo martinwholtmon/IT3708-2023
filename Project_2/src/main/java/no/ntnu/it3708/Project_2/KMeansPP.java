@@ -9,12 +9,11 @@ public class KMeansPP {
     private int n_clusters;
     private int n_iterations;
     private List<DataHandler.Patient> patients;
-    private HashMap<Integer, ArrayList<DataHandler.Patient>> cluster;
 
     /**
      * Instantiates a new K means pp.
      *
-     * @param n_clusters   the n clusters
+     * @param n_clusters   the n clusters (max)
      * @param n_iterations the n iterations
      * @param patients     the patients
      */
@@ -22,7 +21,6 @@ public class KMeansPP {
         this.n_clusters = n_clusters;
         this.n_iterations = n_iterations;
         this.patients = new ArrayList<>(patients.values());
-        this.cluster = null;
     }
 
     /**
@@ -30,11 +28,11 @@ public class KMeansPP {
      */
     public HashMap<Integer, ArrayList<DataHandler.Patient>> run() {
         List<Point> centroids = getInitialCentroids();
+        HashMap<Integer, ArrayList<DataHandler.Patient>> cluster = null;
 
         for (int i=0; i<n_iterations; i++) {
-            System.out.println(i);
             // Assign Patients to clusters
-            this.cluster = assignPatientToCluster(centroids);
+            cluster = assignPatientToCluster(centroids);
 
             // Calculate new centroids
             List<Point> newCentroids = getNewCentroids(cluster);
@@ -44,7 +42,7 @@ public class KMeansPP {
             }
             centroids = newCentroids;
         }
-        return this.cluster;
+        return cluster;
     }
 
     public int getN_clusters() {
