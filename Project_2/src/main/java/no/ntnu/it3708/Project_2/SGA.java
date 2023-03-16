@@ -1,9 +1,6 @@
 package no.ntnu.it3708.Project_2;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -113,33 +110,94 @@ public class SGA {
         // create bitstring
         HashMap<Integer, ArrayList<Integer>> bitstring = create_bitstring();
 
-        // Prepare list of nurses
-        List<Integer> nurses = IntStream.rangeClosed(0, this.data.getNbr_nurses()-1).boxed().collect(Collectors.toList());
+        // Prepare  nurses
+        ArrayList<Nurse> nurses = new ArrayList<>();
+        for (int i=0; i < this.data.getNbr_nurses(); i++) {
+            Nurse nurse = new Nurse(i, data.getCapacity_nurse());
+            nurses.add(nurse);
+        }
 
-        // Find out how many nurses to assign
-        int nurses_per_cluster = 2;
-
-        // Iterate over the clusters and assign  nurses
-        Random rand = new Random();
+        // Iterate over the clusters and assign nurses
         HashMap<Integer, DataHandler.Cluster> clusters = data.getClusters();
         for (int cluster_idx = 0; cluster_idx < clusters.size(); cluster_idx++) {
             DataHandler.Cluster cluster = clusters.get(cluster_idx);
             ArrayList<DataHandler.Patient> cluster_patients = cluster.getPatients();
 
-            List<Integer> cluster_nurses = new ArrayList<>();
-            for (int i=0; i < nurses_per_cluster; i++) {
-                int nurse_idx = rand.nextInt(nurses.size());
-                cluster_nurses.add(nurses.get(nurse_idx));
-                nurses.remove(nurse_idx);
-            }
+            // Sort patients by start time
+            cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getStart_time));
 
-            // Randomly add patients to assigned nurses
+
+            // Assign nurses
+            // Logic: Have a list of nurses. Iterate over patients
+            // - Select patient
+            // - Check if nurse(s) at location is available
+            // - else: pop off new nurse from stack
+            // - loop
+            // No more patient, move the nurses to top (last) of stack
+            ArrayList<Nurse> cluster_nurses = new ArrayList<>();
             for (DataHandler.Patient patient : cluster_patients) {
-                int nurse_id = rand.nextInt(cluster_nurses.size());
-                bitstring.get(cluster_nurses.get(nurse_id)).add(patient.getId());
+                Integer nurse_idx = -1;
+                Nurse nurse = null;
+                Double end_time = 0d;
+
+                Boolean foundNurse = false;
+                while (!foundNurse) {
+                    // select nurse
+                    nurse_idx++;
+                    try {
+                        // Try to get the nurse
+                        nurse = cluster_nurses.get(nurse_idx);
+                    } catch (IndexOutOfBoundsException exception) {
+                        // Does not exist, try to add a new nurse
+                        try {
+                            nurse = nurses.get(nurse_idx);
+                            cluster_nurses.add(nurse);
+                        } catch (EmptyStackException exception1) {
+                            System.out.println("No more nurses");
+                        }
+                    }
+
+                    // Update arrival_time
+                    Double arrival_time = nurse.getOccupied_until() + data.getTravel_times().get(nurse.getPosition()).get(patient.getId());
+                    if (arrival_time < patient.getStart_time()) {
+                        arrival_time = (double) patient.getStart_time();
+                    }
+
+                    // finish within the time window
+                    end_time = arrival_time + patient.getCare_time();
+                    if (end_time > patient.getEnd_time()) {
+                        continue;
+                    }
+
+                    // Still has capacity
+                    if (nurse.getCapacity() < patient.getDemand()) {
+                        continue;
+                    }
+
+                    // Finish before depoit limit
+                    Double depot_arrival_time = end_time + data.getTravel_times().get(nurse.getPosition()).get(0);
+                    if (depot_arrival_time > data.getDepot().getReturn_time()) {
+                        continue;
+                    }
+
+                    // Use this nurse
+                    foundNurse = true;
+                }
+
+                // Assign nurse
+                nurse.setPosition(patient.getId());
+                nurse.reduceCapacity(patient.getDemand());
+                nurse.setOccupied_until(end_time);
+
+                // Update bitstring
+                bitstring.get(nurse.getId()).add(patient.getId());
             }
 
-            // TODO: Sort patients
+            // Move nurses to end of stack (insert last)
+            for (int i=0; i < cluster_nurses.size(); i++) {
+                nurses.remove(i);                   // Remove used nurses
+                nurses.add(cluster_nurses.get(i));  // add back at the end
+            }
         }
         return bitstring;
     }
