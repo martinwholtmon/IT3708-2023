@@ -63,7 +63,7 @@ public class SGA {
     private Population init_population() {
         Population population = new Population();
         for (int i=0; i<this.pop_size; i++) {
-            Individual individual = new Individual(generate_random_bitstring());
+            Individual individual = new Individual(generate_bitstring_heuristic());
             objectiveFunction.calculate_fitness(individual);
 
             // Check constraints
@@ -86,15 +86,12 @@ public class SGA {
      *  ]
      * @return the bitstring
      */
-    private HashMap<Integer, ArrayList<Integer>> generate_random_bitstring() {
-        // Prepare bitstring
-        HashMap<Integer, ArrayList<Integer>> bitstring = new HashMap<>();
-        for (int i=0; i<this.data.getNbr_nurses(); i++) {
-            bitstring.put(i, new ArrayList<>());
-        }
+    private HashMap<Integer, ArrayList<Integer>> generate_bitstring_random() {
+        // create bitstring
+        HashMap<Integer, ArrayList<Integer>> bitstring = create_bitstring();
 
         // Prepare list of patients
-        List<Integer> patients = IntStream.rangeClosed(1, this.data.getNbr_nurses()).boxed().collect(Collectors.toList());
+        List<Integer> patients = IntStream.rangeClosed(1, this.data.getPatients().size()).boxed().collect(Collectors.toList());
 
         // Randomly assign patient to nurse
         Random rand = new Random();
