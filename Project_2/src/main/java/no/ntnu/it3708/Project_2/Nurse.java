@@ -84,4 +84,14 @@ public class Nurse {
     public void setOccupied_until(double occupied_until) {
         this.occupied_until = occupied_until;
     }
+
+    @Override
+    public String toString() {
+        return "Nurse{" +
+                "id=" + id +
+                ", capacity=" + capacity +
+                ", position=" + position +
+                ", occupied_until=" + occupied_until +
+                '}';
+    }
 }

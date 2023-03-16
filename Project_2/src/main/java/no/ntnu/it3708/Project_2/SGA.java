@@ -59,15 +59,23 @@ public class SGA {
 
     private Population init_population() {
         Population population = new Population();
-        for (int i=0; i<this.pop_size; i++) {
-            Individual individual = new Individual(generate_bitstring_heuristic());
-            objectiveFunction.calculate_fitness(individual);
+        int individuals = 0;
 
-            // Check constraints
-            if (objectiveFunction.check_constraints(individual)) {
-                population.getFeasible_individuals().add(individual);
-            } else {
-                population.getInfeasible_individuals().add(individual);
+        while (individuals<this.pop_size) {
+            try {
+                Individual individual = new Individual(generate_bitstring_heuristic());
+                objectiveFunction.calculate_fitness(individual);
+
+                // Check constraints
+                if (objectiveFunction.check_constraints(individual)) {
+                    population.getFeasible_individuals().add(individual);
+                } else {
+                    population.getInfeasible_individuals().add(individual);
+                }
+
+                individuals++;
+            } catch (Exception e) {
+//                System.out.println(e);
             }
         }
 
@@ -119,12 +127,23 @@ public class SGA {
 
         // Iterate over the clusters and assign nurses
         HashMap<Integer, DataHandler.Cluster> clusters = data.getClusters();
-        for (int cluster_idx = 0; cluster_idx < clusters.size(); cluster_idx++) {
+
+        // No avoid deep-copy, create list of possible cluster indexes
+        List<Integer> cluster_index = IntStream.rangeClosed(0, clusters.size()-1).boxed().collect(Collectors.toList());
+        Random random = new Random();
+        while (cluster_index.size() > 0) {
+            // Select cluster
+            int cluster_index_idx = random.nextInt(cluster_index.size());
+            int cluster_idx = cluster_index.get(cluster_index_idx);
+            cluster_index.remove(cluster_index_idx);
+
+
+            // Get cluster
             DataHandler.Cluster cluster = clusters.get(cluster_idx);
             ArrayList<DataHandler.Patient> cluster_patients = cluster.getPatients();
 
             // Sort patients by start time
-            cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getStart_time));
+            cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getRange));
 
 
             // Assign nurses
@@ -193,11 +212,14 @@ public class SGA {
                 bitstring.get(nurse.getId()).add(patient.getId());
             }
 
-            // Move nurses to end of stack (insert last)
+            // Move nurses
             for (int i=0; i < cluster_nurses.size(); i++) {
                 nurses.remove(i);                   // Remove used nurses
                 nurses.add(cluster_nurses.get(i));  // add back at the end
             }
+
+            // Sort nurses
+            nurses.sort(Comparator.comparing(Nurse::getOccupied_until));
         }
         return bitstring;
     }

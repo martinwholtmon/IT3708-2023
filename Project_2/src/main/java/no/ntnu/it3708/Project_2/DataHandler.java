@@ -58,6 +58,7 @@ public class DataHandler {
             Patient patient = gson.fromJson(entry.getValue(), Patient.class);
             int patient_id = Integer.valueOf(entry.getKey());
             patient.setId(patient_id);
+            patient.calculateRange();
 
             // add patient
             this.patients.put(patient_id, patient);
@@ -253,6 +254,7 @@ public class DataHandler {
         private final int start_time;
         private final int end_time;
         private final int care_time;
+        private int range;
 
         private int cluster;
 
@@ -276,6 +278,7 @@ public class DataHandler {
             this.end_time = end_time;
             this.care_time = care_time;
             this.cluster = -1;
+            this.range = 0;
         }
 
         /**
@@ -335,7 +338,6 @@ public class DataHandler {
         public int getEnd_time() {
             return end_time;
         }
-
         /**
          * Gets care time.
          *
@@ -355,12 +357,25 @@ public class DataHandler {
         }
 
         /**
+         * Gets range.
+         *
+         * @return the range
+         */
+        public int getRange() {
+            return range;
+        }
+
+        /**
          * Sets cluster.
          *
          * @param cluster the cluster
          */
         public void setCluster(int cluster) {
             this.cluster = cluster;
+        }
+
+        public void calculateRange() {
+            this.range = start_time+end_time-demand;
         }
 
         @Override
@@ -373,6 +388,7 @@ public class DataHandler {
                     ", start_time=" + start_time +
                     ", end_time=" + end_time +
                     ", care_time=" + care_time +
+                    ", range=" + range +
                     ", cluster=" + cluster +
                     '}';
         }
