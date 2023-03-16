@@ -124,7 +124,7 @@ public class SGA {
             ArrayList<DataHandler.Patient> cluster_patients = cluster.getPatients();
 
             // Sort patients by start time
-            cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getStart_time));
+            cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getRange));
 
 
             // Assign nurses
@@ -146,6 +146,7 @@ public class SGA {
                     nurse_idx++;
                     try {
                         // Try to get the nurse
+                        System.out.println(nurse_idx);
                         nurse = cluster_nurses.get(nurse_idx);
                     } catch (IndexOutOfBoundsException exception) {
                         // Does not exist, try to add a new nurse
@@ -193,11 +194,14 @@ public class SGA {
                 bitstring.get(nurse.getId()).add(patient.getId());
             }
 
-            // Move nurses to end of stack (insert last)
+            // Move nurses
             for (int i=0; i < cluster_nurses.size(); i++) {
                 nurses.remove(i);                   // Remove used nurses
                 nurses.add(cluster_nurses.get(i));  // add back at the end
             }
+
+            // Sort nurses
+            nurses.sort(Comparator.comparing(Nurse::getOccupied_until));
         }
         return bitstring;
     }
