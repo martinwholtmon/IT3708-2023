@@ -155,10 +155,10 @@ public class SGA {
 
         // Sort patients
         List<String> patientSortOptions = Arrays.asList("shuffle", "demand", "range", "start_time");
-        String selected_patient_sort_option = patientSortOptions.get(random.nextInt(patientSortOptions.size()));
+        String selectedPatientSortOption = patientSortOptions.get(random.nextInt(patientSortOptions.size()));
 
         // Sort nurses
-        Boolean sort_nurses = random.nextBoolean();
+        Boolean sortNurses = random.nextBoolean();
 
 
         for (DataHandler.Cluster cluster : clusters) {
@@ -166,7 +166,7 @@ public class SGA {
             ArrayList<DataHandler.Patient> cluster_patients = cluster.getPatients();
 
             // Sort patients
-            switch (selected_patient_sort_option) {
+            switch (selectedPatientSortOption) {
                 case "shuffle":
                     Collections.shuffle(cluster_patients);
                     break;
@@ -180,7 +180,7 @@ public class SGA {
                     cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getStart_time));
                     break;
                 default:
-                    throw new IllegalArgumentException("Invalid sort option: " + selected_patient_sort_option);
+                    throw new IllegalArgumentException("Invalid sort option: " + selectedPatientSortOption);
             }
 
 
@@ -265,7 +265,7 @@ public class SGA {
             }
 
             // Sort nurses
-            if (sort_nurses = true) {
+            if (sortNurses == true) {
                 nurses.sort(Comparator.comparing(Nurse::getOccupied_until));
             }
         }
