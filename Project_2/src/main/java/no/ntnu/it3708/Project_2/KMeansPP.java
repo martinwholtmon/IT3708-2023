@@ -76,9 +76,9 @@ public class KMeansPP {
             prevTotalDistance = totalDistance;
             k++;
         }
-        System.out.println(k);
+        System.out.println("Selected cluster size: " + k);
 
-        // Undo normalization
+        // Standardization (revert normalization)
         for (int i = 0; i<cluster.size(); i++) {
             Cluster c = cluster.get(i);
 
