@@ -28,10 +28,38 @@ public class KMeansPP {
      * @param tolerance  change in the sum of squared distances between k-values
      * @return The cluster assignment
      */
-    public HashMap<Integer, Cluster> run(int tolerance) {
+    public HashMap<Integer, Cluster> run(double tolerance) {
         int k = 1;
         double prevTotalDistance = Double.MAX_VALUE;
         HashMap<Integer, Cluster> cluster = null;
+
+
+        // Normalize
+        double[] means = new double[2];
+        double[] stdDevs = new double[2];
+
+        // get Mean
+        for (DataHandler.Patient patient : patients) {
+            means[0] += patient.getX_coord();
+            means[1] += patient.getY_coord();
+        }
+        means[0] /= patients.size();
+        means[1] /= patients.size();
+
+        // get std
+        for (DataHandler.Patient patient : patients) {
+            stdDevs[0] += Math.pow(patient.getX_coord() - means[0], 2);
+            stdDevs[1] += Math.pow(patient.getY_coord() - means[1], 2);
+        }
+        stdDevs[0] = Math.sqrt(stdDevs[0] / patients.size());
+        stdDevs[1] = Math.sqrt(stdDevs[1] / patients.size());
+
+        // Do the normalization on patients
+        for (DataHandler.Patient patient : patients) {
+            patient.setX_coord((patient.getX_coord() - means[0])/ stdDevs[0]);
+            patient.setY_coord((patient.getY_coord() - means[1])/ stdDevs[1]);
+        }
+
 
         // Elbow method
         while (k <= n_clusters) {
@@ -49,6 +77,21 @@ public class KMeansPP {
             k++;
         }
         System.out.println(k);
+
+        // Undo normalization
+        for (int i = 0; i<cluster.size(); i++) {
+            Cluster c = cluster.get(i);
+
+            // centroid
+            c.centroid.x *= stdDevs[0] + means[0];
+            c.centroid.x *= stdDevs[1] + means[1];
+
+            // patients
+            for (DataHandler.Patient patient : c.getMembers()) {
+                patient.setX_coord(patient.getX_coord() * stdDevs[0] + means[0]);
+                patient.setY_coord(patient.getY_coord() * stdDevs[1] + means[1]);
+            }
+        }
         return cluster;
     }
 

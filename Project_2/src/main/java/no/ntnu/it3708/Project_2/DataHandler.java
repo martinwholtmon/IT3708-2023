@@ -83,7 +83,7 @@ public class DataHandler {
      * Run the KNN+ Clustering on the patients
      * @param tolerance tolerance when selecting k-value
      */
-    void cluster_patients(int tolerance) {
+    void cluster_patients(double tolerance) {
         // Run KNN+
         KMeansPP kMeansPP = new KMeansPP(this.nbr_nurses*2,50, this.patients);
         HashMap<Integer, KMeansPP.Cluster> knn_clusters = kMeansPP.run(tolerance);
@@ -248,8 +248,8 @@ public class DataHandler {
      */
     public static class Patient {
         private int id;
-        private final int x_coord;
-        private final int y_coord;
+        private double x_coord;
+        private double y_coord;
         private final int demand;
         private final int start_time;
         private final int end_time;
@@ -269,7 +269,7 @@ public class DataHandler {
          * @param end_time   the end time
          * @param care_time  the care time
          */
-        public Patient(int id, int x_coord, int y_coord, int demand, int start_time, int end_time, int care_time) {
+        public Patient(int id, double x_coord, double y_coord, int demand, int start_time, int end_time, int care_time) {
             this.id = id;
             this.x_coord = x_coord;
             this.y_coord = y_coord;
@@ -299,7 +299,7 @@ public class DataHandler {
          *
          * @return the x coord
          */
-        public int getX_coord() {
+        public double getX_coord() {
             return x_coord;
         }
 
@@ -308,7 +308,7 @@ public class DataHandler {
          *
          * @return the y coord
          */
-        public int getY_coord() {
+        public double getY_coord() {
             return y_coord;
         }
 
@@ -372,6 +372,14 @@ public class DataHandler {
          */
         public void setCluster(int cluster) {
             this.cluster = cluster;
+        }
+
+        public void setX_coord(double x_coord) {
+            this.x_coord = x_coord;
+        }
+
+        public void setY_coord(double y_coord) {
+            this.y_coord = y_coord;
         }
 
         public void calculateRange() {
