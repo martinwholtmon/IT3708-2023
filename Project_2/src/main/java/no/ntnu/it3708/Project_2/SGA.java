@@ -1,6 +1,8 @@
 package no.ntnu.it3708.Project_2;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -14,6 +16,7 @@ public class SGA {
     private final Integer max_generations;
     private final Float crossover_rate;
     private final Float mutation_rate;
+    private final Float init_random_rate;
     private final DataHandler data;
     private ArrayList<Population> generations;
 
@@ -26,6 +29,7 @@ public class SGA {
      * @param max_generations   the max generations
      * @param crossover_rate    the crossover rate
      * @param mutation_rate     the mutation rate
+     * @param init_random_rate  the initial random rate (completely random bitstring generation)
      */
     public SGA(
             ObjectiveFunction objectiveFunction,
@@ -34,6 +38,7 @@ public class SGA {
             Integer max_generations,
             Float crossover_rate,
             Float mutation_rate,
+            Float init_random_rate,
             DataHandler data) {
         this.objectiveFunction = objectiveFunction;
         this.maximize = maximize;
@@ -41,12 +46,13 @@ public class SGA {
         this.max_generations = max_generations;
         this.crossover_rate = crossover_rate;
         this.mutation_rate = mutation_rate;
+        this.init_random_rate = init_random_rate;
         this.data = data;
         this.generations = new ArrayList<>();
     }
 
     public void simulate() {
-        Population population = init_population();
+        Population population = init_population(init_random_rate);
         System.out.print(population);
         this.generations.add(population);
 
@@ -57,13 +63,20 @@ public class SGA {
 
     }
 
-    private Population init_population() {
+    private Population init_population(float init_random_rate) {
         Population population = new Population();
         int individuals = 0;
+        Random random = new Random();
+        boolean retryHeuristic = false;
 
         while (individuals<this.pop_size) {
             try {
-                Individual individual = new Individual(generate_bitstring_heuristic());
+                Individual individual = null;
+                if (random.nextFloat() > init_random_rate || retryHeuristic) {
+                    individual = new Individual(generate_bitstring_heuristic(2000));
+                } else {
+                    individual = new Individual(generate_bitstring_random());
+                }
                 objectiveFunction.calculate_fitness(individual);
 
                 // Check constraints
@@ -72,10 +85,11 @@ public class SGA {
                 } else {
                     population.getInfeasible_individuals().add(individual);
                 }
-
+                System.out.println(individuals);
                 individuals++;
+                retryHeuristic = false;
             } catch (Exception e) {
-//                System.out.println(e);
+                retryHeuristic = true;
             }
         }
 
@@ -114,7 +128,12 @@ public class SGA {
      * Generate a bitstring using the heuristic in data: clusters of patients
      * @return the bitstring
      */
-    private HashMap<Integer, ArrayList<Integer>> generate_bitstring_heuristic() {
+    private HashMap<Integer, ArrayList<Integer>> generate_bitstring_heuristic(long timeout) throws TimeoutException {
+        // timeout
+        final long startTime = System.nanoTime();
+        final long timeoutNanos = TimeUnit.MILLISECONDS.toNanos(timeout);
+        Random random = new Random();
+
         // create bitstring
         HashMap<Integer, ArrayList<Integer>> bitstring = create_bitstring();
 
@@ -126,24 +145,55 @@ public class SGA {
         }
 
         // Iterate over the clusters and assign nurses
-        HashMap<Integer, DataHandler.Cluster> clusters = data.getClusters();
+        ArrayList<DataHandler.Cluster> clusters = data.getClusters();
 
-        // No avoid deep-copy, create list of possible cluster indexes
-        List<Integer> cluster_index = IntStream.rangeClosed(0, clusters.size()-1).boxed().collect(Collectors.toList());
-        Random random = new Random();
-        while (cluster_index.size() > 0) {
-            // Select cluster
-            int cluster_index_idx = random.nextInt(cluster_index.size());
-            int cluster_idx = cluster_index.get(cluster_index_idx);
-            cluster_index.remove(cluster_index_idx);
+        // Set randomness variables
+        // Sort clusters
+        List<String> clusterSortOptions = Arrays.asList("shuffle", "demand", "start_time");
+        String selectedClusterSortOption = clusterSortOptions.get(random.nextInt(clusterSortOptions.size()));
+        switch (selectedClusterSortOption) {
+            case "shuffle":
+                Collections.shuffle(clusters, random);
+                break;
+            case "demand":
+                clusters.sort(Comparator.comparing(DataHandler.Cluster::getDemand));
+                break;
+            case "start_time":
+                clusters.sort(Comparator.comparing(DataHandler.Cluster::getStart_time));
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid sort option: " + selectedClusterSortOption);
+        }
+
+        // Sort patients
+        List<String> patientSortOptions = Arrays.asList("shuffle", "demand", "range", "start_time");
+        String selectedPatientSortOption = patientSortOptions.get(random.nextInt(patientSortOptions.size()));
+
+        // Sort nurses
+        Boolean sortNurses = random.nextBoolean();
 
 
+        for (DataHandler.Cluster cluster : clusters) {
             // Get cluster
-            DataHandler.Cluster cluster = clusters.get(cluster_idx);
             ArrayList<DataHandler.Patient> cluster_patients = cluster.getPatients();
 
-            // Sort patients by start time
-            cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getStart_time));
+            // Sort patients
+            switch (selectedPatientSortOption) {
+                case "shuffle":
+                    Collections.shuffle(cluster_patients);
+                    break;
+                case "demand":
+                    cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getDemand));
+                    break;
+                case "range":
+                    cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getRange));
+                    break;
+                case "start_time":
+                    cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getStart_time));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid sort option: " + selectedPatientSortOption);
+            }
 
 
             // Assign nurses
@@ -161,6 +211,14 @@ public class SGA {
 
                 Boolean foundNurse = false;
                 while (!foundNurse) {
+                    // Reached timeout
+                    final long elapsedNanos = System.nanoTime() - startTime;
+                    final long timeLeftNanos = timeoutNanos - elapsedNanos;
+                    if (timeLeftNanos <= 0) {
+                        throw new TimeoutException();
+                    }
+
+
                     // select nurse
                     nurse_idx++;
                     try {
@@ -219,7 +277,9 @@ public class SGA {
             }
 
             // Sort nurses
-//            nurses.sort(Comparator.comparing(Nurse::getOccupied_until));
+            if (sortNurses == true) {
+                nurses.sort(Comparator.comparing(Nurse::getOccupied_until));
+            }
         }
         return bitstring;
     }
