@@ -1,6 +1,8 @@
 package no.ntnu.it3708.Project_2;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -63,7 +65,7 @@ public class SGA {
 
         while (individuals<this.pop_size) {
             try {
-                Individual individual = new Individual(generate_bitstring_heuristic());
+                Individual individual = new Individual(generate_bitstring_heuristic(2000));
                 objectiveFunction.calculate_fitness(individual);
 
                 // Check constraints
@@ -72,7 +74,7 @@ public class SGA {
                 } else {
                     population.getInfeasible_individuals().add(individual);
                 }
-
+                System.out.println(individuals);
                 individuals++;
             } catch (Exception e) {
 //                System.out.println(e);
@@ -114,7 +116,11 @@ public class SGA {
      * Generate a bitstring using the heuristic in data: clusters of patients
      * @return the bitstring
      */
-    private HashMap<Integer, ArrayList<Integer>> generate_bitstring_heuristic() {
+    private HashMap<Integer, ArrayList<Integer>> generate_bitstring_heuristic(long timeout) throws TimeoutException {
+        // timeout
+        final long startTime = System.nanoTime();
+        final long timeoutNanos = TimeUnit.MILLISECONDS.toNanos(timeout);
+
         // create bitstring
         HashMap<Integer, ArrayList<Integer>> bitstring = create_bitstring();
 
@@ -128,7 +134,7 @@ public class SGA {
         // Iterate over the clusters and assign nurses
         HashMap<Integer, DataHandler.Cluster> clusters = data.getClusters();
 
-        // No avoid deep-copy, create list of possible cluster indexes
+        // To avoid deep-copy, create list of available cluster indexes
         List<Integer> available_clusters = IntStream.rangeClosed(0, clusters.size()-1).boxed().collect(Collectors.toList());
         Random random = new Random();
         while (available_clusters.size() > 0) {
@@ -161,6 +167,14 @@ public class SGA {
 
                 Boolean foundNurse = false;
                 while (!foundNurse) {
+                    // Reached timeout
+                    final long elapsedNanos = System.nanoTime() - startTime;
+                    final long timeLeftNanos = timeoutNanos - elapsedNanos;
+                    if (timeLeftNanos <= 0) {
+                        throw new TimeoutException();
+                    }
+
+
                     // select nurse
                     nurse_idx++;
                     try {
@@ -219,7 +233,7 @@ public class SGA {
             }
 
             // Sort nurses
-//            nurses.sort(Comparator.comparing(Nurse::getOccupied_until));
+            nurses.sort(Comparator.comparing(Nurse::getOccupied_until));
         }
         return bitstring;
     }
