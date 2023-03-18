@@ -137,27 +137,24 @@ public class SGA {
 
         // Set randomness variables
         // Sort clusters
-        List<String> clusterSortOptions = new ArrayList<>();
-        clusterSortOptions.add("shuffle");
-        clusterSortOptions.add("demand");
-        clusterSortOptions.add("start_time");
+        List<String> clusterSortOptions = Arrays.asList("shuffle", "demand", "start_time");
         String selectedClusterSortOption = clusterSortOptions.get(random.nextInt(clusterSortOptions.size()));
-        if (selectedClusterSortOption == "shuffle") {
-            Collections.shuffle(clusters);
-        }
-        if (selectedClusterSortOption == "demand") {
-            clusters.sort(Comparator.comparing(DataHandler.Cluster::getDemand));
-        }
-        if (selectedClusterSortOption == "start_time") {
-            clusters.sort(Comparator.comparing(DataHandler.Cluster::getStart_time));
+        switch (selectedClusterSortOption) {
+            case "shuffle":
+                Collections.shuffle(clusters, random);
+                break;
+            case "demand":
+                clusters.sort(Comparator.comparing(DataHandler.Cluster::getDemand));
+                break;
+            case "start_time":
+                clusters.sort(Comparator.comparing(DataHandler.Cluster::getStart_time));
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid sort option: " + selectedClusterSortOption);
         }
 
         // Sort patients
-        List<String> patientSortOptions = new ArrayList<>();
-        patientSortOptions.add("shuffle");
-        patientSortOptions.add("demand");
-        patientSortOptions.add("range");
-        patientSortOptions.add("start_time");
+        List<String> patientSortOptions = Arrays.asList("shuffle", "demand", "range", "start_time");
         String selected_patient_sort_option = patientSortOptions.get(random.nextInt(patientSortOptions.size()));
 
         // Sort nurses
@@ -169,17 +166,21 @@ public class SGA {
             ArrayList<DataHandler.Patient> cluster_patients = cluster.getPatients();
 
             // Sort patients
-            if (selected_patient_sort_option == "shuffle") {
-                Collections.shuffle(cluster_patients);
-            }
-            if (selected_patient_sort_option == "demand") {
-                cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getDemand));
-            }
-            if (selected_patient_sort_option == "range") {
-                cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getRange));
-            }
-            if (selected_patient_sort_option == "start_time") {
-                cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getStart_time));
+            switch (selected_patient_sort_option) {
+                case "shuffle":
+                    Collections.shuffle(cluster_patients);
+                    break;
+                case "demand":
+                    cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getDemand));
+                    break;
+                case "range":
+                    cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getRange));
+                    break;
+                case "start_time":
+                    cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getStart_time));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid sort option: " + selected_patient_sort_option);
             }
 
 
