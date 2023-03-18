@@ -20,7 +20,7 @@ public class Main {
         float init_random_rate = 0.5f;
 
         // Execute the SGA
-        SGA sga = new SGA(objectiveFunction, maximize, pop_size, max_generations, crossover_rate, mutation_rate, init_random_rate ,data);
+        SGA sga = new SGA(objectiveFunction, maximize, pop_size, max_generations, crossover_rate, mutation_rate, init_random_rate, data);
         sga.simulate();
     }
 }
