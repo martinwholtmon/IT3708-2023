@@ -28,11 +28,10 @@ public class KMeansPP {
      * @param tolerance  change in the sum of squared distances between k-values
      * @return The cluster assignment
      */
-    public HashMap<Integer, Cluster> run(double tolerance) {
+    public ArrayList<Cluster> run(double tolerance) {
         int k = 1;
         double prevTotalDistance = Double.MAX_VALUE;
-        HashMap<Integer, Cluster> cluster = null;
-
+        ArrayList<Cluster> cluster = null;
 
         // Normalize
         double[] means = new double[2];
@@ -63,7 +62,7 @@ public class KMeansPP {
 
         // Elbow method
         while (k <= n_clusters) {
-            HashMap<Integer, Cluster> tempCluster = kMeansPP(k);
+            ArrayList<Cluster> tempCluster = kMeansPP(k);
             double totalDistance = getTotalDistanceToCentroids(tempCluster);
 
             // We have the best solution, quit
@@ -95,9 +94,9 @@ public class KMeansPP {
         return cluster;
     }
 
-    private HashMap<Integer, Cluster> kMeansPP(int k) {
+    private ArrayList<Cluster>  kMeansPP(int k) {
         List<Point> centroids = getInitialCentroids(k);
-        HashMap<Integer, Cluster> cluster = null;
+        ArrayList<Cluster> cluster = null;
 
         for (int i=0; i<n_iterations; i++) {
             // Assign Patients to clusters
@@ -114,16 +113,12 @@ public class KMeansPP {
         return cluster;
     }
 
-    private double getTotalDistanceToCentroids(HashMap<Integer, Cluster> clusters) {
+    private double getTotalDistanceToCentroids(ArrayList<Cluster> clusters) {
         double totalDistance = 0;
 
         // Iterate over clusters
-        for (Map.Entry<Integer, Cluster> entry : clusters.entrySet()) {
-            int cluster_idx = entry.getKey();
-            Cluster cluster = entry.getValue();
+        for (Cluster cluster : clusters) {
             Point centroid = cluster.getCentroid();
-
-            // Iterate over patients
             for (DataHandler.Patient patient : cluster.getMembers()) {
                 totalDistance += getDistanceBetweenPoints(patient.getX_coord(), patient.getY_coord(), centroid.x, centroid.y);
             }
@@ -191,11 +186,11 @@ public class KMeansPP {
      * @param centroids List of centroids
      * @return Hashmap of clusters containing patients
      */
-    private HashMap<Integer, Cluster> assignPatientToCluster(List<Point> centroids) {
+    private ArrayList<Cluster> assignPatientToCluster(List<Point> centroids) {
         // Init cluster
-        HashMap<Integer, Cluster> cluster = new HashMap<>();
+        ArrayList<Cluster> cluster = new ArrayList<>();
         for (int i = 0; i < centroids.size(); i++) {
-            cluster.put(i, new Cluster(i, centroids.get(i)));
+            cluster.add(new Cluster(i, centroids.get(i)));
         }
 
         // Assign patient to cluster
@@ -221,7 +216,7 @@ public class KMeansPP {
      * @param cluster Clusters with patients
      * @return new cluster centers (centroids)
      */
-    private List<Point> getNewCentroids(HashMap<Integer, Cluster> cluster) {
+    private List<Point> getNewCentroids(ArrayList<Cluster> cluster) {
         List<Point> centroids = new ArrayList<>();
 
         for (int i = 0; i < cluster.size(); i++) {
