@@ -81,11 +81,12 @@ public class DataHandler {
 
     /**
      * Run the KNN+ Clustering on the patients
+     * @param n_iterations iterations
      * @param tolerance tolerance when selecting k-value
      */
-    void cluster_patients(double tolerance) {
+    void cluster_patients(int n_iterations, double tolerance) {
         // Run KNN+
-        KMeansPP kMeansPP = new KMeansPP(this.nbr_nurses*2,100, this.patients);
+        KMeansPP kMeansPP = new KMeansPP(this.nbr_nurses*2,n_iterations, this.patients);
         ArrayList<KMeansPP.Cluster> knn_clusters = kMeansPP.run(tolerance);
 
 

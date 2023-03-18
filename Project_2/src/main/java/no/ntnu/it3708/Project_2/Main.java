@@ -8,18 +8,19 @@ public class Main {
         // Load data
         DataHandler data = new DataHandler();
         data.loadData("/data/train_0.json");
-        data.cluster_patients(1);
+        data.cluster_patients(150, 0.5d);
 
         // Prepare params
         ObjectiveFunction objectiveFunction = new ObjectiveFunction(data);
         boolean maximize = false;
-        int pop_size = 1000;
+        int pop_size = 100;
         int max_generations = 5;
         float crossover_rate = 0.6f;
         float mutation_rate = 0.05f;
+        float init_random_rate = 0.5f;
 
         // Execute the SGA
-        SGA sga = new SGA(objectiveFunction, maximize, pop_size, max_generations, crossover_rate, mutation_rate, data);
+        SGA sga = new SGA(objectiveFunction, maximize, pop_size, max_generations, crossover_rate, mutation_rate, init_random_rate ,data);
         sga.simulate();
     }
 }

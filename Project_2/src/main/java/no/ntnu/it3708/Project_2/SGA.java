@@ -16,6 +16,7 @@ public class SGA {
     private final Integer max_generations;
     private final Float crossover_rate;
     private final Float mutation_rate;
+    private final Float init_random_rate;
     private final DataHandler data;
     private ArrayList<Population> generations;
 
@@ -28,6 +29,7 @@ public class SGA {
      * @param max_generations   the max generations
      * @param crossover_rate    the crossover rate
      * @param mutation_rate     the mutation rate
+     * @param init_random_rate  the initial random rate (completely random bitstring generation)
      */
     public SGA(
             ObjectiveFunction objectiveFunction,
@@ -36,6 +38,7 @@ public class SGA {
             Integer max_generations,
             Float crossover_rate,
             Float mutation_rate,
+            Float init_random_rate,
             DataHandler data) {
         this.objectiveFunction = objectiveFunction;
         this.maximize = maximize;
@@ -43,12 +46,13 @@ public class SGA {
         this.max_generations = max_generations;
         this.crossover_rate = crossover_rate;
         this.mutation_rate = mutation_rate;
+        this.init_random_rate = init_random_rate;
         this.data = data;
         this.generations = new ArrayList<>();
     }
 
     public void simulate() {
-        Population population = init_population();
+        Population population = init_population(init_random_rate);
         System.out.print(population);
         this.generations.add(population);
 
@@ -59,13 +63,20 @@ public class SGA {
 
     }
 
-    private Population init_population() {
+    private Population init_population(float init_random_rate) {
         Population population = new Population();
         int individuals = 0;
+        Random random = new Random();
+        boolean retryHeuristic = false;
 
         while (individuals<this.pop_size) {
             try {
-                Individual individual = new Individual(generate_bitstring_heuristic(2000));
+                Individual individual = null;
+                if (random.nextFloat() > init_random_rate || retryHeuristic) {
+                    individual = new Individual(generate_bitstring_heuristic(2000));
+                } else {
+                    individual = new Individual(generate_bitstring_random());
+                }
                 objectiveFunction.calculate_fitness(individual);
 
                 // Check constraints
@@ -76,8 +87,9 @@ public class SGA {
                 }
                 System.out.println(individuals);
                 individuals++;
+                retryHeuristic = false;
             } catch (Exception e) {
-//                System.out.println(e);
+                retryHeuristic = true;
             }
         }
 
