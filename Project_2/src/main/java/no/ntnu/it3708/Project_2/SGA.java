@@ -120,6 +120,7 @@ public class SGA {
         // timeout
         final long startTime = System.nanoTime();
         final long timeoutNanos = TimeUnit.MILLISECONDS.toNanos(timeout);
+        Random random = new Random();
 
         // create bitstring
         HashMap<Integer, ArrayList<Integer>> bitstring = create_bitstring();
@@ -132,24 +133,54 @@ public class SGA {
         }
 
         // Iterate over the clusters and assign nurses
-        HashMap<Integer, DataHandler.Cluster> clusters = data.getClusters();
+        ArrayList<DataHandler.Cluster> clusters = data.getClusters();
 
-        // To avoid deep-copy, create list of available cluster indexes
-        List<Integer> available_clusters = IntStream.rangeClosed(0, clusters.size()-1).boxed().collect(Collectors.toList());
-        Random random = new Random();
-        while (available_clusters.size() > 0) {
-            // Select cluster
-            int available_cluster_idx = random.nextInt(available_clusters.size());
-            int cluster_idx = available_clusters.get(available_cluster_idx);
-            available_clusters.remove(available_cluster_idx);
+        // Set randomness variables
+        // Sort clusters
+        List<String> clusterSortOptions = new ArrayList<>();
+        clusterSortOptions.add("shuffle");
+        clusterSortOptions.add("demand");
+        clusterSortOptions.add("start_time");
+        String selectedClusterSortOption = clusterSortOptions.get(random.nextInt(clusterSortOptions.size()));
+        if (selectedClusterSortOption == "shuffle") {
+            Collections.shuffle(clusters);
+        }
+        if (selectedClusterSortOption == "demand") {
+            clusters.sort(Comparator.comparing(DataHandler.Cluster::getDemand));
+        }
+        if (selectedClusterSortOption == "start_time") {
+            clusters.sort(Comparator.comparing(DataHandler.Cluster::getStart_time));
+        }
+
+        // Sort patients
+        List<String> patientSortOptions = new ArrayList<>();
+        patientSortOptions.add("shuffle");
+        patientSortOptions.add("demand");
+        patientSortOptions.add("range");
+        patientSortOptions.add("start_time");
+        String selected_patient_sort_option = patientSortOptions.get(random.nextInt(patientSortOptions.size()));
+
+        // Sort nurses
+        Boolean sort_nurses = random.nextBoolean();
 
 
+        for (DataHandler.Cluster cluster : clusters) {
             // Get cluster
-            DataHandler.Cluster cluster = clusters.get(cluster_idx);
             ArrayList<DataHandler.Patient> cluster_patients = cluster.getPatients();
 
-            // Sort patients by start time
-            cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getStart_time));
+            // Sort patients
+            if (selected_patient_sort_option == "shuffle") {
+                Collections.shuffle(cluster_patients);
+            }
+            if (selected_patient_sort_option == "demand") {
+                cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getDemand));
+            }
+            if (selected_patient_sort_option == "range") {
+                cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getRange));
+            }
+            if (selected_patient_sort_option == "start_time") {
+                cluster_patients.sort(Comparator.comparing(DataHandler.Patient::getStart_time));
+            }
 
 
             // Assign nurses
@@ -233,7 +264,9 @@ public class SGA {
             }
 
             // Sort nurses
-            nurses.sort(Comparator.comparing(Nurse::getOccupied_until));
+            if (sort_nurses = true) {
+                nurses.sort(Comparator.comparing(Nurse::getOccupied_until));
+            }
         }
         return bitstring;
     }
