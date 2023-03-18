@@ -129,13 +129,13 @@ public class SGA {
         HashMap<Integer, DataHandler.Cluster> clusters = data.getClusters();
 
         // No avoid deep-copy, create list of possible cluster indexes
-        List<Integer> cluster_index = IntStream.rangeClosed(0, clusters.size()-1).boxed().collect(Collectors.toList());
+        List<Integer> available_clusters = IntStream.rangeClosed(0, clusters.size()-1).boxed().collect(Collectors.toList());
         Random random = new Random();
-        while (cluster_index.size() > 0) {
+        while (available_clusters.size() > 0) {
             // Select cluster
-            int cluster_index_idx = random.nextInt(cluster_index.size());
-            int cluster_idx = cluster_index.get(cluster_index_idx);
-            cluster_index.remove(cluster_index_idx);
+            int available_cluster_idx = random.nextInt(available_clusters.size());
+            int cluster_idx = available_clusters.get(available_cluster_idx);
+            available_clusters.remove(available_cluster_idx);
 
 
             // Get cluster
