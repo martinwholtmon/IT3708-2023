@@ -7,10 +7,9 @@ import java.util.HashMap;
  * The Individual.
  */
 public class Individual {
-    private HashMap<Integer, ArrayList<Integer>> bitstring;    // represented as matrix [nurse_id][patients]
+    private HashMap<Integer, ArrayList<Integer>> bitstring; // represented as matrix [nurse_id][patients]
     private ArrayList<Individual> parents;
     private double fitness;
-
 
     /**
      * Instantiates a new Individual.

@@ -78,17 +78,16 @@ public class DataHandler {
         }
     }
 
-
     /**
      * Run the KNN+ Clustering on the patients
+     * 
      * @param n_iterations iterations
-     * @param tolerance tolerance when selecting k-value
+     * @param tolerance    tolerance when selecting k-value
      */
     void cluster_patients(int n_iterations, double tolerance) {
         // Run KNN+
-        KMeansPP kMeansPP = new KMeansPP(this.nbr_nurses*2,n_iterations, this.patients);
+        KMeansPP kMeansPP = new KMeansPP(this.nbr_nurses * 2, n_iterations, this.patients);
         ArrayList<KMeansPP.Cluster> knn_clusters = kMeansPP.run(tolerance);
-
 
         // Create clusters
         for (KMeansPP.Cluster cluster : knn_clusters) {
@@ -151,8 +150,10 @@ public class DataHandler {
     }
 
     /**
-     * Gets travel times in the form of a matrix. The depot is the first row/column, patient 1 the
-     * second row/column, and so on. For example, index (2, 3) and (3, 2) the distance between
+     * Gets travel times in the form of a matrix. The depot is the first row/column,
+     * patient 1 the
+     * second row/column, and so on. For example, index (2, 3) and (3, 2) the
+     * distance between
      * patient 1 and 2. The travel times are floats, so do not round them
      * [
      * [0, 2, 5, ...],
@@ -268,7 +269,8 @@ public class DataHandler {
          * @param end_time   the end time
          * @param care_time  the care time
          */
-        public Patient(int id, double x_coord, double y_coord, int demand, int start_time, int end_time, int care_time) {
+        public Patient(int id, double x_coord, double y_coord, int demand, int start_time, int end_time,
+                int care_time) {
             this.id = id;
             this.x_coord = x_coord;
             this.y_coord = y_coord;
@@ -337,6 +339,7 @@ public class DataHandler {
         public int getEnd_time() {
             return end_time;
         }
+
         /**
          * Gets care time.
          *
@@ -382,7 +385,7 @@ public class DataHandler {
         }
 
         public void calculateRange() {
-            this.range = start_time+end_time-demand;
+            this.range = start_time + end_time - demand;
         }
 
         @Override
@@ -490,4 +493,3 @@ public class DataHandler {
         }
     }
 }
-

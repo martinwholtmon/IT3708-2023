@@ -31,14 +31,15 @@ public class ObjectiveFunction {
         Set<Integer> visited_patients = new HashSet<>();
 
         // Iterate over the nurses
-        for (int nurse_id=0; nurse_id < data.getNbr_nurses(); nurse_id++) {
+        for (int nurse_id = 0; nurse_id < data.getNbr_nurses(); nurse_id++) {
             ArrayList<Integer> patients = bitstring.get(nurse_id);
             visited_patients.addAll(patients);
             if (!routeIsFeasible(patients)) {
                 return false;
             }
         }
-        // check that patient visists is the same size as the number of patients = all patients visited
+        // check that patient visists is the same size as the number of patients = all
+        // patients visited
         if (visited_patients.size() != data.getPatients().size()) {
             return false;
         }
@@ -64,13 +65,14 @@ public class ObjectiveFunction {
 
     /**
      * Given a route, bruteforce to optimize the order while keeping it feasible
+     * 
      * @param route patient visits for a nurse
-     * @return It's not possible to generate a feasible route using the current visits
+     * @return It's not possible to generate a feasible route using the current
+     *         visits
      */
     public boolean optimizeRoute(ArrayList<Integer> route) {
         boolean feasible = false;
         double travelTime = Double.MAX_VALUE;
-
 
         int numCombinations = (int) Math.pow(2, route.size());
 
@@ -100,6 +102,7 @@ public class ObjectiveFunction {
 
     /**
      * Check that a route is feasible
+     * 
      * @param route list of patients to visit
      * @return boolean
      */
@@ -151,13 +154,14 @@ public class ObjectiveFunction {
 
     /**
      * Calculate the travel time on a given route
+     * 
      * @param route patient visits for a nurse
      * @return travel time
      */
     public double getTravelTimeRoute(ArrayList<Integer> route) {
         Double travel_time = 0d;
 
-        int pos = 0; //depot
+        int pos = 0; // depot
         for (int patient_idx : route) {
             travel_time += data.getTravel_times().get(pos).get(patient_idx);
             pos = patient_idx;

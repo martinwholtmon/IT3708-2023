@@ -29,9 +29,9 @@ public class Population {
      * @param old_pop                the old pop
      * @param generation_nr          the generation nr
      */
-    public Population(ArrayList<Individual> feasible_individuals, ArrayList<Individual> infeasible_individuals, Population old_pop, Integer generation_nr) {
+    public Population(ArrayList<Individual> feasible_individuals, Population old_pop, Integer generation_nr) {
         this.feasible_individuals = feasible_individuals;
-        this.infeasible_individuals = infeasible_individuals;
+        this.infeasible_individuals = new ArrayList<>();
         this.old_pop = old_pop;
         this.generation_nr = generation_nr;
     }
@@ -71,11 +71,13 @@ public class Population {
 
     /**
      * Calculate the average fitness of a population
+     * 
      * @return the average fitness
      */
     private double calc_avg_fitness() {
         double total_fitness = 0f;
-        for (Individual i : feasible_individuals) total_fitness += i.getFitness();
+        for (Individual i : feasible_individuals)
+            total_fitness += i.getFitness();
         return total_fitness / feasible_individuals.size();
     }
 
