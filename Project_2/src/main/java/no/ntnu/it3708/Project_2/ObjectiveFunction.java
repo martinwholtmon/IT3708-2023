@@ -32,49 +32,9 @@ public class ObjectiveFunction {
 
         // Iterate over the nurses
         for (int nurse_id=0; nurse_id < data.getNbr_nurses(); nurse_id++) {
-            int current_position = 0; // Depot
-            double start_time = 0;
-            int total_demand = 0;
-
-            // Iterate over the patients that the nurse visits
             ArrayList<Integer> patients = bitstring.get(nurse_id);
-            if (patients.size() == 0) {
-                continue;   // just skip constraints checking for nurse if no patients
-            }
-
-            // iterate over all the patients
-            for (int patient_id : patients) {
-                // Get patient details
-                DataHandler.Patient patient = data.getPatients().get(patient_id);
-
-                // Set arrival_time given the patients start_time
-                double arrival_time = start_time + data.getTravel_times().get(current_position).get(patient_id);
-                if (arrival_time < patient.getStart_time()) {
-                    // Must wait for time window, update arrival time
-                    arrival_time = (double) patient.getStart_time();
-                }
-
-                // Check that we finish before the patients end_time
-                double care_time_finish = arrival_time + patient.getCare_time();
-                if (care_time_finish > patient.getEnd_time()) {
-                    return false;
-                }
-
-                // Update variables
-                visited_patients.add(patient_id);
-                current_position = patient_id;
-                start_time = care_time_finish;
-                total_demand += patient.getDemand();
-
-                // Check if the nurse has surpassed its capacity
-                if (data.getCapacity_nurse() < total_demand) {
-                    return false;
-                }
-            }
-            // Check depot constraints
-            DataHandler.Depot depot = data.getDepot();
-            double end_time = start_time + data.getTravel_times().get(current_position).get(0);
-            if (end_time > depot.getReturn_time()) {
+            visited_patients.addAll(patients);
+            if (!routeIsFeasible(patients)) {
                 return false;
             }
         }
@@ -95,16 +55,117 @@ public class ObjectiveFunction {
         // Sum all travel times
         Double travel_time = 0d;
 
-        for (Map.Entry<Integer, ArrayList<Integer>> entry : individual.getBitstring().entrySet()) {
-            int nurse_idx = entry.getKey();
-            ArrayList<Integer> patients = entry.getValue();
-
-            int current_pos = 0;
-            for (int patient_idx : patients) {
-                travel_time += data.getTravel_times().get(current_pos).get(patient_idx);
-                current_pos = patient_idx;
-            }
+        HashMap<Integer, ArrayList<Integer>> bitstring = individual.getBitstring();
+        for (int nurse_idx = 0; nurse_idx < bitstring.size(); nurse_idx++) {
+            travel_time += getTravelTimeRoute(bitstring.get(nurse_idx));
         }
         individual.setFitness(travel_time);
+    }
+
+    /**
+     * Given a route, bruteforce to optimize the order while keeping it feasible
+     * @param route patient visits for a nurse
+     * @return It's not possible to generate a feasible route using the current visits
+     */
+    public boolean optimizeRoute(ArrayList<Integer> route) {
+        boolean feasible = false;
+        double travelTime = Double.MAX_VALUE;
+
+
+        int numCombinations = (int) Math.pow(2, route.size());
+
+        // Create a temp order
+        for (int i = 0; i < numCombinations; i++) {
+            ArrayList<Integer> currentCombination = new ArrayList<>();
+            for (int j = 0; j < route.size(); j++) {
+                if (((i >> j) & 1) == 1) {
+                    currentCombination.add(route.get(j));
+                }
+            }
+            // get travel time
+            double currentTravelTime = getTravelTimeRoute(currentCombination);
+
+            // if better, check if feasible.
+            if (currentTravelTime < travelTime) {
+                if (routeIsFeasible(currentCombination)) {
+                    // Update
+                    feasible = true;
+                    travelTime = currentTravelTime;
+                    route = currentCombination;
+                }
+            }
+        }
+        return feasible;
+    }
+
+    /**
+     * Check that a route is feasible
+     * @param route list of patients to visit
+     * @return boolean
+     */
+    private boolean routeIsFeasible(ArrayList<Integer> route) {
+        int current_position = 0; // Depot
+        double start_time = 0;
+        int total_demand = 0;
+
+        // Iterate over the patients that the nurse visits
+        if (route.size() == 0) {
+            return true;
+        }
+
+        // iterate over all the patients
+        for (int patient_id : route) {
+            // Get patient details
+            DataHandler.Patient patient = data.getPatients().get(patient_id);
+
+            // Set arrival_time given the patients start_time
+            double arrival_time = start_time + data.getTravel_times().get(current_position).get(patient_id);
+            if (arrival_time < patient.getStart_time()) {
+                // Must wait for time window, update arrival time
+                arrival_time = (double) patient.getStart_time();
+            }
+
+            // Check that we finish before the patients end_time
+            double care_time_finish = arrival_time + patient.getCare_time();
+            if (care_time_finish > patient.getEnd_time()) {
+                return false;
+            }
+
+            // Update variables
+            current_position = patient_id;
+            start_time = care_time_finish;
+            total_demand += patient.getDemand();
+
+            // Check if the nurse has surpassed its capacity
+            if (data.getCapacity_nurse() < total_demand) {
+                return false;
+            }
+        }
+        // Check depot constraints
+        double end_time = start_time + data.getTravel_times().get(current_position).get(0);
+        if (end_time > data.getDepot().getReturn_time()) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Calculate the travel time on a given route
+     * @param route patient visits for a nurse
+     * @return travel time
+     */
+    public double getTravelTimeRoute(ArrayList<Integer> route) {
+        Double travel_time = 0d;
+
+        int pos = 0; //depot
+        for (int patient_idx : route) {
+            travel_time += data.getTravel_times().get(pos).get(patient_idx);
+            pos = patient_idx;
+        }
+
+        // back to depot
+        travel_time += data.getTravel_times().get(pos).get(0);
+
+        return travel_time;
     }
 }
