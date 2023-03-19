@@ -153,7 +153,8 @@ public class SGA {
         return offsprings;
     }
 
-    private void reassignPatients(Individual parent, ArrayList<Integer> selectedPatients) {
+    private void reassignPatients(Individual parent, ArrayList<Integer> selectedPatients)
+            throws IndexOutOfBoundsException {
         if (selectedPatients.size() == 0) {
             return;
         }
@@ -168,13 +169,13 @@ public class SGA {
                     removedPatients.add(selectedPatient);
                 }
             }
-            // selectedPatients.removeAll(removedPatients);
         }
 
         // for each removed patient, try to find best insertion
         for (Integer removedPatient : removedPatients) {
-            int bestNurse = 0;
-            double minIncrease = 0;
+            int bestNurse = -1;
+            ArrayList<Integer> bestRoute = null;
+            double minIncrease = Double.MAX_VALUE;
 
             // Try to assign to each nurse, pick the one with the least increase in travel
             // time
@@ -191,9 +192,16 @@ public class SGA {
                             - this.objectiveFunction.getTravelTimeRoute(patients);
                     if (routeIncrease < minIncrease) {
                         bestNurse = nurse_idx;
+                        bestRoute = patients_clone;
                         minIncrease = routeIncrease;
                     }
                 }
+            }
+            // set new route
+            if (bestNurse != -1) {
+                parent.getBitstring().put(bestNurse, bestRoute);
+            } else {
+                throw new IndexOutOfBoundsException("Not able to insert patient");
             }
         }
     }
