@@ -29,7 +29,8 @@ public class SGA {
      * @param max_generations   the max generations
      * @param crossover_rate    the crossover rate
      * @param mutation_rate     the mutation rate
-     * @param init_random_rate  the initial random rate (completely random bitstring generation)
+     * @param init_random_rate  the initial random rate (completely random bitstring
+     *                          generation)
      */
     public SGA(
             ObjectiveFunction objectiveFunction,
@@ -58,8 +59,9 @@ public class SGA {
 
     /**
      * Parent selection done by roulette wheel.
+     * 
      * @param population population to select from
-     * @param nParents number of parents
+     * @param nParents   number of parents
      * @return the selected parents
      */
     private ArrayList<Individual> parent_selection(Population population, Integer nParents) {
@@ -69,32 +71,25 @@ public class SGA {
 
         // Sum fitness values
         List<Double> fitnessValues = new ArrayList<>();
-        for (Individual individual : population.getFeasible_individuals()) {
-            fitnessValues.add(-individual.getFitness());
-        }
+        population.getFeasible_individuals().forEach(individual -> fitnessValues.add(individual.getFitness()));
 
         // Scale values
         double minValue = 5 + Collections.min(fitnessValues);
-        for (Double fitness : fitnessValues) {
-            fitness += minValue;
-        }
+        fitnessValues.forEach(v -> v += minValue);
         double totalFitness = fitnessValues.stream().mapToDouble(f -> f.doubleValue()).sum();
-
 
         // Create probability distribution
         List<Double> individualProbability = new ArrayList<>();
-        for (Double fitness : fitnessValues) {
-            individualProbability.add(fitness/totalFitness);
-        }
+        fitnessValues.forEach(fitness -> individualProbability.add(fitness / totalFitness));
 
         // Select parents
         Random random = new Random();
         ArrayList<Individual> parents = new ArrayList<>();
-        for (int i=0; i<nParents; i++) {
+        for (int i = 0; i < nParents; i++) {
             double randomValue = random.nextDouble();
             double sum = 0;
             int idx = -1;
-            for (idx=0; i < individualProbability.size(); idx++) {
+            for (idx = 0; i < individualProbability.size(); idx++) {
                 sum += individualProbability.get(idx);
                 if (sum > randomValue) {
                     break;
@@ -105,13 +100,14 @@ public class SGA {
         return parents;
     }
 
-    private ArrayList<Individual> generateOffspring(ArrayList<Individual> matingPool, Float crossoverRate, Float mutationRate) {
+    private ArrayList<Individual> generateOffspring(ArrayList<Individual> matingPool, Float crossoverRate,
+            Float mutationRate) {
         ArrayList<Individual> offsprings = new ArrayList<>();
 
         // perform crossover and mutation
         for (int i = 1; i < matingPool.size(); i = i + 2) {
             // get parent pair
-            Individual parent1 = matingPool.get(i-1);
+            Individual parent1 = matingPool.get(i - 1);
             Individual parent2 = matingPool.get(i);
 
             ArrayList<Individual> newOffsprings = null;
@@ -172,7 +168,7 @@ public class SGA {
                     removedPatients.add(selectedPatient);
                 }
             }
-//            selectedPatients.removeAll(removedPatients);
+            // selectedPatients.removeAll(removedPatients);
         }
 
         // for each removed patient, try to find best insertion
@@ -180,7 +176,8 @@ public class SGA {
             int bestNurse = 0;
             double minIncrease = 0;
 
-            // Try to assign to each nurse, pick the one with the least increase in travel time
+            // Try to assign to each nurse, pick the one with the least increase in travel
+            // time
             for (int nurse_idx = 0; nurse_idx < this.data.getNbr_nurses(); nurse_idx++) {
                 // Create lists
                 ArrayList<Integer> patients = parent.getBitstring().get(nurse_idx);
@@ -190,7 +187,8 @@ public class SGA {
                 patients_clone.add(removedPatient);
                 boolean feasible = this.objectiveFunction.optimizeRoute(patients_clone);
                 if (feasible) {
-                    double routeIncrease = this.objectiveFunction.getTravelTimeRoute(patients_clone) - this.objectiveFunction.getTravelTimeRoute(patients);
+                    double routeIncrease = this.objectiveFunction.getTravelTimeRoute(patients_clone)
+                            - this.objectiveFunction.getTravelTimeRoute(patients);
                     if (routeIncrease < minIncrease) {
                         bestNurse = nurse_idx;
                         minIncrease = routeIncrease;
@@ -224,7 +222,7 @@ public class SGA {
         Random random = new Random();
         boolean retryHeuristic = false;
 
-        while (individuals<this.pop_size) {
+        while (individuals < this.pop_size) {
             try {
                 Individual individual = null;
                 if (random.nextFloat() > init_random_rate || retryHeuristic) {
@@ -254,10 +252,11 @@ public class SGA {
 
     /**
      * Generate a random bitstring:
-     *  [
-     *      [1,5,7],    // nurse 1 visits patient 1, 5 and 7
-     *      [2,8,4]     // nurse 2 visits patient 2, 8 and 4
-     *  ]
+     * [
+     * [1,5,7], // nurse 1 visits patient 1, 5 and 7
+     * [2,8,4] // nurse 2 visits patient 2, 8 and 4
+     * ]
+     * 
      * @return the bitstring
      */
     private HashMap<Integer, ArrayList<Integer>> generate_bitstring_random() {
@@ -265,7 +264,8 @@ public class SGA {
         HashMap<Integer, ArrayList<Integer>> bitstring = create_bitstring();
 
         // Prepare list of patients
-        List<Integer> patients = IntStream.rangeClosed(1, this.data.getPatients().size()).boxed().collect(Collectors.toList());
+        List<Integer> patients = IntStream.rangeClosed(1, this.data.getPatients().size()).boxed()
+                .collect(Collectors.toList());
 
         // Randomly assign patient to nurse
         Random rand = new Random();
@@ -281,6 +281,7 @@ public class SGA {
 
     /**
      * Generate a bitstring using the heuristic in data: clusters of patients
+     * 
      * @return the bitstring
      */
     private HashMap<Integer, ArrayList<Integer>> generate_bitstring_heuristic(long timeout) throws TimeoutException {
@@ -292,9 +293,9 @@ public class SGA {
         // create bitstring
         HashMap<Integer, ArrayList<Integer>> bitstring = create_bitstring();
 
-        // Prepare  nurses
+        // Prepare nurses
         ArrayList<Nurse> nurses = new ArrayList<>();
-        for (int i=0; i < this.data.getNbr_nurses(); i++) {
+        for (int i = 0; i < this.data.getNbr_nurses(); i++) {
             Nurse nurse = new Nurse(i, data.getCapacity_nurse());
             nurses.add(nurse);
         }
@@ -327,7 +328,6 @@ public class SGA {
         // Sort nurses
         Boolean sortNurses = random.nextBoolean();
 
-
         for (DataHandler.Cluster cluster : clusters) {
             // Get cluster
             ArrayList<DataHandler.Patient> cluster_patients = cluster.getPatients();
@@ -349,7 +349,6 @@ public class SGA {
                 default:
                     throw new IllegalArgumentException("Invalid sort option: " + selectedPatientSortOption);
             }
-
 
             // Assign nurses
             // Logic: Have a list of nurses. Iterate over patients
@@ -373,7 +372,6 @@ public class SGA {
                         throw new TimeoutException();
                     }
 
-
                     // select nurse
                     nurse_idx++;
                     try {
@@ -390,7 +388,8 @@ public class SGA {
                     }
 
                     // Update arrival_time
-                    Double arrival_time = nurse.getOccupied_until() + data.getTravel_times().get(nurse.getPosition()).get(patient.getId());
+                    Double arrival_time = nurse.getOccupied_until()
+                            + data.getTravel_times().get(nurse.getPosition()).get(patient.getId());
                     if (arrival_time < patient.getStart_time()) {
                         arrival_time = (double) patient.getStart_time();
                     }
@@ -426,9 +425,9 @@ public class SGA {
             }
 
             // Move nurses
-            for (int i=0; i < cluster_nurses.size(); i++) {
-                nurses.remove(i);                   // Remove used nurses
-                nurses.add(cluster_nurses.get(i));  // add back at the end
+            for (int i = 0; i < cluster_nurses.size(); i++) {
+                nurses.remove(i); // Remove used nurses
+                nurses.add(cluster_nurses.get(i)); // add back at the end
             }
 
             // Sort nurses
@@ -440,13 +439,15 @@ public class SGA {
     }
 
     /**
-     * Create a bitstring representation where each key represent a nurse and the arraylist represent visited patients
+     * Create a bitstring representation where each key represent a nurse and the
+     * arraylist represent visited patients
+     * 
      * @return the bitstring
      */
     private HashMap<Integer, ArrayList<Integer>> create_bitstring() {
         // Prepare bitstring
         HashMap<Integer, ArrayList<Integer>> bitstring = new HashMap<>();
-        for (int i=0; i<this.data.getNbr_nurses(); i++) {
+        for (int i = 0; i < this.data.getNbr_nurses(); i++) {
             bitstring.put(i, new ArrayList<>());
         }
         return bitstring;
