@@ -17,6 +17,7 @@ public class SGA {
     private final Float crossover_rate;
     private final Float mutation_rate;
     private final Float init_random_rate;
+    private final int localSearchIterations;
     private final DataHandler data;
     private ArrayList<Population> generations;
 
@@ -40,6 +41,7 @@ public class SGA {
             Float crossover_rate,
             Float mutation_rate,
             Float init_random_rate,
+            int localSearchIterations,
             DataHandler data) {
         this.objectiveFunction = objectiveFunction;
         this.maximize = maximize;
@@ -48,18 +50,51 @@ public class SGA {
         this.crossover_rate = crossover_rate;
         this.mutation_rate = mutation_rate;
         this.init_random_rate = init_random_rate;
+        this.localSearchIterations = localSearchIterations;
         this.data = data;
         this.generations = new ArrayList<>();
     }
 
     public void simulate() {
         Population population = init_population(init_random_rate);
-        System.out.print(population);
+        System.out.println(population);
         this.generations.add(population);
+
+        // Run the SGA loop
+        while (population.getGeneration_nr() < this.max_generations) {
+            population = newGeneration(population);
+
+            // perform LNS
+            System.out.println("Performing local search on best solution:");
+            Individual bestIndividual = population.get_best_solution();
+            Individual localSearchIndividual = performLocalSearch(bestIndividual);
+            if (localSearchIndividual.getFitness() < bestIndividual.getFitness()) {
+                population.replaceBestIndividual(localSearchIndividual);
+            }
+
+            // Print
+            System.out.println(population);
+            this.generations.add(population);
+        }
+    }
+
+    private Population newGeneration(Population oldPopulation) {
+        // Get parents
+        ArrayList<Individual> matingPool = parent_selection(oldPopulation, this.pop_size);
+
+        // Create offspring
+        ArrayList<Individual> offspring = generateOffspring(matingPool, this.crossover_rate, this.mutation_rate);
+
+        // Calculate fitness
+        for (Individual individual : offspring) {
+            objectiveFunction.calculate_fitness(individual);
+        }
+        return survivor_selection(oldPopulation, offspring);
+    }
 
     /**
      * Parent selection done by roulette wheel.
-     * 
+     *
      * @param population population to select from
      * @param nParents   number of parents
      * @return the selected parents
@@ -111,8 +146,8 @@ public class SGA {
             Individual parent2 = matingPool.get(i);
 
             ArrayList<Individual> newOffsprings = null;
-            boolean feasibleSolution = false;
-            while (!feasibleSolution) {
+            int feasibleSolutions = 0;
+            while (feasibleSolutions < 2) {
                 // create new individuals from the crossover
                 newOffsprings = crossover(parent1, parent2, crossoverRate);
 
@@ -120,15 +155,13 @@ public class SGA {
                 mutation(newOffsprings, mutationRate);
 
                 // check constraints
-                feasibleSolution = true;
                 for (Individual offspring : newOffsprings) {
-                    if (objectiveFunction.check_constraints(offspring) == false) {
-                        feasibleSolution = false;
+                    if (objectiveFunction.check_constraints(offspring)) {
+                        offsprings.add(offspring);
+                        feasibleSolutions++;
                     }
                 }
             }
-            // add individuals
-            offsprings.addAll(newOffsprings);
         }
         return offsprings;
     }
@@ -141,11 +174,18 @@ public class SGA {
         // do crossover
         Random random = new Random();
         if (random.nextFloat() < crossoverRate) {
-            // select random nurse
-            Integer route1 = random.nextInt((this.data.getNbr_nurses()));
-            Integer route2 = random.nextInt((this.data.getNbr_nurses()));
-            reassignPatients(child1, child2.getBitstring().get(route1));
-            reassignPatients(child2, child1.getBitstring().get(route2));
+            boolean done = false;
+            while (!done) {
+                try {
+                    // select random nurse
+                    Integer route1 = random.nextInt((this.data.getNbr_nurses()));
+                    Integer route2 = random.nextInt((this.data.getNbr_nurses()));
+                    reassignPatients(child1, child2.getBitstring().get(route1));
+                    reassignPatients(child2, child1.getBitstring().get(route2));
+                    done = true;
+                } catch (Exception e) {
+                }
+            }
         }
         ArrayList<Individual> offsprings = new ArrayList<>();
         offsprings.add(child1);
@@ -162,7 +202,7 @@ public class SGA {
         // remove patients from parent
         ArrayList<Integer> removedPatients = new ArrayList<>();
         for (int nurse_idx = 0; nurse_idx < this.data.getNbr_nurses(); nurse_idx++) {
-            ArrayList<Integer> patients = parent.getBitstring().get(nurse_idx);
+            ArrayList<Integer> patients = (ArrayList<Integer>) parent.getBitstring().get(nurse_idx).clone();
             for (Integer selectedPatient : selectedPatients) {
                 if (patients.contains(selectedPatient)) {
                     patients.remove(selectedPatient);
@@ -185,8 +225,7 @@ public class SGA {
                 ArrayList<Integer> patients_clone = (ArrayList<Integer>) patients.clone();
 
                 // Add patient and check route decrease/increase
-                patients_clone.add(removedPatient);
-                boolean feasible = this.objectiveFunction.optimizeRoute(patients_clone);
+                boolean feasible = this.objectiveFunction.optimizedInsert(patients_clone, removedPatient);
                 if (feasible) {
                     double routeIncrease = this.objectiveFunction.getTravelTimeRoute(patients_clone)
                             - this.objectiveFunction.getTravelTimeRoute(patients);
@@ -209,20 +248,129 @@ public class SGA {
     private void mutation(ArrayList<Individual> newOffsprings, Float mutationRate) {
         Random random = new Random();
         for (Individual offspring : newOffsprings) {
+            objectiveFunction.calculate_fitness(offspring);
             if (random.nextFloat() < mutationRate) {
-                // TODO: do mutation
-                // Options:
-                // intra move: move a patient to earlier/later visit
-                // intra swap: swap two patient for one employee
-                // inter move: move patient from one nurse to another
-                // inter swap: swap two patient visits between nurses
+                offspring = performLocalSearch(offspring);
             }
         }
     }
 
+    private Individual performLocalSearch(Individual individual) {
+        Individual bestSolution = individual.deepCopy();
+        double bestFitness = bestSolution.getFitness();
+
+        for (int iterations = 0; iterations < localSearchIterations; iterations++) {
+            // Create neighboring solutions
+            ArrayList<Individual> neighboringSolutions = createNeighboringSolutions(individual);
+
+            for (Individual neighborSolution : neighboringSolutions) {
+                if (neighborSolution.getFitness() < bestFitness) {
+                    bestSolution = neighborSolution;
+                    bestFitness = neighborSolution.getFitness();
+                }
+            }
+        }
+        return bestSolution;
+    }
+
+    private ArrayList<Individual> createNeighboringSolutions(Individual individual) {
+        ArrayList<Individual> neighboringSolutions = new ArrayList<>();
+
+        Random random = new Random();
+        for (int i=0; i < pop_size; i++) {
+            boolean foundSolution = false;
+            while (!foundSolution) {
+                Individual newIndividual = individual.deepCopy();
+
+                // Perform Local Search Operator
+                List<String> mutationOption = Arrays.asList("intraMove", "intraSwap", "interMove", "interSwap");
+                String selectedMutationOption = mutationOption.get(random.nextInt(mutationOption.size()));
+
+                HashMap<Integer, ArrayList<Integer>> bitstring = newIndividual.getBitstring();
+                int nurse_idx1 = random.nextInt(this.data.getNbr_nurses());
+                int nurse_idx2 = random.nextInt(this.data.getNbr_nurses());
+                ArrayList<Integer> patients1 = bitstring.get(nurse_idx1);
+                ArrayList<Integer> patients2 = bitstring.get(nurse_idx2);
+
+
+                switch (selectedMutationOption) {
+                    case "intraMove":
+                        // intra move: move a patient to earlier/later visit
+                        if (patients1.size() > 1) {
+                            int patientToMoveIdx = getRandomPatientIndex(patients1);
+                            int patientToMove = patients1.get(patientToMoveIdx);
+                            patients1.remove(patientToMoveIdx);
+
+                            // add back
+                            patients1.add(getRandomPatientIndex(patients1), patientToMove);
+                        }
+                        break;
+                    case "intraSwap":
+                        // intra swap: swap two patient for one employee
+                        if (patients1.size() > 2) {
+                            int pos1 = getRandomPatientIndex(patients1);
+                            int pos2 = getRandomPatientIndex(patients1);
+                            if (pos1 != pos2) {
+                                Collections.swap(patients1, pos1, pos2);
+                            }
+                        } else if (patients1.size() == 2) {
+                            Collections.swap(patients1, 0, 1);
+                        }
+                        break;
+                    case "interMove":
+                        // inter move: move patient from one nurse to another
+                        if (patients1.size() > 0 && patients2.size() > 0) {
+                            int patient1Idx = getRandomPatientIndex(patients1);
+                            int patient1 = patients1.get(patient1Idx);
+                            patients1.remove(patient1Idx);
+
+                            // add
+                            patients2.add(getRandomPatientIndex(patients2), patient1);
+                        }
+                        break;
+                    case "interSwap":
+                        // inter swap: swap two patient visits between nurses
+                        if (patients1.size() > 0 && patients2.size() > 0) {
+                            // get position.
+                            int patient1Idx = getRandomPatientIndex(patients1);
+                            int patient2Idx = getRandomPatientIndex(patients2);
+
+                            // get patients
+                            int patient1 = patients1.get(patient1Idx);
+                            int patient2 = patients2.get(patient2Idx);
+
+                            // swap
+                            patients1.set(patient1Idx, patient2);
+                            patients2.set(patient2Idx, patient1);
+                        }
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Invalid sort option: " + selectedMutationOption);
+                }
+
+                // Add solution if its acceptable
+                if (objectiveFunction.check_constraints(newIndividual)) {
+                    objectiveFunction.calculate_fitness(newIndividual);
+                    neighboringSolutions.add(newIndividual);
+                    foundSolution = true;
+                }
+            }
+        }
+        return neighboringSolutions;
+    }
+
+    private Integer getRandomPatientIndex(ArrayList<Integer> patients) {
+        int patientIdx = 0;
+        if (patients.size() != 0) {
+            Random random = new Random();
+            patientIdx = random.nextInt(patients.size());
+        }
+        return patientIdx;
+    }
+
     /**
      * Pick the best survivors given their fitness values. Elitism apprach
-     * 
+     *
      * @param oldPopulation The old population
      * @param offspring     the new population
      * @return The new generation
@@ -235,7 +383,7 @@ public class SGA {
         allIndividuals.sort(Comparator.comparing(Individual::getFitness));
 
         // pick individuals
-        ArrayList<Individual> newIndividuals = new ArrayList<>(allIndividuals.subList(0, this.pop_size - 1));
+        ArrayList<Individual> newIndividuals = new ArrayList<>(allIndividuals.subList(0, this.pop_size));
 
         // create new population
         return new Population(newIndividuals, oldPopulation, oldPopulation.getGeneration_nr() + 1);
@@ -281,7 +429,7 @@ public class SGA {
      * [1,5,7], // nurse 1 visits patient 1, 5 and 7
      * [2,8,4] // nurse 2 visits patient 2, 8 and 4
      * ]
-     * 
+     *
      * @return the bitstring
      */
     private HashMap<Integer, ArrayList<Integer>> generate_bitstring_random() {
@@ -306,7 +454,7 @@ public class SGA {
 
     /**
      * Generate a bitstring using the heuristic in data: clusters of patients
-     * 
+     *
      * @return the bitstring
      */
     private HashMap<Integer, ArrayList<Integer>> generate_bitstring_heuristic(long timeout) throws TimeoutException {
@@ -466,7 +614,7 @@ public class SGA {
     /**
      * Create a bitstring representation where each key represent a nurse and the
      * arraylist represent visited patients
-     * 
+     *
      * @return the bitstring
      */
     private HashMap<Integer, ArrayList<Integer>> create_bitstring() {

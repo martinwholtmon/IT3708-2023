@@ -22,6 +22,12 @@ public class Individual {
         this.fitness = 0f;
     }
 
+    public Individual(HashMap<Integer, ArrayList<Integer>> bitstring, double fitness) {
+        this.bitstring = bitstring;
+        this.parents = new ArrayList<>();
+        this.fitness = fitness;
+    }
+
     /**
      * Instantiates a new Individual.
      *
@@ -80,7 +86,7 @@ public class Individual {
         this.fitness = fitness;
     }
 
-    public Individual createChild(Individual parent1, Individual parent2) {
+    public Individual deepCopy() {
         HashMap<Integer, ArrayList<Integer>> nBitstring = new HashMap<>();
         for (int nurse_idx = 0; nurse_idx < this.bitstring.size(); nurse_idx++) {
             ArrayList<Integer> patients = new ArrayList<>();
@@ -89,10 +95,15 @@ public class Individual {
             }
             nBitstring.put(nurse_idx, patients);
         }
-        ArrayList<Individual> parents = new ArrayList<>();
-        parents.add(parent1);
-        parents.add(parent2);
-        return new Individual(nBitstring, parents, 0);
+        return new Individual(nBitstring, this.fitness);
+    }
+
+    public Individual createChild(Individual parent1, Individual parent2) {
+        Individual newIndividual = this.deepCopy();
+        newIndividual.setFitness(0);
+        newIndividual.getParents().add(parent1);
+        newIndividual.getParents().add(parent2);
+        return newIndividual;
     }
 
     @Override

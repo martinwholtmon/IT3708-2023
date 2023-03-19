@@ -71,7 +71,7 @@ public class Population {
 
     /**
      * Calculate the average fitness of a population
-     * 
+     *
      * @return the average fitness
      */
     private double calc_avg_fitness() {
@@ -81,7 +81,7 @@ public class Population {
         return total_fitness / feasible_individuals.size();
     }
 
-    private Individual get_best_solution() {
+    public Individual get_best_solution() {
         Individual best_individual = null;
         double best_fitness = Double.MAX_VALUE;
 
@@ -92,5 +92,20 @@ public class Population {
             }
         }
         return best_individual;
+    }
+
+    public void replaceBestIndividual(Individual individual) {
+        int bestIndividualIdx = 0;
+        double best_fitness = Double.MAX_VALUE;
+
+        ArrayList<Individual> individuals = this.getFeasible_individuals();
+        for (int i=0; i < individuals.size(); i++) {
+            if (individuals.get(i).getFitness() < best_fitness) {
+                best_fitness = individuals.get(i).getFitness();
+                bestIndividualIdx = i;
+            }
+        }
+        // replace
+        individuals.set(bestIndividualIdx, individual);
     }
 }
