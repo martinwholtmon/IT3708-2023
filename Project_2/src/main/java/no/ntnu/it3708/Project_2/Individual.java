@@ -15,7 +15,6 @@ public class Individual {
     /**
      * Instantiates a new Individual.
      *
-     * @param nurse_id  the id of the nurse
      * @param bitstring the bitstring
      */
     public Individual(HashMap<Integer, ArrayList<Integer>> bitstring) {
@@ -31,7 +30,7 @@ public class Individual {
      * @param parents   the parents
      * @param fitness   the fitness
      */
-    public Individual(HashMap<Integer, ArrayList<Integer>> bitstring, ArrayList<Individual> parents, Float fitness) {
+    public Individual(HashMap<Integer, ArrayList<Integer>> bitstring, ArrayList<Individual> parents, double fitness) {
         this.bitstring = bitstring;
         this.parents = parents;
         this.fitness = fitness;
@@ -82,11 +81,26 @@ public class Individual {
         this.fitness = fitness;
     }
 
+    public Individual createChild(Individual parent1, Individual parent2) {
+        HashMap<Integer, ArrayList<Integer>> nBitstring = new HashMap<>();
+        for (int nurse_idx = 0; nurse_idx < this.bitstring.size(); nurse_idx++) {
+            ArrayList<Integer> patients = new ArrayList<>();
+            for (Integer patient_idx : this.bitstring.get(nurse_idx)) {
+                patients.add(patient_idx);
+            }
+            nBitstring.put(nurse_idx, patients);
+        }
+        ArrayList<Individual> parents = new ArrayList<>();
+        parents.add(parent1);
+        parents.add(parent2);
+        return new Individual(nBitstring, parents, 0);
+    }
+
     @Override
     public String toString() {
         return "Individual{" +
-                "bitstring=" + bitstring +
-                ",\nfitness=" + fitness +
+                "bitstring=" + bitstring.values() +
+                "\nfitness=" + fitness +
                 '}';
     }
 }
