@@ -383,7 +383,7 @@ public class SGA {
         allIndividuals.sort(Comparator.comparing(Individual::getFitness));
 
         // pick individuals
-        ArrayList<Individual> newIndividuals = new ArrayList<>(allIndividuals.subList(0, this.pop_size));
+        ArrayList<Individual> newIndividuals = new ArrayList<>(allIndividuals.subList(0, this.pop_size/2));
 
         // create new population
         return new Population(newIndividuals, oldPopulation, oldPopulation.getGeneration_nr() + 1);
@@ -391,11 +391,21 @@ public class SGA {
 
     private Population init_population(float init_random_rate) {
         Population population = new Population();
-        int individuals = 0;
+        population.getFeasible_individuals().addAll(getNewIndividuals(pop_size, false));
+        System.out.println("Feasible solutions: " + population.getFeasible_individuals().size());
+        return population;
+    }
+
+    private ArrayList<Individual> getNewIndividuals(int n_individuals, boolean newCluster) {
+        if (newCluster) {
+            this.data.cluster_patients(50, 1d);
+        }
+        ArrayList<Individual> individuals = new ArrayList<>();
+        int currentIndividuals = 0;
         Random random = new Random();
         boolean retryHeuristic = false;
 
-        while (individuals < this.pop_size) {
+        while (currentIndividuals < this.pop_size) {
             try {
                 Individual individual = null;
                 if (random.nextFloat() > init_random_rate || retryHeuristic) {
@@ -407,20 +417,18 @@ public class SGA {
 
                 // Check constraints
                 if (objectiveFunction.check_constraints(individual)) {
-                    population.getFeasible_individuals().add(individual);
+                    individuals.add(individual);
                 } else {
-                    population.getInfeasible_individuals().add(individual);
+                    individuals.add(individual);
                 }
-                System.out.println(individuals);
-                individuals++;
+                System.out.println(currentIndividuals);
+                currentIndividuals++;
                 retryHeuristic = false;
             } catch (Exception e) {
                 retryHeuristic = true;
             }
         }
-
-        System.out.println("Feasible solutions: " + population.getFeasible_individuals().size());
-        return population;
+        return individuals;
     }
 
     /**
