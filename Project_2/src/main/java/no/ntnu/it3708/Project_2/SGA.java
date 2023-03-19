@@ -141,11 +141,65 @@ public class SGA {
         // deep copy = new objects
         Individual child1 = parent1.createChild(parent1, parent2);
         Individual child2 = parent2.createChild(parent1, parent2);
+
+        // do crossover
+        Random random = new Random();
+        if (random.nextFloat() < crossoverRate) {
+            // select random nurse
+            Integer route1 = random.nextInt((this.data.getNbr_nurses()));
+            Integer route2 = random.nextInt((this.data.getNbr_nurses()));
+            reassignPatients(child1, child2.getBitstring().get(route1));
+            reassignPatients(child2, child1.getBitstring().get(route2));
+        }
         ArrayList<Individual> offsprings = new ArrayList<>();
         offsprings.add(child1);
         offsprings.add(child2);
         return offsprings;
     }
+
+    private void reassignPatients(Individual parent, ArrayList<Integer> selectedPatients) {
+        if (selectedPatients.size() == 0) {
+            return;
+        }
+
+        // remove patients from parent
+        ArrayList<Integer> removedPatients = new ArrayList<>();
+        for (int nurse_idx = 0; nurse_idx < this.data.getNbr_nurses(); nurse_idx++) {
+            ArrayList<Integer> patients = parent.getBitstring().get(nurse_idx);
+            for (Integer selectedPatient : selectedPatients) {
+                if (patients.contains(selectedPatient)) {
+                    patients.remove(selectedPatient);
+                    removedPatients.add(selectedPatient);
+                }
+            }
+//            selectedPatients.removeAll(removedPatients);
+        }
+
+        // for each removed patient, try to find best insertion
+        for (Integer removedPatient : removedPatients) {
+            int bestNurse = 0;
+            double minIncrease = 0;
+
+            // Try to assign to each nurse, pick the one with the least increase in travel time
+            for (int nurse_idx = 0; nurse_idx < this.data.getNbr_nurses(); nurse_idx++) {
+                // Create lists
+                ArrayList<Integer> patients = parent.getBitstring().get(nurse_idx);
+                ArrayList<Integer> patients_clone = (ArrayList<Integer>) patients.clone();
+
+                // Add patient and check route decrease/increase
+                patients_clone.add(removedPatient);
+                boolean feasible = this.objectiveFunction.optimizeRoute(patients_clone);
+                if (feasible) {
+                    double routeIncrease = this.objectiveFunction.getTravelTimeRoute(patients_clone) - this.objectiveFunction.getTravelTimeRoute(patients);
+                    if (routeIncrease < minIncrease) {
+                        bestNurse = nurse_idx;
+                        minIncrease = routeIncrease;
+                    }
+                }
+            }
+        }
+    }
+
     private void mutation(ArrayList<Individual> newOffsprings, Float mutationRate) {
         Random random = new Random();
         for (Individual offspring : newOffsprings) {
