@@ -220,8 +220,25 @@ public class SGA {
         }
     }
 
+    /**
+     * Pick the best survivors given their fitness values. Elitism apprach
+     * 
+     * @param oldPopulation The old population
+     * @param offspring     the new population
+     * @return The new generation
+     */
     private Population survivor_selection(Population oldPopulation, ArrayList<Individual> offspring) {
-        return null;
+        // combine individuals
+        ArrayList<Individual> allIndividuals = new ArrayList<>();
+        allIndividuals.addAll(oldPopulation.getFeasible_individuals());
+        allIndividuals.addAll(offspring);
+        allIndividuals.sort(Comparator.comparing(Individual::getFitness));
+
+        // pick individuals
+        ArrayList<Individual> newIndividuals = new ArrayList<>(allIndividuals.subList(0, this.pop_size - 1));
+
+        // create new population
+        return new Population(newIndividuals, oldPopulation, oldPopulation.getGeneration_nr() + 1);
     }
 
     private Population init_population(float init_random_rate) {

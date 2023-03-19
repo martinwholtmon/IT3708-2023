@@ -21,7 +21,6 @@ public class Population {
         this.generation_nr = 0;
     }
 
-
     /**
      * Instantiates a new Population.
      *
@@ -30,10 +29,9 @@ public class Population {
      * @param old_pop                the old pop
      * @param generation_nr          the generation nr
      */
-    public Population(ArrayList<Individual> feasible_individuals, ArrayList<Individual> infeasible_individuals,
-            Population old_pop, Integer generation_nr) {
+    public Population(ArrayList<Individual> feasible_individuals, Population old_pop, Integer generation_nr) {
         this.feasible_individuals = feasible_individuals;
-        this.infeasible_individuals = infeasible_individuals;
+        this.infeasible_individuals = new ArrayList<>();
         this.old_pop = old_pop;
         this.generation_nr = generation_nr;
     }
