@@ -1,6 +1,10 @@
 package no.ntnu.it3708.Project_2;
 
+import com.google.common.collect.Collections2;
+
 import java.util.*;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * The Objective function.
@@ -65,44 +69,73 @@ public class ObjectiveFunction {
 
     /**
      * Given a route, bruteforce to optimize the order while keeping it feasible
-     * 
+     *
      * @param route patient visits for a nurse
      * @return It's not possible to generate a feasible route using the current
      *         visits
      */
     public boolean optimizeRoute(ArrayList<Integer> route) {
+        System.out.println("before:\n"+route);
+
         boolean feasible = false;
         double travelTime = Double.MAX_VALUE;
 
-        int numCombinations = (int) Math.pow(2, route.size());
+        for (List<Integer> r : Collections2.permutations(route)) {
+            ArrayList<Integer> tmpRoute = new ArrayList<>(r);
+            if (routeIsFeasible(tmpRoute)) {
+                // get travel time
+                double currentTravelTime = getTravelTimeRoute(tmpRoute);
 
-        // Create a temp order
-        for (int i = 0; i < numCombinations; i++) {
-            ArrayList<Integer> currentCombination = new ArrayList<>();
-            for (int j = 0; j < route.size(); j++) {
-                if (((i >> j) & 1) == 1) {
-                    currentCombination.add(route.get(j));
-                }
-            }
-            // get travel time
-            double currentTravelTime = getTravelTimeRoute(currentCombination);
-
-            // if better, check if feasible.
-            if (currentTravelTime < travelTime) {
-                if (routeIsFeasible(currentCombination)) {
+                // if better, check if feasible.
+                if (currentTravelTime < travelTime) {
                     // Update
                     feasible = true;
                     travelTime = currentTravelTime;
-                    route = currentCombination;
+                    route = tmpRoute;
+                }
+            }
+        }
+        System.out.println("After:\n"+route);
+        return feasible;
+    }
+
+    /**
+     * Insert a new visit in the best position
+     * @param route
+     * @param newVisit
+     * @return
+     */
+    public boolean optimizedInsert(ArrayList<Integer> route, Integer newVisit) {
+        boolean feasible = false;
+        double travelTime = Double.MAX_VALUE;
+
+        ArrayList<Integer> orgRoute = makeDeepCopyInteger(route);
+        for (int pos=0; pos < route.size(); pos++) {
+            ArrayList<Integer> tmpRoute = makeDeepCopyInteger(orgRoute);
+            tmpRoute.add(pos, newVisit);
+            if (routeIsFeasible(tmpRoute)) {
+                // get travel time
+                double currentTravelTime = getTravelTimeRoute(tmpRoute);
+
+                // if better, check if feasible.
+                if (currentTravelTime < travelTime) {
+                    // Update
+                    feasible = true;
+                    travelTime = currentTravelTime;
+                    route = tmpRoute;
                 }
             }
         }
         return feasible;
     }
 
+    private ArrayList<Integer> makeDeepCopyInteger(ArrayList<Integer> a){
+        return (ArrayList<Integer>) a.stream().map(val -> new Integer(val)).collect(toList());
+    }
+
     /**
      * Check that a route is feasible
-     * 
+     *
      * @param route list of patients to visit
      * @return boolean
      */
@@ -154,7 +187,7 @@ public class ObjectiveFunction {
 
     /**
      * Calculate the travel time on a given route
-     * 
+     *
      * @param route patient visits for a nurse
      * @return travel time
      */
