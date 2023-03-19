@@ -95,15 +95,20 @@ public class ObjectiveFunction {
         // Sum all travel times
         Double travel_time = 0d;
 
-        for (Map.Entry<Integer, ArrayList<Integer>> entry : individual.getBitstring().entrySet()) {
-            int nurse_idx = entry.getKey();
-            ArrayList<Integer> patients = entry.getValue();
+        HashMap<Integer, ArrayList<Integer>> bitstring = individual.getBitstring();
 
-            int current_pos = 0;
+
+        for (int nurse_idx = 0; nurse_idx < bitstring.size(); nurse_idx++) {
+            ArrayList<Integer> patients = bitstring.get(nurse_idx);
+
+            int pos = 0; //depot
             for (int patient_idx : patients) {
-                travel_time += data.getTravel_times().get(current_pos).get(patient_idx);
-                current_pos = patient_idx;
+                travel_time += data.getTravel_times().get(pos).get(patient_idx);
+                pos = patient_idx;
             }
+
+            // back to depot
+            travel_time += data.getTravel_times().get(pos).get(0);
         }
         individual.setFitness(travel_time);
     }
