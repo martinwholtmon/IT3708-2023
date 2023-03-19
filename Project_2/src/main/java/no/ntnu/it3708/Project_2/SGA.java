@@ -56,10 +56,54 @@ public class SGA {
         System.out.print(population);
         this.generations.add(population);
 
-//        // Run the SGA loop
-//        while (population.getGeneration_nr() < this.max_generations) {
-//
-//        }
+    /**
+     * Parent selection done by roulette wheel.
+     * @param population population to select from
+     * @param nParents number of parents
+     * @return the selected parents
+     */
+    private ArrayList<Individual> parent_selection(Population population, Integer nParents) {
+        if (nParents % 2 != 0) {
+            throw new IllegalArgumentException("nParents=" + nParents + " is invalid! Number must be even");
+        }
+
+        // Sum fitness values
+        List<Double> fitnessValues = new ArrayList<>();
+        for (Individual individual : population.getFeasible_individuals()) {
+            fitnessValues.add(-individual.getFitness());
+        }
+
+        // Scale values
+        double minValue = 5 + Collections.min(fitnessValues);
+        for (Double fitness : fitnessValues) {
+            fitness += minValue;
+        }
+        double totalFitness = fitnessValues.stream().mapToDouble(f -> f.doubleValue()).sum();
+
+
+        // Create probability distribution
+        List<Double> individualProbability = new ArrayList<>();
+        for (Double fitness : fitnessValues) {
+            individualProbability.add(fitness/totalFitness);
+        }
+
+        // Select parents
+        Random random = new Random();
+        ArrayList<Individual> parents = new ArrayList<>();
+        for (int i=0; i<nParents; i++) {
+            double randomValue = random.nextDouble();
+            double sum = 0;
+            int idx = -1;
+            for (idx=0; i < individualProbability.size(); idx++) {
+                sum += individualProbability.get(idx);
+                if (sum > randomValue) {
+                    break;
+                }
+            }
+            parents.add(population.getFeasible_individuals().get(idx));
+        }
+        return parents;
+    }
 
     }
 
