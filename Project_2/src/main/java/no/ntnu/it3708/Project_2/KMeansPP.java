@@ -24,8 +24,10 @@ public class KMeansPP {
     }
 
     /**
-     * Run the K-means++ algorithm. Using the elbow method to select the best k value given the tolerance
-     * @param tolerance  change in the sum of squared distances between k-values
+     * Run the K-means++ algorithm. Using the elbow method to select the best k
+     * value given the tolerance
+     * 
+     * @param tolerance change in the sum of squared distances between k-values
      * @return The cluster assignment
      */
     public ArrayList<Cluster> run(double tolerance) {
@@ -55,10 +57,9 @@ public class KMeansPP {
 
         // Do the normalization on patients
         for (DataHandler.Patient patient : patients) {
-            patient.setX_coord((patient.getX_coord() - means[0])/ stdDevs[0]);
-            patient.setY_coord((patient.getY_coord() - means[1])/ stdDevs[1]);
+            patient.setX_coord((patient.getX_coord() - means[0]) / stdDevs[0]);
+            patient.setY_coord((patient.getY_coord() - means[1]) / stdDevs[1]);
         }
-
 
         // Elbow method
         while (k <= n_clusters) {
@@ -78,7 +79,7 @@ public class KMeansPP {
         System.out.println("Selected cluster size: " + k);
 
         // Standardization (revert normalization)
-        for (int i = 0; i<cluster.size(); i++) {
+        for (int i = 0; i < cluster.size(); i++) {
             Cluster c = cluster.get(i);
 
             // centroid
@@ -94,11 +95,11 @@ public class KMeansPP {
         return cluster;
     }
 
-    private ArrayList<Cluster>  kMeansPP(int k) {
+    private ArrayList<Cluster> kMeansPP(int k) {
         List<Point> centroids = getInitialCentroids(k);
         ArrayList<Cluster> cluster = null;
 
-        for (int i=0; i<n_iterations; i++) {
+        for (int i = 0; i < n_iterations; i++) {
             // Assign Patients to clusters
             cluster = assignPatientToCluster(centroids);
 
@@ -120,7 +121,8 @@ public class KMeansPP {
         for (Cluster cluster : clusters) {
             Point centroid = cluster.getCentroid();
             for (DataHandler.Patient patient : cluster.getMembers()) {
-                totalDistance += getDistanceBetweenPoints(patient.getX_coord(), patient.getY_coord(), centroid.x, centroid.y);
+                totalDistance += getDistanceBetweenPoints(patient.getX_coord(), patient.getY_coord(), centroid.x,
+                        centroid.y);
             }
         }
         return totalDistance;
@@ -132,6 +134,7 @@ public class KMeansPP {
 
     /**
      * Will get the initial cluster centroids
+     * 
      * @return list of cluster centers (centroids)
      */
     private List<Point> getInitialCentroids(int k) {
@@ -165,14 +168,16 @@ public class KMeansPP {
 
     /**
      * Find the minimum distance from a point to all the centroids.
+     * 
      * @param patient   The point
      * @param centroids List of centroid
-     * @return  minimum distance to the centroids
+     * @return minimum distance to the centroids
      */
     private double getMinimumDistanceToCentroids(DataHandler.Patient patient, List<Point> centroids) {
         double minDistance = Double.MAX_VALUE;
         for (Point centroid : centroids) {
-            double distance = getDistanceBetweenPoints(patient.getX_coord(), patient.getY_coord(), centroid.x, centroid.y);
+            double distance = getDistanceBetweenPoints(patient.getX_coord(), patient.getY_coord(), centroid.x,
+                    centroid.y);
             if (distance < minDistance) {
                 minDistance = distance;
             }
@@ -180,9 +185,9 @@ public class KMeansPP {
         return minDistance;
     }
 
-
     /**
      * Will assign patient to clusters
+     * 
      * @param centroids List of centroids
      * @return Hashmap of clusters containing patients
      */
@@ -198,7 +203,8 @@ public class KMeansPP {
             int closestCentroidIdx = -1;
             double minDistance = Double.MAX_VALUE;
             for (int i = 0; i < centroids.size(); i++) {
-                double distance = Math.sqrt(Math.pow(patient.getX_coord() - centroids.get(i).x, 2) + Math.pow(patient.getY_coord() - centroids.get(i).y, 2));
+                double distance = Math.sqrt(Math.pow(patient.getX_coord() - centroids.get(i).x, 2)
+                        + Math.pow(patient.getY_coord() - centroids.get(i).y, 2));
                 if (distance < minDistance) {
                     closestCentroidIdx = i;
                     minDistance = distance;
@@ -213,6 +219,7 @@ public class KMeansPP {
 
     /**
      * Will calculate the new centroids given the clusters
+     * 
      * @param cluster Clusters with patients
      * @return new cluster centers (centroids)
      */
