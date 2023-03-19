@@ -105,6 +105,63 @@ public class SGA {
         return parents;
     }
 
+    private ArrayList<Individual> generateOffspring(ArrayList<Individual> matingPool, Float crossoverRate, Float mutationRate) {
+        ArrayList<Individual> offsprings = new ArrayList<>();
+
+        // perform crossover and mutation
+        for (int i = 1; i < matingPool.size(); i = i + 2) {
+            // get parent pair
+            Individual parent1 = matingPool.get(i-1);
+            Individual parent2 = matingPool.get(i);
+
+            ArrayList<Individual> newOffsprings = null;
+            boolean feasibleSolution = false;
+            while (!feasibleSolution) {
+                // create new individuals from the crossover
+                newOffsprings = crossover(parent1, parent2, crossoverRate);
+
+                // Mutate
+                mutation(newOffsprings, mutationRate);
+
+                // check constraints
+                feasibleSolution = true;
+                for (Individual offspring : newOffsprings) {
+                    if (objectiveFunction.check_constraints(offspring) == false) {
+                        feasibleSolution = false;
+                    }
+                }
+            }
+            // add individuals
+            offsprings.addAll(newOffsprings);
+        }
+        return offsprings;
+    }
+
+    private ArrayList<Individual> crossover(Individual parent1, Individual parent2, Float crossoverRate) {
+        // deep copy = new objects
+        Individual child1 = parent1.createChild(parent1, parent2);
+        Individual child2 = parent2.createChild(parent1, parent2);
+        ArrayList<Individual> offsprings = new ArrayList<>();
+        offsprings.add(child1);
+        offsprings.add(child2);
+        return offsprings;
+    }
+    private void mutation(ArrayList<Individual> newOffsprings, Float mutationRate) {
+        Random random = new Random();
+        for (Individual offspring : newOffsprings) {
+            if (random.nextFloat() < mutationRate) {
+                // TODO: do mutation
+                // Options:
+                // intra move: move a patient to earlier/later visit
+                // intra swap: swap two patient for one employee
+                // inter move: move patient from one nurse to another
+                // inter swap: swap two patient visits between nurses
+            }
+        }
+    }
+
+    private Population survivor_selection(Population oldPopulation, ArrayList<Individual> offspring) {
+        return null;
     }
 
     private Population init_population(float init_random_rate) {
