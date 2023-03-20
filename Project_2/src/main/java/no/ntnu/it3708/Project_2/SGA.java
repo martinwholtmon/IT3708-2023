@@ -4,17 +4,12 @@ import com.google.gson.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import no.ntnu.it3708.Project_2.DataHandler.Patient;
 
 /**
  * The Sga.
  */
 public class SGA {
     private final ObjectiveFunction objectiveFunction;
-    private final Boolean maximize;
     private final Integer pop_size;
     private final Integer max_generations;
     private final Float crossover_rate;
@@ -30,7 +25,6 @@ public class SGA {
      * Instantiates a new Sga.
      *
      * @param objectiveFunction the objective function
-     * @param maximize          if maximize
      * @param pop_size          the pop size
      * @param max_generations   the max generations
      * @param crossover_rate    the crossover rate
@@ -40,7 +34,6 @@ public class SGA {
      */
     public SGA(
             ObjectiveFunction objectiveFunction,
-            Boolean maximize,
             Integer pop_size,
             Integer max_generations,
             Float crossover_rate,
@@ -49,7 +42,6 @@ public class SGA {
             int localSearchIterations,
             DataHandler data) {
         this.objectiveFunction = objectiveFunction;
-        this.maximize = maximize;
         this.pop_size = pop_size;
         this.max_generations = max_generations;
         this.crossover_rate = crossover_rate;
@@ -75,6 +67,10 @@ public class SGA {
             // System.out.println("Performing local search on best solution:");
             Individual bestIndividual = population.get_best_solution();
             Individual localSearchIndividual = performLocalSearch(bestIndividual);
+
+            // try to remove bad visit on route, and reassign to better route
+            // objectiveFunction.optimizeRoute(localSearchIndividual);
+
             if (localSearchIndividual.getFitness() < bestIndividual.getFitness()) {
                 population.replaceBestIndividual(localSearchIndividual);
             }
@@ -255,10 +251,11 @@ public class SGA {
     }
 
     private void mutation(ArrayList<Individual> newOffsprings, Float mutationRate) {
-        for (Individual offspring : newOffsprings) {
-            objectiveFunction.calculate_fitness(offspring);
+        for (int i = 0; i < newOffsprings.size(); i++) {
+            objectiveFunction.calculate_fitness(newOffsprings.get(i));
             if (this.random.nextFloat() < mutationRate) {
-                offspring = performLocalSearch(offspring);
+                Individual offspring = performLocalSearch(newOffsprings.get(i));
+                newOffsprings.set(i, offspring);
             }
         }
     }

@@ -12,19 +12,18 @@ public class Main {
 
         // Prepare params
         ObjectiveFunction objectiveFunction = new ObjectiveFunction(data);
-        boolean maximize = false;
         int pop_size = 36;
         int max_generations = 100;
         float crossover_rate = 0.6f;
         float mutation_rate = 0.1f;
-        float init_random_rate = 1f;
+        float init_random_rate = 0.3f;
         int localSearchIterations = 100;
 
         SGA bestSga = null;
         double bestFitness = Double.MAX_VALUE;
 
         for (int i = 0; i < 3; i++) {
-            SGA sga = new SGA(objectiveFunction, maximize, pop_size, max_generations, crossover_rate, mutation_rate,
+            SGA sga = new SGA(objectiveFunction, pop_size, max_generations, crossover_rate, mutation_rate,
                     init_random_rate, localSearchIterations, data);
             sga.run();
             Individual individual = sga.getBestIndividual();
