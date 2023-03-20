@@ -15,7 +15,7 @@ public class Main {
         int max_generations = 100;
         float crossover_rate = 0.6f;
         float mutation_rate = 0.1f;
-        float init_random_rate = 0.3f;
+        float init_random_rate = 0.2f;
         int localSearchIterations = 100;
 
         SGA bestSga = null;
