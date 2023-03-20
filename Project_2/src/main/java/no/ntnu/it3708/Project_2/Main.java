@@ -2,7 +2,6 @@ package no.ntnu.it3708.Project_2;
 
 import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) throws FileNotFoundException, URISyntaxException {
@@ -11,7 +10,7 @@ public class Main {
         data.loadData("/data/train_0.json");
 
         // Prepare params
-        ObjectiveFunction objectiveFunction = new ObjectiveFunction(data);
+        ConstraintsHandler constraintsHandler = new ConstraintsHandler(data);
         int pop_size = 36;
         int max_generations = 100;
         float crossover_rate = 0.6f;
@@ -23,7 +22,7 @@ public class Main {
         double bestFitness = Double.MAX_VALUE;
 
         for (int i = 0; i < 3; i++) {
-            SGA sga = new SGA(objectiveFunction, pop_size, max_generations, crossover_rate, mutation_rate,
+            SGA sga = new SGA(constraintsHandler, pop_size, max_generations, crossover_rate, mutation_rate,
                     init_random_rate, localSearchIterations, data);
             sga.run();
             Individual individual = sga.getBestIndividual();

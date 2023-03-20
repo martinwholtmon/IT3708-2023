@@ -9,7 +9,7 @@ import java.util.concurrent.TimeoutException;
  * The Sga.
  */
 public class SGA {
-    private final ObjectiveFunction objectiveFunction;
+    private final ConstraintsHandler constraintsHandler;
     private final Integer pop_size;
     private final Integer max_generations;
     private final Float crossover_rate;
@@ -24,7 +24,7 @@ public class SGA {
     /**
      * Instantiates a new Sga.
      *
-     * @param objectiveFunction the objective function
+     * @param constraintsHandler the objective function
      * @param pop_size          the pop size
      * @param max_generations   the max generations
      * @param crossover_rate    the crossover rate
@@ -33,7 +33,7 @@ public class SGA {
      *                          generation)
      */
     public SGA(
-            ObjectiveFunction objectiveFunction,
+            ConstraintsHandler constraintsHandler,
             Integer pop_size,
             Integer max_generations,
             Float crossover_rate,
@@ -41,7 +41,7 @@ public class SGA {
             Float init_random_rate,
             int localSearchIterations,
             DataHandler data) {
-        this.objectiveFunction = objectiveFunction;
+        this.constraintsHandler = constraintsHandler;
         this.pop_size = pop_size;
         this.max_generations = max_generations;
         this.crossover_rate = crossover_rate;
@@ -94,7 +94,7 @@ public class SGA {
 
         // Calculate fitness
         for (Individual individual : offspring) {
-            objectiveFunction.calculate_fitness(individual);
+            constraintsHandler.calculate_fitness(individual);
         }
         return survivor_selection(oldPopulation, offspring);
     }
@@ -162,7 +162,7 @@ public class SGA {
 
                 // check constraints
                 for (Individual offspring : newOffsprings) {
-                    if (objectiveFunction.check_constraints(offspring)) {
+                    if (constraintsHandler.check_constraints(offspring)) {
                         offsprings.add(offspring);
                         feasibleSolutions++;
                     }
@@ -230,10 +230,10 @@ public class SGA {
                 ArrayList<Integer> patients_clone = (ArrayList<Integer>) patients.clone();
 
                 // Add patient and check route decrease/increase
-                boolean feasible = this.objectiveFunction.optimizedInsert(patients_clone, removedPatient);
+                boolean feasible = this.constraintsHandler.optimizedInsert(patients_clone, removedPatient);
                 if (feasible) {
-                    double routeIncrease = this.objectiveFunction.getTravelTimeRoute(patients_clone)
-                            - this.objectiveFunction.getTravelTimeRoute(patients);
+                    double routeIncrease = this.constraintsHandler.getTravelTimeRoute(patients_clone)
+                            - this.constraintsHandler.getTravelTimeRoute(patients);
                     if (routeIncrease < minIncrease) {
                         bestNurse = nurse_idx;
                         bestRoute = patients_clone;
@@ -252,7 +252,7 @@ public class SGA {
 
     private void mutation(ArrayList<Individual> newOffsprings, Float mutationRate) {
         for (int i = 0; i < newOffsprings.size(); i++) {
-            objectiveFunction.calculate_fitness(newOffsprings.get(i));
+            constraintsHandler.calculate_fitness(newOffsprings.get(i));
             if (this.random.nextFloat() < mutationRate) {
                 Individual offspring = performLocalSearch(newOffsprings.get(i));
                 newOffsprings.set(i, offspring);
@@ -352,8 +352,8 @@ public class SGA {
                 }
 
                 // Add solution if its acceptable
-                if (objectiveFunction.check_constraints(newIndividual)) {
-                    objectiveFunction.calculate_fitness(newIndividual);
+                if (constraintsHandler.check_constraints(newIndividual)) {
+                    constraintsHandler.calculate_fitness(newIndividual);
                     neighboringSolutions.add(newIndividual);
                     foundSolution = true;
                 }
@@ -414,10 +414,10 @@ public class SGA {
                 } else {
                     individual = new Individual(generate_bitstring_random(2000));
                 }
-                objectiveFunction.calculate_fitness(individual);
+                constraintsHandler.calculate_fitness(individual);
 
                 // Check constraints
-                if (objectiveFunction.check_constraints(individual)) {
+                if (constraintsHandler.check_constraints(individual)) {
                     individuals.add(individual);
                 } else {
                     individuals.add(individual);

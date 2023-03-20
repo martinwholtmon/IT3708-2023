@@ -10,7 +10,7 @@ import static java.util.stream.Collectors.toList;
  * The Objective function.
  * Used for calculating the fitness and checking constraints.
  */
-public class ObjectiveFunction {
+public class ConstraintsHandler {
     private final DataHandler data;
 
     /**
@@ -18,7 +18,7 @@ public class ObjectiveFunction {
      *
      * @param data the data
      */
-    public ObjectiveFunction(DataHandler data) {
+    public ConstraintsHandler(DataHandler data) {
         this.data = data;
     }
 
@@ -113,7 +113,7 @@ public class ObjectiveFunction {
 
     /**
      * Insert a new visit in the best position
-     * 
+     *
      * @param route
      * @param newVisit
      * @return
