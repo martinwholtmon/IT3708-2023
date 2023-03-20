@@ -22,22 +22,15 @@ public class Individual {
         this.fitness = 0f;
     }
 
-    public Individual(HashMap<Integer, ArrayList<Integer>> bitstring, double fitness) {
-        this.bitstring = bitstring;
-        this.parents = new ArrayList<>();
-        this.fitness = fitness;
-    }
-
     /**
      * Instantiates a new Individual.
      *
      * @param bitstring the bitstring
-     * @param parents   the parents
      * @param fitness   the fitness
      */
-    public Individual(HashMap<Integer, ArrayList<Integer>> bitstring, ArrayList<Individual> parents, double fitness) {
+    public Individual(HashMap<Integer, ArrayList<Integer>> bitstring, double fitness) {
         this.bitstring = bitstring;
-        this.parents = parents;
+        this.parents = new ArrayList<>();
         this.fitness = fitness;
     }
 
@@ -48,15 +41,6 @@ public class Individual {
      */
     public ArrayList<Individual> getParents() {
         return parents;
-    }
-
-    /**
-     * Sets parents.
-     *
-     * @param parents the parents
-     */
-    public void setParents(ArrayList<Individual> parents) {
-        this.parents = parents;
     }
 
     /**
@@ -86,18 +70,27 @@ public class Individual {
         this.fitness = fitness;
     }
 
+    /**
+     * Deep copy individual.
+     *
+     * @return the individual
+     */
     public Individual deepCopy() {
         HashMap<Integer, ArrayList<Integer>> nBitstring = new HashMap<>();
         for (int nurse_idx = 0; nurse_idx < this.bitstring.size(); nurse_idx++) {
-            ArrayList<Integer> patients = new ArrayList<>();
-            for (Integer patient_idx : this.bitstring.get(nurse_idx)) {
-                patients.add(patient_idx);
-            }
+            ArrayList<Integer> patients = new ArrayList<>(this.bitstring.get(nurse_idx));
             nBitstring.put(nurse_idx, patients);
         }
         return new Individual(nBitstring, this.fitness);
     }
 
+    /**
+     * Create child individual.
+     *
+     * @param parent1 the parent 1
+     * @param parent2 the parent 2
+     * @return the individual
+     */
     public Individual createChild(Individual parent1, Individual parent2) {
         Individual newIndividual = this.deepCopy();
         newIndividual.setFitness(0);

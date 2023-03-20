@@ -10,7 +10,7 @@ import static java.util.stream.Collectors.toList;
  * The Objective function.
  * Used for calculating the fitness and checking constraints.
  */
-public class ObjectiveFunction {
+public class ConstraintsHandler {
     private final DataHandler data;
 
     /**
@@ -18,7 +18,7 @@ public class ObjectiveFunction {
      *
      * @param data the data
      */
-    public ObjectiveFunction(DataHandler data) {
+    public ConstraintsHandler(DataHandler data) {
         this.data = data;
     }
 
@@ -44,17 +44,13 @@ public class ObjectiveFunction {
         }
         // check that patient visists is the same size as the number of patients = all
         // patients visited
-        if (visited_patients.size() != data.getPatients().size()) {
-            return false;
-        }
-        return true;
+        return visited_patients.size() == data.getPatients().size();
     }
 
     /**
      * Calculates the fitness of an individual.
      *
      * @param individual the individual
-     * @return the fitness
      */
     public void calculate_fitness(Individual individual) {
         // Sum all travel times
@@ -71,7 +67,7 @@ public class ObjectiveFunction {
      * Given a route, bruteforce to optimize the order while keeping it feasible
      *
      * @param route patient visits for a nurse
-     * @return It's not possible to generate a feasible route using the current
+     * @return It 's not possible to generate a feasible route using the current
      *         visits
      */
     public boolean optimizeRouteBF(ArrayList<Integer> route) {
@@ -99,6 +95,12 @@ public class ObjectiveFunction {
         return feasible;
     }
 
+    /**
+     * Optimize routes individual.
+     *
+     * @param individual the individual
+     * @return the individual
+     */
     public Individual optimizeRoutes(Individual individual) {
         Individual bestSolution = individual.deepCopy();
 
@@ -113,10 +115,10 @@ public class ObjectiveFunction {
 
     /**
      * Insert a new visit in the best position
-     * 
-     * @param route
-     * @param newVisit
-     * @return
+     *
+     * @param route    The route to modify
+     * @param newVisit The new patient to visit
+     * @return Feasible to add the new patient
      */
     public boolean optimizedInsert(ArrayList<Integer> route, Integer newVisit) {
         boolean feasible = false;
@@ -143,7 +145,7 @@ public class ObjectiveFunction {
     }
 
     private ArrayList<Integer> makeDeepCopyInteger(ArrayList<Integer> a) {
-        return (ArrayList<Integer>) a.stream().map(val -> new Integer(val)).collect(toList());
+        return (ArrayList<Integer>) a.stream().map(Integer::new).collect(toList());
     }
 
     /**
@@ -171,7 +173,7 @@ public class ObjectiveFunction {
             double arrival_time = start_time + data.getTravel_times().get(current_position).get(patient_id);
             if (arrival_time < patient.getStart_time()) {
                 // Must wait for time window, update arrival time
-                arrival_time = (double) patient.getStart_time();
+                arrival_time = patient.getStart_time();
             }
 
             // Check that we finish before the patients end_time
@@ -192,10 +194,7 @@ public class ObjectiveFunction {
         }
         // Check depot constraints
         double end_time = start_time + data.getTravel_times().get(current_position).get(0);
-        if (end_time > data.getDepot().getReturn_time()) {
-            return false;
-        }
-        return true;
+        return !(end_time > data.getDepot().getReturn_time());
     }
 
     /**
