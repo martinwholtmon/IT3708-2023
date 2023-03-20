@@ -34,7 +34,8 @@ public class SGA {
      * @param max_generations       the max generations
      * @param crossover_rate        the crossover rate
      * @param mutation_rate         the mutation rate
-     * @param init_random_rate      the initial random rate (completely random bitstring                          generation)
+     * @param init_random_rate      the initial random rate (completely random
+     *                              bitstring generation)
      * @param localSearchIterations the local search iterations
      * @param data                  the data
      */
@@ -74,7 +75,8 @@ public class SGA {
             // perform LNS
             // System.out.println("Performing local search on best solution:");
             Individual bestIndividual = population.get_best_solution();
-            Individual localSearchIndividual = performLocalSearch(bestIndividual, this.localSearchIterations, this.pop_size, this.data, this.constraintsHandler, this.random);
+            Individual localSearchIndividual = performLocalSearch(bestIndividual, this.localSearchIterations,
+                    this.pop_size, this.data, this.constraintsHandler, this.random);
 
             // try to remove bad visit on route, and reassign to better route
             // objectiveFunction.optimizeRoute(localSearchIndividual);
@@ -84,7 +86,8 @@ public class SGA {
             }
 
             // Print
-            System.out.println("Generation " + population.getGeneration_nr() + ": " + population.get_best_solution().getFitness());
+            System.out.println(
+                    "Generation " + population.getGeneration_nr() + ": " + population.get_best_solution().getFitness());
             this.generations.add(population);
         }
     }
@@ -267,7 +270,8 @@ public class SGA {
         for (int i = 0; i < newOffsprings.size(); i++) {
             constraintsHandler.calculate_fitness(newOffsprings.get(i));
             if (this.random.nextFloat() < mutationRate) {
-                Individual offspring = performLocalSearch(newOffsprings.get(i), this.localSearchIterations, this.pop_size, this.data, this.constraintsHandler, this.random);
+                Individual offspring = performLocalSearch(newOffsprings.get(i), this.localSearchIterations,
+                        this.pop_size, this.data, this.constraintsHandler, this.random);
                 newOffsprings.set(i, offspring);
             }
         }
@@ -310,7 +314,8 @@ public class SGA {
             try {
                 Individual individual;
                 if (this.random.nextFloat() > init_random_rate || retryHeuristic) {
-                    individual = new Individual(generate_bitstring_heuristic(this.clusters, this.data, this.random, 2000));
+                    individual = new Individual(
+                            generate_bitstring_heuristic(this.clusters, this.data, this.random, 2000));
                 } else {
                     individual = new Individual(generate_bitstring_random(this.data, this.random, 2000));
                 }

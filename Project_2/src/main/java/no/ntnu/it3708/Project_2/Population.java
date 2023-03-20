@@ -108,7 +108,7 @@ public class Population {
         double best_fitness = Double.MAX_VALUE;
 
         ArrayList<Individual> individuals = this.getFeasible_individuals();
-        for (int i=0; i < individuals.size(); i++) {
+        for (int i = 0; i < individuals.size(); i++) {
             if (individuals.get(i).getFitness() < best_fitness) {
                 best_fitness = individuals.get(i).getFitness();
                 bestIndividualIdx = i;

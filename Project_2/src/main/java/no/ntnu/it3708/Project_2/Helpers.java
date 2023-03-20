@@ -113,7 +113,8 @@ public class Helpers {
      * @return the bitstring
      * @throws TimeoutException the timeout exception
      */
-    public static HashMap<Integer, ArrayList<Integer>> generate_bitstring_random(DataHandler data, Random random, long timeout) throws TimeoutException {
+    public static HashMap<Integer, ArrayList<Integer>> generate_bitstring_random(DataHandler data, Random random,
+            long timeout) throws TimeoutException {
         // timeout
         final long startTime = System.nanoTime();
         final long timeoutNanos = TimeUnit.MILLISECONDS.toNanos(timeout);
@@ -195,7 +196,9 @@ public class Helpers {
      * @return the bitstring
      * @throws TimeoutException the timeout exception
      */
-    public static HashMap<Integer, ArrayList<Integer>> generate_bitstring_heuristic(ArrayList<DataHandler.Cluster> clusters, DataHandler data, Random random, long timeout) throws TimeoutException {
+    public static HashMap<Integer, ArrayList<Integer>> generate_bitstring_heuristic(
+            ArrayList<DataHandler.Cluster> clusters, DataHandler data, Random random, long timeout)
+            throws TimeoutException {
         // timeout
         final long startTime = System.nanoTime();
         final long timeoutNanos = TimeUnit.MILLISECONDS.toNanos(timeout);

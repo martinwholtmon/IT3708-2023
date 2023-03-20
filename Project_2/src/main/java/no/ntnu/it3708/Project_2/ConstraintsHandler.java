@@ -67,7 +67,8 @@ public class ConstraintsHandler {
      * Given a route, bruteforce to optimize the order while keeping it feasible
      *
      * @param route patient visits for a nurse
-     * @return It 's not possible to generate a feasible route using the current         visits
+     * @return It 's not possible to generate a feasible route using the current
+     *         visits
      */
     public boolean optimizeRouteBF(ArrayList<Integer> route) {
         System.out.println("before:\n" + route);

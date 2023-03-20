@@ -19,13 +19,15 @@ public class LocalSearch {
      * @param random                the random
      * @return the individual
      */
-    public static Individual performLocalSearch(Individual individual, int localSearchIterations, int pop_size, DataHandler data, ConstraintsHandler constraintsHandler, Random random) {
+    public static Individual performLocalSearch(Individual individual, int localSearchIterations, int pop_size,
+            DataHandler data, ConstraintsHandler constraintsHandler, Random random) {
         Individual bestSolution = individual.deepCopy();
         double bestFitness = bestSolution.getFitness();
 
         for (int iterations = 0; iterations < localSearchIterations; iterations++) {
             // Create neighboring solutions
-            ArrayList<Individual> neighboringSolutions = createNeighboringSolutions(individual, pop_size, data, constraintsHandler, random);
+            ArrayList<Individual> neighboringSolutions = createNeighboringSolutions(individual, pop_size, data,
+                    constraintsHandler, random);
 
             for (Individual neighborSolution : neighboringSolutions) {
                 if (neighborSolution.getFitness() < bestFitness) {
@@ -47,7 +49,8 @@ public class LocalSearch {
      * @param random             the random
      * @return the array list
      */
-    public static ArrayList<Individual> createNeighboringSolutions(Individual individual, int pop_size, DataHandler data, ConstraintsHandler constraintsHandler, Random random) {
+    public static ArrayList<Individual> createNeighboringSolutions(Individual individual, int pop_size,
+            DataHandler data, ConstraintsHandler constraintsHandler, Random random) {
         ArrayList<Individual> neighboringSolutions = new ArrayList<>();
 
         for (int i = 0; i < pop_size; i++) {
