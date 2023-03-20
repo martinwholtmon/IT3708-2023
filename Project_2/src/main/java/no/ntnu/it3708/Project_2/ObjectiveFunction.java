@@ -74,8 +74,8 @@ public class ObjectiveFunction {
      * @return It's not possible to generate a feasible route using the current
      *         visits
      */
-    public boolean optimizeRoute(ArrayList<Integer> route) {
-        System.out.println("before:\n"+route);
+    public boolean optimizeRouteBF(ArrayList<Integer> route) {
+        System.out.println("before:\n" + route);
 
         boolean feasible = false;
         double travelTime = Double.MAX_VALUE;
@@ -95,12 +95,25 @@ public class ObjectiveFunction {
                 }
             }
         }
-        System.out.println("After:\n"+route);
+        System.out.println("After:\n" + route);
         return feasible;
+    }
+
+    public Individual optimizeRoutes(Individual individual) {
+        Individual bestSolution = individual.deepCopy();
+
+        // Logic:
+        // Go over each route. If distance from n to n+1 is large, remove n+1.
+        // then check next..
+        // Try to assign the patients again
+
+        // Remove bad patients from route
+        return bestSolution;
     }
 
     /**
      * Insert a new visit in the best position
+     * 
      * @param route
      * @param newVisit
      * @return
@@ -110,7 +123,7 @@ public class ObjectiveFunction {
         double travelTime = Double.MAX_VALUE;
 
         ArrayList<Integer> orgRoute = makeDeepCopyInteger(route);
-        for (int pos=0; pos < route.size(); pos++) {
+        for (int pos = 0; pos < route.size(); pos++) {
             ArrayList<Integer> tmpRoute = makeDeepCopyInteger(orgRoute);
             tmpRoute.add(pos, newVisit);
             if (routeIsFeasible(tmpRoute)) {
@@ -129,7 +142,7 @@ public class ObjectiveFunction {
         return feasible;
     }
 
-    private ArrayList<Integer> makeDeepCopyInteger(ArrayList<Integer> a){
+    private ArrayList<Integer> makeDeepCopyInteger(ArrayList<Integer> a) {
         return (ArrayList<Integer>) a.stream().map(val -> new Integer(val)).collect(toList());
     }
 

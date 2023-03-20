@@ -1,17 +1,15 @@
 package no.ntnu.it3708.Project_2;
 
+import com.google.gson.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * The Sga.
  */
 public class SGA {
     private final ObjectiveFunction objectiveFunction;
-    private final Boolean maximize;
     private final Integer pop_size;
     private final Integer max_generations;
     private final Float crossover_rate;
@@ -19,13 +17,14 @@ public class SGA {
     private final Float init_random_rate;
     private final int localSearchIterations;
     private final DataHandler data;
+    private ArrayList<DataHandler.Cluster> clusters;
     private ArrayList<Population> generations;
+    private Random random;
 
     /**
      * Instantiates a new Sga.
      *
      * @param objectiveFunction the objective function
-     * @param maximize          if maximize
      * @param pop_size          the pop size
      * @param max_generations   the max generations
      * @param crossover_rate    the crossover rate
@@ -35,7 +34,6 @@ public class SGA {
      */
     public SGA(
             ObjectiveFunction objectiveFunction,
-            Boolean maximize,
             Integer pop_size,
             Integer max_generations,
             Float crossover_rate,
@@ -44,7 +42,6 @@ public class SGA {
             int localSearchIterations,
             DataHandler data) {
         this.objectiveFunction = objectiveFunction;
-        this.maximize = maximize;
         this.pop_size = pop_size;
         this.max_generations = max_generations;
         this.crossover_rate = crossover_rate;
@@ -52,10 +49,12 @@ public class SGA {
         this.init_random_rate = init_random_rate;
         this.localSearchIterations = localSearchIterations;
         this.data = data;
+        this.clusters = data.cluster_patients(50, 1d);
+        this.random = new Random();
         this.generations = new ArrayList<>();
     }
 
-    public void simulate() {
+    public void run() {
         Population population = init_population(init_random_rate);
         System.out.println(population);
         this.generations.add(population);
@@ -65,9 +64,13 @@ public class SGA {
             population = newGeneration(population);
 
             // perform LNS
-            System.out.println("Performing local search on best solution:");
+            // System.out.println("Performing local search on best solution:");
             Individual bestIndividual = population.get_best_solution();
             Individual localSearchIndividual = performLocalSearch(bestIndividual);
+
+            // try to remove bad visit on route, and reassign to better route
+            // objectiveFunction.optimizeRoute(localSearchIndividual);
+
             if (localSearchIndividual.getFitness() < bestIndividual.getFitness()) {
                 population.replaceBestIndividual(localSearchIndividual);
             }
@@ -76,6 +79,10 @@ public class SGA {
             System.out.println(population);
             this.generations.add(population);
         }
+    }
+
+    public Individual getBestIndividual() {
+        return this.generations.get(this.generations.size() - 1).get_best_solution();
     }
 
     private Population newGeneration(Population oldPopulation) {
@@ -118,10 +125,9 @@ public class SGA {
         fitnessValues.forEach(fitness -> individualProbability.add(fitness / totalFitness));
 
         // Select parents
-        Random random = new Random();
         ArrayList<Individual> parents = new ArrayList<>();
         for (int i = 0; i < nParents; i++) {
-            double randomValue = random.nextDouble();
+            double randomValue = this.random.nextDouble();
             double sum = 0;
             int idx = -1;
             for (idx = 0; i < individualProbability.size(); idx++) {
@@ -172,14 +178,13 @@ public class SGA {
         Individual child2 = parent2.createChild(parent1, parent2);
 
         // do crossover
-        Random random = new Random();
-        if (random.nextFloat() < crossoverRate) {
+        if (this.random.nextFloat() < crossoverRate) {
             boolean done = false;
             while (!done) {
                 try {
                     // select random nurse
-                    Integer route1 = random.nextInt((this.data.getNbr_nurses()));
-                    Integer route2 = random.nextInt((this.data.getNbr_nurses()));
+                    Integer route1 = this.random.nextInt((this.data.getNbr_nurses()));
+                    Integer route2 = this.random.nextInt((this.data.getNbr_nurses()));
                     reassignPatients(child1, child2.getBitstring().get(route1));
                     reassignPatients(child2, child1.getBitstring().get(route2));
                     done = true;
@@ -246,11 +251,11 @@ public class SGA {
     }
 
     private void mutation(ArrayList<Individual> newOffsprings, Float mutationRate) {
-        Random random = new Random();
-        for (Individual offspring : newOffsprings) {
-            objectiveFunction.calculate_fitness(offspring);
-            if (random.nextFloat() < mutationRate) {
-                offspring = performLocalSearch(offspring);
+        for (int i = 0; i < newOffsprings.size(); i++) {
+            objectiveFunction.calculate_fitness(newOffsprings.get(i));
+            if (this.random.nextFloat() < mutationRate) {
+                Individual offspring = performLocalSearch(newOffsprings.get(i));
+                newOffsprings.set(i, offspring);
             }
         }
     }
@@ -276,22 +281,20 @@ public class SGA {
     private ArrayList<Individual> createNeighboringSolutions(Individual individual) {
         ArrayList<Individual> neighboringSolutions = new ArrayList<>();
 
-        Random random = new Random();
-        for (int i=0; i < pop_size; i++) {
+        for (int i = 0; i < pop_size; i++) {
             boolean foundSolution = false;
             while (!foundSolution) {
                 Individual newIndividual = individual.deepCopy();
 
                 // Perform Local Search Operator
                 List<String> mutationOption = Arrays.asList("intraMove", "intraSwap", "interMove", "interSwap");
-                String selectedMutationOption = mutationOption.get(random.nextInt(mutationOption.size()));
+                String selectedMutationOption = mutationOption.get(this.random.nextInt(mutationOption.size()));
 
                 HashMap<Integer, ArrayList<Integer>> bitstring = newIndividual.getBitstring();
-                int nurse_idx1 = random.nextInt(this.data.getNbr_nurses());
-                int nurse_idx2 = random.nextInt(this.data.getNbr_nurses());
+                int nurse_idx1 = this.random.nextInt(this.data.getNbr_nurses());
+                int nurse_idx2 = this.random.nextInt(this.data.getNbr_nurses());
                 ArrayList<Integer> patients1 = bitstring.get(nurse_idx1);
                 ArrayList<Integer> patients2 = bitstring.get(nurse_idx2);
-
 
                 switch (selectedMutationOption) {
                     case "intraMove":
@@ -362,8 +365,7 @@ public class SGA {
     private Integer getRandomPatientIndex(ArrayList<Integer> patients) {
         int patientIdx = 0;
         if (patients.size() != 0) {
-            Random random = new Random();
-            patientIdx = random.nextInt(patients.size());
+            patientIdx = this.random.nextInt(patients.size());
         }
         return patientIdx;
     }
@@ -383,7 +385,7 @@ public class SGA {
         allIndividuals.sort(Comparator.comparing(Individual::getFitness));
 
         // pick individuals
-        ArrayList<Individual> newIndividuals = new ArrayList<>(allIndividuals.subList(0, this.pop_size/2));
+        ArrayList<Individual> newIndividuals = new ArrayList<>(allIndividuals.subList(0, this.pop_size / 2));
 
         // create new population
         return new Population(newIndividuals, oldPopulation, oldPopulation.getGeneration_nr() + 1);
@@ -398,20 +400,19 @@ public class SGA {
 
     private ArrayList<Individual> getNewIndividuals(int n_individuals, boolean newCluster) {
         if (newCluster) {
-            this.data.cluster_patients(50, 1d);
+            this.clusters = this.data.cluster_patients(50, 1d);
         }
         ArrayList<Individual> individuals = new ArrayList<>();
         int currentIndividuals = 0;
-        Random random = new Random();
         boolean retryHeuristic = false;
 
         while (currentIndividuals < this.pop_size) {
             try {
                 Individual individual = null;
-                if (random.nextFloat() > init_random_rate || retryHeuristic) {
+                if (this.random.nextFloat() > init_random_rate || retryHeuristic) {
                     individual = new Individual(generate_bitstring_heuristic(2000));
                 } else {
-                    individual = new Individual(generate_bitstring_random());
+                    individual = new Individual(generate_bitstring_random(2000));
                 }
                 objectiveFunction.calculate_fitness(individual);
 
@@ -440,22 +441,74 @@ public class SGA {
      *
      * @return the bitstring
      */
-    private HashMap<Integer, ArrayList<Integer>> generate_bitstring_random() {
+    private HashMap<Integer, ArrayList<Integer>> generate_bitstring_random(long timeout) throws TimeoutException {
+        // timeout
+        final long startTime = System.nanoTime();
+        final long timeoutNanos = TimeUnit.MILLISECONDS.toNanos(timeout);
+
         // create bitstring
         HashMap<Integer, ArrayList<Integer>> bitstring = create_bitstring();
 
         // Prepare list of patients
-        List<Integer> patients = IntStream.rangeClosed(1, this.data.getPatients().size()).boxed()
-                .collect(Collectors.toList());
+        ArrayList<DataHandler.Patient> patients = new ArrayList<>(this.data.getPatients().values());
+        patients.sort(Comparator.comparing(DataHandler.Patient::getStart_time));
 
-        // Randomly assign patient to nurse
-        Random rand = new Random();
-        while (patients.size() > 0) {
-            int nurse_id = rand.nextInt(this.data.getNbr_nurses());
-            int patient_idx = rand.nextInt(patients.size());
-            int patient_id = patients.get(patient_idx);
-            bitstring.get(nurse_id).add(patient_id);
-            patients.remove(patient_idx);
+        // Prepare nurses
+        ArrayList<Nurse> nurses = new ArrayList<>();
+        for (int i = 0; i < this.data.getNbr_nurses(); i++) {
+            Nurse nurse = new Nurse(i, data.getCapacity_nurse());
+            nurses.add(nurse);
+        }
+
+        // Assign patients to nurse
+        for (DataHandler.Patient patient : patients) {
+            // Logic: Select random nurse. Ok -> assign. Notok -> new nurse
+            boolean foundNurse = false;
+            while (!foundNurse) {
+                // Reached timeout
+                final long elapsedNanos = System.nanoTime() - startTime;
+                final long timeLeftNanos = timeoutNanos - elapsedNanos;
+                if (timeLeftNanos <= 0) {
+                    throw new TimeoutException();
+                }
+
+                Nurse nurse = nurses.get(this.random.nextInt(nurses.size()));
+
+                // Update arrival_time
+                Double arrival_time = nurse.getOccupied_until()
+                        + data.getTravel_times().get(nurse.getPosition()).get(patient.getId());
+                if (arrival_time < patient.getStart_time()) {
+                    arrival_time = (double) patient.getStart_time();
+                }
+
+                // finish within the time window
+                double end_time = arrival_time + patient.getCare_time();
+                if (end_time > patient.getEnd_time()) {
+                    continue;
+                }
+
+                // Still has capacity
+                if (nurse.getCapacity() < patient.getDemand()) {
+                    continue;
+                }
+
+                // Finish before depot limit
+                Double depot_arrival_time = end_time + data.getTravel_times().get(nurse.getPosition()).get(0);
+                if (depot_arrival_time > data.getDepot().getReturn_time()) {
+                    continue;
+                }
+
+                // Use this nurse
+                foundNurse = true;
+
+                // Assign nurse
+                nurse.setPosition(patient.getId());
+                nurse.reduceCapacity(patient.getDemand());
+                nurse.setOccupied_until(end_time);
+
+                // Update bitstring
+                bitstring.get(nurse.getId()).add(patient.getId());
+            }
         }
         return bitstring;
     }
@@ -469,7 +522,6 @@ public class SGA {
         // timeout
         final long startTime = System.nanoTime();
         final long timeoutNanos = TimeUnit.MILLISECONDS.toNanos(timeout);
-        Random random = new Random();
 
         // create bitstring
         HashMap<Integer, ArrayList<Integer>> bitstring = create_bitstring();
@@ -482,21 +534,19 @@ public class SGA {
         }
 
         // Iterate over the clusters and assign nurses
-        ArrayList<DataHandler.Cluster> clusters = data.getClusters();
-
         // Set randomness variables
         // Sort clusters
         List<String> clusterSortOptions = Arrays.asList("shuffle", "demand", "start_time");
-        String selectedClusterSortOption = clusterSortOptions.get(random.nextInt(clusterSortOptions.size()));
+        String selectedClusterSortOption = clusterSortOptions.get(this.random.nextInt(clusterSortOptions.size()));
         switch (selectedClusterSortOption) {
             case "shuffle":
-                Collections.shuffle(clusters, random);
+                Collections.shuffle(this.clusters, this.random);
                 break;
             case "demand":
-                clusters.sort(Comparator.comparing(DataHandler.Cluster::getDemand));
+                this.clusters.sort(Comparator.comparing(DataHandler.Cluster::getDemand));
                 break;
             case "start_time":
-                clusters.sort(Comparator.comparing(DataHandler.Cluster::getStart_time));
+                this.clusters.sort(Comparator.comparing(DataHandler.Cluster::getStart_time));
                 break;
             default:
                 throw new IllegalArgumentException("Invalid sort option: " + selectedClusterSortOption);
@@ -504,12 +554,12 @@ public class SGA {
 
         // Sort patients
         List<String> patientSortOptions = Arrays.asList("shuffle", "demand", "range", "start_time");
-        String selectedPatientSortOption = patientSortOptions.get(random.nextInt(patientSortOptions.size()));
+        String selectedPatientSortOption = patientSortOptions.get(this.random.nextInt(patientSortOptions.size()));
 
         // Sort nurses
-        Boolean sortNurses = random.nextBoolean();
+        Boolean sortNurses = this.random.nextBoolean();
 
-        for (DataHandler.Cluster cluster : clusters) {
+        for (DataHandler.Cluster cluster : this.clusters) {
             // Get cluster
             ArrayList<DataHandler.Patient> cluster_patients = cluster.getPatients();
 
@@ -632,5 +682,78 @@ public class SGA {
             bitstring.put(i, new ArrayList<>());
         }
         return bitstring;
+    }
+
+    public void printBestSolution() {
+        Individual bestIndividual = this.getBestIndividual();
+        System.out.println(bestIndividual);
+
+        // print
+        HashMap<Integer, ArrayList<Integer>> bitstring = bestIndividual.getBitstring();
+        for (int nurseIdx = 0; nurseIdx < data.getNbr_nurses(); nurseIdx++) {
+            System.out.println("Nurse " + nurseIdx);
+
+            int currentPos = 0; // Depot
+            double startTime = 0;
+            int totalDemand = 0;
+
+            System.out.print(currentPos + " (" + startTime + ") -> ");
+            for (Integer patientIdx : bitstring.get(nurseIdx)) {
+                // Get patient details
+                DataHandler.Patient patient = data.getPatients().get(patientIdx);
+
+                // Set arrival_time given the patients start_time
+                double arrival_time = startTime + data.getTravel_times().get(currentPos).get(patientIdx);
+                ;
+                if (arrival_time < patient.getStart_time()) {
+                    // Must wait for time window, update arrival time
+                    arrival_time = (double) patient.getStart_time();
+                }
+                double care_time_finish = arrival_time + patient.getCare_time();
+
+                // Print
+                System.out.print(patientIdx + " (" + arrival_time + "-" + care_time_finish + ") ["
+                        + patient.getStart_time() + "-" + patient.getEnd_time() + "] -> ");
+
+                // Update variables
+                currentPos = patientIdx;
+                startTime = care_time_finish;
+                totalDemand += patient.getDemand();
+            }
+
+            // travel time back to depot
+            double routeEndTime = startTime + data.getTravel_times().get(currentPos).get(0);
+            System.out.println("0 (" + routeEndTime + ")");
+            System.out.println("Duration: " + routeEndTime);
+            System.out.println("Demand: " + totalDemand);
+            System.out.println();
+        }
+        System.out.println("Objective value: " + bestIndividual.getFitness());
+
+        // Draw map
+        Gson gson = new Gson();
+        System.out.println("\n\nCopy here:");
+
+        // Print routes:
+        System.out.print("{\"Routes\":" + gson.toJson(bestIndividual.getBitstring()));
+
+        // Print patients
+        System.out.print(",\"Patients\":{");
+        boolean firstElement = true;
+        for (DataHandler.Patient patient : this.data.getPatients().values()) {
+            if (!firstElement) {
+                System.out.print(",");
+            }
+            firstElement = false;
+            System.out.print("\"" + patient.getId() + "\":{\"x\":" + patient.getX_coord() + ",\"y\":"
+                    + patient.getY_coord() + "}");
+        }
+        System.out.print("}");
+
+        // Print depot
+        System.out.print(",\"Depot\":{\"x\":" + this.data.getDepot().getX_coord() + ", \"y\":"
+                + this.data.getDepot().getY_coord());
+        System.out.print("}}");
+
     }
 }

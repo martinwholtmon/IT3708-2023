@@ -16,7 +16,6 @@ public class DataHandler {
     private int capacity_nurse;
     private Depot depot;
     private HashMap<Integer, Patient> patients;
-    private ArrayList<Cluster> clusters;
     private Vector<Vector<Double>> travel_times; // TODO: Refactor to double[][] ?
 
     /**
@@ -28,7 +27,6 @@ public class DataHandler {
         this.capacity_nurse = 0;
         this.depot = null;
         this.patients = new HashMap<>();
-        this.clusters = new ArrayList<>();
         this.travel_times = new Vector<>();
     }
 
@@ -84,16 +82,18 @@ public class DataHandler {
      * @param n_iterations iterations
      * @param tolerance    tolerance when selecting k-value
      */
-    void cluster_patients(int n_iterations, double tolerance) {
+    public ArrayList<Cluster> cluster_patients(int n_iterations, double tolerance) {
         // Run KNN+
         KMeansPP kMeansPP = new KMeansPP(this.nbr_nurses, n_iterations, this.patients);
         ArrayList<KMeansPP.Cluster> knn_clusters = kMeansPP.run(tolerance);
 
         // Create clusters
-        this.clusters.clear();
+        ArrayList<Cluster> clusters = new ArrayList<>();
+        clusters.clear();
         for (KMeansPP.Cluster cluster : knn_clusters) {
-            this.clusters.add(new Cluster(cluster.getId(), cluster.getMembers()));
+            clusters.add(new Cluster(cluster.getId(), cluster.getMembers()));
         }
+        return clusters;
     }
 
     /**
@@ -139,15 +139,6 @@ public class DataHandler {
      */
     public HashMap<Integer, Patient> getPatients() {
         return patients;
-    }
-
-    /**
-     * Gets clusters.
-     *
-     * @return the clusters
-     */
-    public ArrayList<Cluster> getClusters() {
-        return clusters;
     }
 
     /**
