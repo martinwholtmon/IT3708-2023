@@ -33,10 +33,9 @@ public class Helpers {
 
                 // Set arrival_time given the patients start_time
                 double arrival_time = startTime + data.getTravel_times().get(currentPos).get(patientIdx);
-                ;
                 if (arrival_time < patient.getStart_time()) {
                     // Must wait for time window, update arrival time
-                    arrival_time = (double) patient.getStart_time();
+                    arrival_time = patient.getStart_time();
                 }
                 double care_time_finish = arrival_time + patient.getCare_time();
 
@@ -128,10 +127,10 @@ public class Helpers {
                 Nurse nurse = nurses.get(random.nextInt(nurses.size()));
 
                 // Update arrival_time
-                Double arrival_time = nurse.getOccupied_until()
+                double arrival_time = nurse.getOccupied_until()
                         + data.getTravel_times().get(nurse.getPosition()).get(patient.getId());
                 if (arrival_time < patient.getStart_time()) {
-                    arrival_time = (double) patient.getStart_time();
+                    arrival_time = patient.getStart_time();
                 }
 
                 // finish within the time window
@@ -146,7 +145,7 @@ public class Helpers {
                 }
 
                 // Finish before depot limit
-                Double depot_arrival_time = end_time + data.getTravel_times().get(nurse.getPosition()).get(0);
+                double depot_arrival_time = end_time + data.getTravel_times().get(nurse.getPosition()).get(0);
                 if (depot_arrival_time > data.getDepot().getReturn_time()) {
                     continue;
                 }
@@ -210,7 +209,7 @@ public class Helpers {
         String selectedPatientSortOption = patientSortOptions.get(random.nextInt(patientSortOptions.size()));
 
         // Sort nurses
-        Boolean sortNurses = random.nextBoolean();
+        boolean sortNurses = random.nextBoolean();
 
         for (DataHandler.Cluster cluster : clusters) {
             // Get cluster
@@ -243,11 +242,11 @@ public class Helpers {
             // No more patient, move the nurses to top (last) of stack
             ArrayList<Nurse> cluster_nurses = new ArrayList<>();
             for (DataHandler.Patient patient : cluster_patients) {
-                Integer nurse_idx = -1;
+                int nurse_idx = -1;
                 Nurse nurse = null;
-                Double end_time = 0d;
+                double end_time = 0d;
 
-                Boolean foundNurse = false;
+                boolean foundNurse = false;
                 while (!foundNurse) {
                     // Reached timeout
                     final long elapsedNanos = System.nanoTime() - startTime;
@@ -272,10 +271,11 @@ public class Helpers {
                     }
 
                     // Update arrival_time
-                    Double arrival_time = nurse.getOccupied_until()
+                    assert nurse != null;
+                    double arrival_time = nurse.getOccupied_until()
                             + data.getTravel_times().get(nurse.getPosition()).get(patient.getId());
                     if (arrival_time < patient.getStart_time()) {
-                        arrival_time = (double) patient.getStart_time();
+                        arrival_time = patient.getStart_time();
                     }
 
                     // finish within the time window
@@ -290,7 +290,7 @@ public class Helpers {
                     }
 
                     // Finish before depot limit
-                    Double depot_arrival_time = end_time + data.getTravel_times().get(nurse.getPosition()).get(0);
+                    double depot_arrival_time = end_time + data.getTravel_times().get(nurse.getPosition()).get(0);
                     if (depot_arrival_time > data.getDepot().getReturn_time()) {
                         continue;
                     }
@@ -315,7 +315,7 @@ public class Helpers {
             }
 
             // Sort nurses
-            if (sortNurses == true) {
+            if (sortNurses) {
                 nurses.sort(Comparator.comparing(Nurse::getOccupied_until));
             }
         }

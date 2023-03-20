@@ -29,34 +29,12 @@ public class Individual {
     }
 
     /**
-     * Instantiates a new Individual.
-     *
-     * @param bitstring the bitstring
-     * @param parents   the parents
-     * @param fitness   the fitness
-     */
-    public Individual(HashMap<Integer, ArrayList<Integer>> bitstring, ArrayList<Individual> parents, double fitness) {
-        this.bitstring = bitstring;
-        this.parents = parents;
-        this.fitness = fitness;
-    }
-
-    /**
      * Gets parents.
      *
      * @return the parents
      */
     public ArrayList<Individual> getParents() {
         return parents;
-    }
-
-    /**
-     * Sets parents.
-     *
-     * @param parents the parents
-     */
-    public void setParents(ArrayList<Individual> parents) {
-        this.parents = parents;
     }
 
     /**
@@ -89,10 +67,7 @@ public class Individual {
     public Individual deepCopy() {
         HashMap<Integer, ArrayList<Integer>> nBitstring = new HashMap<>();
         for (int nurse_idx = 0; nurse_idx < this.bitstring.size(); nurse_idx++) {
-            ArrayList<Integer> patients = new ArrayList<>();
-            for (Integer patient_idx : this.bitstring.get(nurse_idx)) {
-                patients.add(patient_idx);
-            }
+            ArrayList<Integer> patients = new ArrayList<>(this.bitstring.get(nurse_idx));
             nBitstring.put(nurse_idx, patients);
         }
         return new Individual(nBitstring, this.fitness);

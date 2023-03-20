@@ -25,7 +25,6 @@ public class Population {
      * Instantiates a new Population.
      *
      * @param feasible_individuals   the feasible individuals
-     * @param infeasible_individuals the infeasible individuals
      * @param old_pop                the old pop
      * @param generation_nr          the generation nr
      */

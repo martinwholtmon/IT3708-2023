@@ -38,8 +38,8 @@ public class DataHandler {
      * @throws FileNotFoundException the file not found exception
      */
     void loadData(String path) throws URISyntaxException, FileNotFoundException {
-        FileReader resource = new FileReader(getClass().getResource(path).toURI().getPath());
-        JsonObject obj = new JsonParser().parse(resource).getAsJsonObject();
+        FileReader resource = new FileReader(Objects.requireNonNull(getClass().getResource(path)).toURI().getPath());
+        JsonObject obj = JsonParser.parseReader(resource).getAsJsonObject();
         Gson gson = new Gson();
 
         // update Data
@@ -54,7 +54,7 @@ public class DataHandler {
         JsonObject patients_json = obj.getAsJsonObject("patients");
         for (Map.Entry<String, JsonElement> entry : patients_json.entrySet()) {
             Patient patient = gson.fromJson(entry.getValue(), Patient.class);
-            int patient_id = Integer.valueOf(entry.getKey());
+            int patient_id = Integer.parseInt(entry.getKey());
             patient.setId(patient_id);
             patient.calculateRange();
 
@@ -253,7 +253,7 @@ public class DataHandler {
         /**
          * Instantiates a new Patient.
          *
-         * @param id
+         * @param id         the id
          * @param x_coord    the x coord
          * @param y_coord    the y coord
          * @param demand     the demand

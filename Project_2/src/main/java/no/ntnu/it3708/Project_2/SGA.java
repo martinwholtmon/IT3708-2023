@@ -1,11 +1,13 @@
 package no.ntnu.it3708.Project_2;
 
-import com.google.gson.*;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Random;
 
-import static no.ntnu.it3708.Project_2.Helpers.*;
+import static no.ntnu.it3708.Project_2.Helpers.generate_bitstring_heuristic;
+import static no.ntnu.it3708.Project_2.Helpers.generate_bitstring_random;
 import static no.ntnu.it3708.Project_2.LocalSearch.performLocalSearch;
 
 /**
@@ -20,9 +22,9 @@ public class SGA {
     private final Float init_random_rate;
     private final int localSearchIterations;
     private final DataHandler data;
-    private ArrayList<DataHandler.Cluster> clusters;
+    private final ArrayList<DataHandler.Cluster> clusters;
     private ArrayList<Population> generations;
-    private Random random;
+    private final Random random;
 
     /**
      * Instantiates a new Sga.
@@ -58,7 +60,7 @@ public class SGA {
     }
 
     public void run() {
-        Population population = init_population(init_random_rate);
+        Population population = init_population();
         System.out.println(population);
         this.generations.add(population);
 
@@ -121,7 +123,7 @@ public class SGA {
         // Scale values
         double minValue = 5 + Collections.min(fitnessValues);
         fitnessValues.forEach(v -> v += minValue);
-        double totalFitness = fitnessValues.stream().mapToDouble(f -> f.doubleValue()).sum();
+        double totalFitness = fitnessValues.stream().mapToDouble(f -> f).sum();
 
         // Create probability distribution
         List<Double> individualProbability = new ArrayList<>();
@@ -132,7 +134,7 @@ public class SGA {
         for (int i = 0; i < nParents; i++) {
             double randomValue = this.random.nextDouble();
             double sum = 0;
-            int idx = -1;
+            int idx;
             for (idx = 0; i < individualProbability.size(); idx++) {
                 sum += individualProbability.get(idx);
                 if (sum > randomValue) {
@@ -154,7 +156,7 @@ public class SGA {
             Individual parent1 = matingPool.get(i - 1);
             Individual parent2 = matingPool.get(i);
 
-            ArrayList<Individual> newOffsprings = null;
+            ArrayList<Individual> newOffsprings;
             int feasibleSolutions = 0;
             while (feasibleSolutions < 2) {
                 // create new individuals from the crossover
@@ -284,9 +286,9 @@ public class SGA {
         return new Population(newIndividuals, oldPopulation, oldPopulation.getGeneration_nr() + 1);
     }
 
-    private Population init_population(float init_random_rate) {
+    private Population init_population() {
         Population population = new Population();
-        population.getFeasible_individuals().addAll(getNewIndividuals(pop_size));
+        population.getFeasible_individuals().addAll(getNewIndividuals(this.pop_size));
         System.out.println("Feasible solutions: " + population.getFeasible_individuals().size());
         return population;
     }
@@ -296,9 +298,9 @@ public class SGA {
         int currentIndividuals = 0;
         boolean retryHeuristic = false;
 
-        while (currentIndividuals < this.pop_size) {
+        while (currentIndividuals < n_individuals) {
             try {
-                Individual individual = null;
+                Individual individual;
                 if (this.random.nextFloat() > init_random_rate || retryHeuristic) {
                     individual = new Individual(generate_bitstring_heuristic(this.clusters, this.data, this.random, 2000));
                 } else {

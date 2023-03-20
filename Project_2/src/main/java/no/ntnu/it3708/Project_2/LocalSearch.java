@@ -1,6 +1,5 @@
 package no.ntnu.it3708.Project_2;
 
-import javax.xml.crypto.Data;
 import java.util.*;
 
 import static no.ntnu.it3708.Project_2.Helpers.getRandomPatientIndex;

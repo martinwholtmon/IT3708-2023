@@ -44,17 +44,13 @@ public class ConstraintsHandler {
         }
         // check that patient visists is the same size as the number of patients = all
         // patients visited
-        if (visited_patients.size() != data.getPatients().size()) {
-            return false;
-        }
-        return true;
+        return visited_patients.size() == data.getPatients().size();
     }
 
     /**
      * Calculates the fitness of an individual.
      *
      * @param individual the individual
-     * @return the fitness
      */
     public void calculate_fitness(Individual individual) {
         // Sum all travel times
@@ -114,9 +110,9 @@ public class ConstraintsHandler {
     /**
      * Insert a new visit in the best position
      *
-     * @param route
-     * @param newVisit
-     * @return
+     * @param route     The route to modify
+     * @param newVisit  The new patient to visit
+     * @return          Feasible to add the new patient
      */
     public boolean optimizedInsert(ArrayList<Integer> route, Integer newVisit) {
         boolean feasible = false;
@@ -143,7 +139,7 @@ public class ConstraintsHandler {
     }
 
     private ArrayList<Integer> makeDeepCopyInteger(ArrayList<Integer> a) {
-        return (ArrayList<Integer>) a.stream().map(val -> new Integer(val)).collect(toList());
+        return (ArrayList<Integer>) a.stream().map(Integer::new).collect(toList());
     }
 
     /**
@@ -171,7 +167,7 @@ public class ConstraintsHandler {
             double arrival_time = start_time + data.getTravel_times().get(current_position).get(patient_id);
             if (arrival_time < patient.getStart_time()) {
                 // Must wait for time window, update arrival time
-                arrival_time = (double) patient.getStart_time();
+                arrival_time = patient.getStart_time();
             }
 
             // Check that we finish before the patients end_time
@@ -192,10 +188,7 @@ public class ConstraintsHandler {
         }
         // Check depot constraints
         double end_time = start_time + data.getTravel_times().get(current_position).get(0);
-        if (end_time > data.getDepot().getReturn_time()) {
-            return false;
-        }
-        return true;
+        return !(end_time > data.getDepot().getReturn_time());
     }
 
     /**

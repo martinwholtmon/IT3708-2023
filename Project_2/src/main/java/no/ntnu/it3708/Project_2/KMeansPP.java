@@ -26,7 +26,7 @@ public class KMeansPP {
     /**
      * Run the K-means++ algorithm. Using the elbow method to select the best k
      * value given the tolerance
-     * 
+     *
      * @param tolerance change in the sum of squared distances between k-values
      * @return The cluster assignment
      */
@@ -79,9 +79,8 @@ public class KMeansPP {
         System.out.println("Selected cluster size: " + k);
 
         // Standardization (revert normalization)
-        for (int i = 0; i < cluster.size(); i++) {
-            Cluster c = cluster.get(i);
-
+        assert cluster != null;
+        for (Cluster c : cluster) {
             // centroid
             c.centroid.x *= stdDevs[0] + means[0];
             c.centroid.x *= stdDevs[1] + means[1];
@@ -134,7 +133,7 @@ public class KMeansPP {
 
     /**
      * Will get the initial cluster centroids
-     * 
+     *
      * @return list of cluster centers (centroids)
      */
     private List<Point> getInitialCentroids(int k) {
@@ -168,7 +167,7 @@ public class KMeansPP {
 
     /**
      * Find the minimum distance from a point to all the centroids.
-     * 
+     *
      * @param patient   The point
      * @param centroids List of centroid
      * @return minimum distance to the centroids
@@ -187,7 +186,7 @@ public class KMeansPP {
 
     /**
      * Will assign patient to clusters
-     * 
+     *
      * @param centroids List of centroids
      * @return Hashmap of clusters containing patients
      */
@@ -219,15 +218,15 @@ public class KMeansPP {
 
     /**
      * Will calculate the new centroids given the clusters
-     * 
+     *
      * @param cluster Clusters with patients
      * @return new cluster centers (centroids)
      */
     private List<Point> getNewCentroids(ArrayList<Cluster> cluster) {
         List<Point> centroids = new ArrayList<>();
 
-        for (int i = 0; i < cluster.size(); i++) {
-            ArrayList<DataHandler.Patient> cluster_patients = cluster.get(i).getMembers();
+        for (Cluster value : cluster) {
+            ArrayList<DataHandler.Patient> cluster_patients = value.getMembers();
             double sumX = 0;
             double sumY = 0;
 
