@@ -24,9 +24,9 @@ public class Population {
     /**
      * Instantiates a new Population.
      *
-     * @param feasible_individuals   the feasible individuals
-     * @param old_pop                the old pop
-     * @param generation_nr          the generation nr
+     * @param feasible_individuals the feasible individuals
+     * @param old_pop              the old pop
+     * @param generation_nr        the generation nr
      */
     public Population(ArrayList<Individual> feasible_individuals, Population old_pop, Integer generation_nr) {
         this.feasible_individuals = feasible_individuals;
@@ -80,6 +80,11 @@ public class Population {
         return total_fitness / feasible_individuals.size();
     }
 
+    /**
+     * Gets best solution.
+     *
+     * @return the best solution
+     */
     public Individual get_best_solution() {
         Individual best_individual = null;
         double best_fitness = Double.MAX_VALUE;
@@ -93,6 +98,11 @@ public class Population {
         return best_individual;
     }
 
+    /**
+     * Replace best individual.
+     *
+     * @param individual the individual
+     */
     public void replaceBestIndividual(Individual individual) {
         int bestIndividualIdx = 0;
         double best_fitness = Double.MAX_VALUE;

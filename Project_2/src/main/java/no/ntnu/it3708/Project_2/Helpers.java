@@ -6,8 +6,18 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * The type Helpers.
+ */
 public class Helpers {
 
+    /**
+     * Gets random patient index.
+     *
+     * @param patients the patients
+     * @param random   the random
+     * @return the random patient index
+     */
     public static Integer getRandomPatientIndex(ArrayList<Integer> patients, Random random) {
         int patientIdx = 0;
         if (patients.size() != 0) {
@@ -16,6 +26,12 @@ public class Helpers {
         return patientIdx;
     }
 
+    /**
+     * Print solution.
+     *
+     * @param data           the data
+     * @param bestIndividual the best individual
+     */
     public static void printSolution(DataHandler data, Individual bestIndividual) {
         // print
         HashMap<Integer, ArrayList<Integer>> bitstring = bestIndividual.getBitstring();
@@ -91,7 +107,11 @@ public class Helpers {
      * [2,8,4] // nurse 2 visits patient 2, 8 and 4
      * ]
      *
+     * @param data    the data
+     * @param random  the random
+     * @param timeout the timeout
      * @return the bitstring
+     * @throws TimeoutException the timeout exception
      */
     public static HashMap<Integer, ArrayList<Integer>> generate_bitstring_random(DataHandler data, Random random, long timeout) throws TimeoutException {
         // timeout
@@ -168,7 +188,12 @@ public class Helpers {
     /**
      * Generate a bitstring using the heuristic in data: clusters of patients
      *
+     * @param clusters the clusters
+     * @param data     the data
+     * @param random   the random
+     * @param timeout  the timeout
      * @return the bitstring
+     * @throws TimeoutException the timeout exception
      */
     public static HashMap<Integer, ArrayList<Integer>> generate_bitstring_heuristic(ArrayList<DataHandler.Cluster> clusters, DataHandler data, Random random, long timeout) throws TimeoutException {
         // timeout
@@ -326,6 +351,7 @@ public class Helpers {
      * Create a bitstring representation where each key represent a nurse and the
      * arraylist represent visited patients
      *
+     * @param data the data
      * @return the bitstring
      */
     public static HashMap<Integer, ArrayList<Integer>> create_bitstring(DataHandler data) {

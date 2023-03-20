@@ -67,8 +67,7 @@ public class ConstraintsHandler {
      * Given a route, bruteforce to optimize the order while keeping it feasible
      *
      * @param route patient visits for a nurse
-     * @return It's not possible to generate a feasible route using the current
-     *         visits
+     * @return It 's not possible to generate a feasible route using the current         visits
      */
     public boolean optimizeRouteBF(ArrayList<Integer> route) {
         System.out.println("before:\n" + route);
@@ -95,6 +94,12 @@ public class ConstraintsHandler {
         return feasible;
     }
 
+    /**
+     * Optimize routes individual.
+     *
+     * @param individual the individual
+     * @return the individual
+     */
     public Individual optimizeRoutes(Individual individual) {
         Individual bestSolution = individual.deepCopy();
 
@@ -110,9 +115,9 @@ public class ConstraintsHandler {
     /**
      * Insert a new visit in the best position
      *
-     * @param route     The route to modify
-     * @param newVisit  The new patient to visit
-     * @return          Feasible to add the new patient
+     * @param route    The route to modify
+     * @param newVisit The new patient to visit
+     * @return Feasible to add the new patient
      */
     public boolean optimizedInsert(ArrayList<Integer> route, Integer newVisit) {
         boolean feasible = false;

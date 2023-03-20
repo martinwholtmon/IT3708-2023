@@ -240,29 +240,58 @@ public class KMeansPP {
         return centroids;
     }
 
+    /**
+     * The type Cluster.
+     */
     class Cluster {
         private int id;
         private Point centroid;
         private ArrayList<DataHandler.Patient> members;
 
+        /**
+         * Instantiates a new Cluster.
+         *
+         * @param id       the id
+         * @param centroid the centroid
+         */
         public Cluster(int id, Point centroid) {
             this.id = id;
             this.centroid = centroid;
             this.members = new ArrayList<>();
         }
 
+        /**
+         * Gets id.
+         *
+         * @return the id
+         */
         public int getId() {
             return id;
         }
 
+        /**
+         * Gets centroid.
+         *
+         * @return the centroid
+         */
         public Point getCentroid() {
             return centroid;
         }
 
+        /**
+         * Gets members.
+         *
+         * @return the members
+         */
         public ArrayList<DataHandler.Patient> getMembers() {
             return members;
         }
 
+        /**
+         * Add member.
+         *
+         * @param member the member
+         */
         public void addMember(DataHandler.Patient member) {
             this.members.add(member);
         }

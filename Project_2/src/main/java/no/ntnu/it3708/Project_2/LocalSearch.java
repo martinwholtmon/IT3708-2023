@@ -4,7 +4,21 @@ import java.util.*;
 
 import static no.ntnu.it3708.Project_2.Helpers.getRandomPatientIndex;
 
+/**
+ * The type Local search.
+ */
 public class LocalSearch {
+    /**
+     * Perform local search individual.
+     *
+     * @param individual            the individual
+     * @param localSearchIterations the local search iterations
+     * @param pop_size              the pop size
+     * @param data                  the data
+     * @param constraintsHandler    the constraints handler
+     * @param random                the random
+     * @return the individual
+     */
     public static Individual performLocalSearch(Individual individual, int localSearchIterations, int pop_size, DataHandler data, ConstraintsHandler constraintsHandler, Random random) {
         Individual bestSolution = individual.deepCopy();
         double bestFitness = bestSolution.getFitness();
@@ -23,6 +37,16 @@ public class LocalSearch {
         return bestSolution;
     }
 
+    /**
+     * Create neighboring solutions array list.
+     *
+     * @param individual         the individual
+     * @param pop_size           the pop size
+     * @param data               the data
+     * @param constraintsHandler the constraints handler
+     * @param random             the random
+     * @return the array list
+     */
     public static ArrayList<Individual> createNeighboringSolutions(Individual individual, int pop_size, DataHandler data, ConstraintsHandler constraintsHandler, Random random) {
         ArrayList<Individual> neighboringSolutions = new ArrayList<>();
 

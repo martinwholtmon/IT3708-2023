@@ -25,6 +25,11 @@ public class Main {
             SGA sga = new SGA(constraintsHandler, pop_size, max_generations, crossover_rate, mutation_rate,
                     init_random_rate, localSearchIterations, data);
             sga.run();
+            System.out.println("\n\n");
+            System.out.println("-------------------------------------");
+            System.out.println("Temp Print of current best solution:");
+            System.out.println("-------------------------------------");
+            sga.printBestSolution();
             Individual individual = sga.getBestIndividual();
             if (individual.getFitness() < bestFitness) {
                 bestFitness = individual.getFitness();

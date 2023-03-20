@@ -29,13 +29,14 @@ public class SGA {
     /**
      * Instantiates a new Sga.
      *
-     * @param constraintsHandler the objective function
-     * @param pop_size          the pop size
-     * @param max_generations   the max generations
-     * @param crossover_rate    the crossover rate
-     * @param mutation_rate     the mutation rate
-     * @param init_random_rate  the initial random rate (completely random bitstring
-     *                          generation)
+     * @param constraintsHandler    the objective function
+     * @param pop_size              the pop size
+     * @param max_generations       the max generations
+     * @param crossover_rate        the crossover rate
+     * @param mutation_rate         the mutation rate
+     * @param init_random_rate      the initial random rate (completely random bitstring                          generation)
+     * @param localSearchIterations the local search iterations
+     * @param data                  the data
      */
     public SGA(
             ConstraintsHandler constraintsHandler,
@@ -59,9 +60,11 @@ public class SGA {
         this.generations = new ArrayList<>();
     }
 
+    /**
+     * Run.
+     */
     public void run() {
         Population population = init_population();
-        System.out.println(population);
         this.generations.add(population);
 
         // Run the SGA loop
@@ -81,11 +84,16 @@ public class SGA {
             }
 
             // Print
-            System.out.println(population);
+            System.out.println("Generation " + population.getGeneration_nr() + ": " + population.get_best_solution().getFitness());
             this.generations.add(population);
         }
     }
 
+    /**
+     * Gets best individual.
+     *
+     * @return the best individual
+     */
     public Individual getBestIndividual() {
         return this.generations.get(this.generations.size() - 1).get_best_solution();
     }
@@ -324,6 +332,9 @@ public class SGA {
         return individuals;
     }
 
+    /**
+     * Print best solution.
+     */
     public void printBestSolution() {
         Individual bestIndividual = this.getBestIndividual();
         System.out.println(bestIndividual);

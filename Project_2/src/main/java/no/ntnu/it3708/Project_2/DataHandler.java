@@ -81,6 +81,7 @@ public class DataHandler {
      *
      * @param n_iterations iterations
      * @param tolerance    tolerance when selecting k-value
+     * @return the array list
      */
     public ArrayList<Cluster> cluster_patients(int n_iterations, double tolerance) {
         // Run KNN+
@@ -283,6 +284,11 @@ public class DataHandler {
             return id;
         }
 
+        /**
+         * Sets id.
+         *
+         * @param id the id
+         */
         public void setId(int id) {
             this.id = id;
         }
@@ -368,14 +374,27 @@ public class DataHandler {
             this.cluster = cluster;
         }
 
+        /**
+         * Sets x coord.
+         *
+         * @param x_coord the x coord
+         */
         public void setX_coord(double x_coord) {
             this.x_coord = x_coord;
         }
 
+        /**
+         * Sets y coord.
+         *
+         * @param y_coord the y coord
+         */
         public void setY_coord(double y_coord) {
             this.y_coord = y_coord;
         }
 
+        /**
+         * Calculate range.
+         */
         public void calculateRange() {
             this.range = start_time + end_time - demand;
         }
@@ -396,6 +415,9 @@ public class DataHandler {
         }
     }
 
+    /**
+     * The type Cluster.
+     */
     public static class Cluster {
         private ArrayList<Patient> patients;
         private int demand;
