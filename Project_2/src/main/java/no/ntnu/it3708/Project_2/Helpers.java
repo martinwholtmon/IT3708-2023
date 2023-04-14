@@ -350,6 +350,57 @@ public class Helpers {
         return bitstring;
     }
 
+    public static HashMap<Integer, ArrayList<Integer>> generate_bitstring_greedy(DataHandler data,
+            ConstraintsHandler constraintsHandler) {
+        // create bitstring
+        HashMap<Integer, ArrayList<Integer>> bitstring = create_bitstring(data);
+
+        // Prepare list of patients
+        ArrayList<DataHandler.Patient> patients = new ArrayList<>(data.getPatients().values());
+        patients.sort(Comparator.comparing(DataHandler.Patient::getStart_time));
+
+        // Prepare nurses
+        ArrayList<Nurse> nurses = new ArrayList<>();
+        for (int i = 0; i < data.getNbr_nurses(); i++) {
+            Nurse nurse = new Nurse(i, data.getCapacity_nurse());
+            nurses.add(nurse);
+        }
+
+        // for each patient, try to find best insertion
+        for (DataHandler.Patient patient : patients) {
+            int bestNurse = -1;
+            ArrayList<Integer> bestRoute = null;
+            double minIncrease = Double.MAX_VALUE;
+
+            // Try to assign to each nurse, pick the one with the least increase in travel
+            // time
+            for (int nurse_idx = 0; nurse_idx < data.getNbr_nurses(); nurse_idx++) {
+                // Create lists
+                ArrayList<Integer> route = bitstring.get(nurse_idx);
+                ArrayList<Integer> route_clone = (ArrayList<Integer>) route.clone();
+
+                // Add patient and check route decrease/increase
+                boolean feasible = constraintsHandler.optimizedInsert(route_clone, patient.getId());
+                if (feasible) {
+                    double routeIncrease = constraintsHandler.getTravelTimeRoute(route_clone)
+                            - constraintsHandler.getTravelTimeRoute(route);
+                    if (routeIncrease < minIncrease) {
+                        bestNurse = nurse_idx;
+                        bestRoute = route_clone;
+                        minIncrease = routeIncrease;
+                    }
+                }
+            }
+            // set new route
+            if (bestNurse != -1) {
+                bitstring.put(bestNurse, bestRoute);
+            } else {
+                throw new IndexOutOfBoundsException("Not able to insert patient");
+            }
+        }
+        return bitstring;
+    }
+
     /**
      * Create a bitstring representation where each key represent a nurse and the
      * arraylist represent visited patients

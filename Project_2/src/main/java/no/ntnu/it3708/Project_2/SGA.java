@@ -8,6 +8,7 @@ import java.util.Random;
 
 import static no.ntnu.it3708.Project_2.Helpers.generate_bitstring_heuristic;
 import static no.ntnu.it3708.Project_2.Helpers.generate_bitstring_random;
+import static no.ntnu.it3708.Project_2.Helpers.generate_bitstring_greedy;
 import static no.ntnu.it3708.Project_2.LocalSearch.performLocalSearch;
 
 /**
@@ -67,6 +68,7 @@ public class SGA {
     public void run() {
         Population population = init_population();
         this.generations.add(population);
+        System.out.println(population);
 
         // Run the SGA loop
         while (population.getGeneration_nr() < this.max_generations) {
@@ -103,12 +105,15 @@ public class SGA {
 
     private Population newGeneration(Population oldPopulation) {
         // Get parents
+        System.out.println("Mating");
         ArrayList<Individual> matingPool = parent_selection(oldPopulation, this.pop_size);
 
         // Create offspring
+        System.out.println("offspring");
         ArrayList<Individual> offspring = generateOffspring(matingPool, this.crossover_rate, this.mutation_rate);
 
         // Calculate fitness
+        System.out.println("fitness");
         for (Individual individual : offspring) {
             constraintsHandler.calculate_fitness(individual);
         }
@@ -179,6 +184,7 @@ public class SGA {
                 // check constraints
                 for (Individual offspring : newOffsprings) {
                     if (constraintsHandler.check_constraints(offspring)) {
+                        System.out.print("added");
                         offsprings.add(offspring);
                         feasibleSolutions++;
                     }
@@ -317,7 +323,9 @@ public class SGA {
                     individual = new Individual(
                             generate_bitstring_heuristic(this.clusters, this.data, this.random, 2000));
                 } else {
-                    individual = new Individual(generate_bitstring_random(this.data, this.random, 2000));
+                    // individual = new Individual(generate_bitstring_random(this.data, this.random,
+                    // 2000));
+                    individual = new Individual(generate_bitstring_greedy(this.data, this.constraintsHandler));
                 }
                 constraintsHandler.calculate_fitness(individual);
 

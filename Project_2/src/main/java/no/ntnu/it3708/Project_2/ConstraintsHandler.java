@@ -121,6 +121,10 @@ public class ConstraintsHandler {
      * @return Feasible to add the new patient
      */
     public boolean optimizedInsert(ArrayList<Integer> route, Integer newVisit) {
+        if (route.isEmpty()) {
+            route.add(newVisit);
+            return true;
+        }
         boolean feasible = false;
         double travelTime = Double.MAX_VALUE;
 
