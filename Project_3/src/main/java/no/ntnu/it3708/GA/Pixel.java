@@ -5,6 +5,7 @@ package no.ntnu.it3708.GA;
 
 import java.awt.*;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 public class Pixel {
     private final int id;
@@ -28,11 +29,42 @@ public class Pixel {
 
     /**
      * Add a pixel as neighbor using the positions 1-8
-     * 
+     *
      * @param pos   position
      * @param pixel pixel
      */
     void addNeighboringPixel(int pos, Pixel pixel) {
         this.neighbors.put(pos, pixel);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public HashMap<Integer, Pixel> getNeighbors() {
+        return neighbors;
+    }
+
+    @Override
+    public String toString() {
+        return "Pixel{" +
+                "id=" + id +
+                ", x=" + x +
+                ", y=" + y +
+                ", color=" + color +
+                ", neighbors=" + neighbors.values().stream().map(Pixel::getId).collect(Collectors.toList()) +
+                '}';
     }
 }
