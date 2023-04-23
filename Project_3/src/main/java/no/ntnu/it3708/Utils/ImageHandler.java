@@ -10,11 +10,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-public class ImageHandler {
+public final class ImageHandler {
     private static final String IMAGE_BASE_FOLDER = "/training_images/";
     private static final String IMAGE_NAME = "Test image.jpg";
 
-    public ImageHandler() {
+    private ImageHandler() {
     }
 
     /**
@@ -26,10 +26,10 @@ public class ImageHandler {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public Color[][] loadImage(int image_id) throws IOException, URISyntaxException {
+    public static Color[][] loadImage(int image_id) throws IOException, URISyntaxException {
         // Read image file
         String path = IMAGE_BASE_FOLDER + image_id + "/" + IMAGE_NAME;
-        String filename = getClass().getResource(path).toURI().getPath();
+        String filename = ImageHandler.class.getResource(path).toURI().getPath();
         File imageFile = new File(filename);
         BufferedImage image = ImageIO.read(imageFile);
         return buffImageTo2d(image);
@@ -37,10 +37,11 @@ public class ImageHandler {
 
     /***
      * Will create a 2d array from a buffered image
+     * 
      * @param image buffered image
      * @return 2d array of image
      */
-    private Color[][] buffImageTo2d(BufferedImage image) {
+    private static Color[][] buffImageTo2d(BufferedImage image) {
         // Convert it to usable format: 2d-array
         int width = image.getWidth();
         int height = image.getHeight();
