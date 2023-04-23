@@ -76,42 +76,42 @@ public class GA {
 
                 // 1 - east
                 if (x + 1 < imgWidth) {
-                    pixel.addNeighboringPixel(1, pixel);
+                    pixel.addNeighboringPixel(1, pixels[y][x + 1]);
                 }
 
                 // 2 - west
                 if (x - 1 >= 0) {
-                    pixel.addNeighboringPixel(2, pixel);
+                    pixel.addNeighboringPixel(2, pixels[y][x - 1]);
                 }
 
                 // 3 - north
                 if (y - 1 >= 0) {
-                    pixel.addNeighboringPixel(3, pixel);
+                    pixel.addNeighboringPixel(3, pixels[y - 1][x]);
                 }
 
                 // 4 - south
                 if (y + 1 < imgHeight) {
-                    pixel.addNeighboringPixel(4, pixel);
+                    pixel.addNeighboringPixel(4, pixels[y + 1][x]);
                 }
 
                 // 5 - east-top
                 if (x + 1 < imgWidth && y - 1 >= 0) {
-                    pixel.addNeighboringPixel(5, pixel);
+                    pixel.addNeighboringPixel(5, pixels[y - 1][x + 1]);
                 }
 
                 // 6 - east-bottom
                 if (x + 1 < imgWidth && y + 1 < imgHeight) {
-                    pixel.addNeighboringPixel(6, pixel);
+                    pixel.addNeighboringPixel(6, pixels[y + 1][x + 1]);
                 }
 
                 // 7 - west-top
                 if (x - 1 >= 0 && y - 1 >= 0) {
-                    pixel.addNeighboringPixel(7, pixel);
+                    pixel.addNeighboringPixel(7, pixels[y - 1][x - 1]);
                 }
 
                 // 8 - west-bottom
                 if (x - 1 >= 0 && y + 1 < imgHeight) {
-                    pixel.addNeighboringPixel(8, pixel);
+                    pixel.addNeighboringPixel(8, pixels[y + 1][x - 1]);
                 }
             }
         }
