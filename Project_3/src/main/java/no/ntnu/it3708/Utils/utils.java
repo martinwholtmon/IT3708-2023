@@ -12,7 +12,7 @@ public final class utils {
     /**
      * Return a random int from 0 to upper
      * 
-     * @param upper upper limit
+     * @param upper limit
      */
     public static int randomInt(int upper) {
         if (upper == 0)
@@ -23,19 +23,31 @@ public final class utils {
     /**
      * Return random int between upper and lower
      * 
-     * @param upper upper limit
-     * @param lower lower limit
+     * @param lower limit
+     * @param upper limit
      */
-    public static int randomInt(int upper, int lower) {
+    public static int randomInt(int lower, int upper) {
         return lower + RANDOM.nextInt(upper - lower + 1);
     }
 
+    /**
+     * Generate a random double between 0-1 (including)
+     * 
+     * @return random double [0,1]
+     */
     public static double randomDouble() {
         return RANDOM.nextDouble();
 
     }
 
-    public static double randomDouble(double upper, double lower) {
+    /**
+     * Generate random double between the boundaries
+     * 
+     * @param lower limit
+     * @param upper limit
+     * @return
+     */
+    public static double randomDouble(int lower, int upper) {
         return lower + (upper - lower) * RANDOM.nextDouble();
     }
 }
