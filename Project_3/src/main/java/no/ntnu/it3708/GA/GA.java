@@ -60,7 +60,7 @@ public class GA {
         }
 
         // Add the nearest neighboring pixels
-        addNearestNeighboringPixels(createdPixels);
+        addNearestNeighboringPixels(createdPixels, imgHeight, imgWidth);
     }
 
     /**
@@ -68,6 +68,52 @@ public class GA {
      *
      * @param pixels pixels to modify
      */
-    private void addNearestNeighboringPixels(Pixel[][] pixels) {
+    private void addNearestNeighboringPixels(Pixel[][] pixels, int imgHeight, int imgWidth) {
+        for (int y = 0; y < imgHeight; y++) {
+            for (int x = 0; x < imgWidth; x++) {
+                // Get the pixel to operate on
+                Pixel pixel = pixels[y][x];
+
+                // 1 - east
+                if (x + 1 < imgWidth) {
+                    pixel.addNeighboringPixel(1, pixel);
+                }
+
+                // 2 - west
+                if (x - 1 >= 0) {
+                    pixel.addNeighboringPixel(2, pixel);
+                }
+
+                // 3 - north
+                if (y - 1 >= 0) {
+                    pixel.addNeighboringPixel(3, pixel);
+                }
+
+                // 4 - south
+                if (y + 1 < imgHeight) {
+                    pixel.addNeighboringPixel(4, pixel);
+                }
+
+                // 5 - east-top
+                if (x + 1 < imgWidth && y - 1 >= 0) {
+                    pixel.addNeighboringPixel(5, pixel);
+                }
+
+                // 6 - east-bottom
+                if (x + 1 < imgWidth && y + 1 < imgHeight) {
+                    pixel.addNeighboringPixel(6, pixel);
+                }
+
+                // 7 - west-top
+                if (x - 1 >= 0 && y - 1 >= 0) {
+                    pixel.addNeighboringPixel(7, pixel);
+                }
+
+                // 8 - west-bottom
+                if (x - 1 >= 0 && y + 1 < imgHeight) {
+                    pixel.addNeighboringPixel(8, pixel);
+                }
+            }
+        }
     }
 }

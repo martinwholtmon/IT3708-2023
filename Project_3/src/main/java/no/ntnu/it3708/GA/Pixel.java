@@ -11,7 +11,7 @@ public class Pixel {
     private int x;
     private int y;
     private Color color;
-    private HashMap<Integer, Pixel> neighbors;  // 1-8 representing the neighbors: East-West-North-South east-west
+    private HashMap<Integer, Pixel> neighbors; // 1-8 representing the neighbors: East-West-North-South east-west
 
     public Pixel(int id, int x, int y, Color color) {
         this.id = id;
@@ -24,5 +24,15 @@ public class Pixel {
         for (int i = 1; i <= 8; i++) {
             this.neighbors.put(i, null);
         }
+    }
+
+    /**
+     * Add a pixel as neighbor using the positions 1-8
+     * 
+     * @param pos   position
+     * @param pixel pixel
+     */
+    void addNeighboringPixel(int pos, Pixel pixel) {
+        this.neighbors.put(pos, pixel);
     }
 }
