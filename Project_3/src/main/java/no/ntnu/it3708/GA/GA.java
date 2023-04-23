@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class GA {
-    final static Integer POP_SIZE = 30;
-    final static Integer MAX_GENERATIONS = 100;
-    final static Float CROSSOVER_RATE = 0.6f;
-    final static Float MUTATION_RATE = 0.1f;
-    final static Random RANDOM = new Random();
+    static final Integer POP_SIZE = 30;
+    static final Integer MAX_GENERATIONS = 100;
+    static final Float CROSSOVER_RATE = 0.6f;
+    static final Float MUTATION_RATE = 0.1f;
+    static final Random RANDOM = new Random();
     static ArrayList<Pixel> pixels;
     private ArrayList<Population> generations;
 
