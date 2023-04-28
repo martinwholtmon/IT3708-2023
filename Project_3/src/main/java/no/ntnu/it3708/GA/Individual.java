@@ -23,6 +23,9 @@ public class Individual {
      */
     public Individual() {
         this.segments = new ArrayList<>();
+        this.edgeValue = 0d;
+        this.connectivity = 0d;
+        this.deviation = 0d;
         generateInitialSegments();
         calculateObjectiveFunctions();
         calculateFitness();
@@ -85,10 +88,15 @@ public class Individual {
     }
 
     /**
-     * Calculate the objective functions
+     * Calculate the objective functions.
      */
     private void calculateObjectiveFunctions() {
-        return;
+        for (Segment segment : segments) {
+            segment.calculateObjectiveFunctions();
+            this.connectivity += segment.getConnectivity();
+            this.deviation += segment.getDeviation();
+            this.edgeValue += segment.getEdgeValue();
+        }
     }
 
     /**
