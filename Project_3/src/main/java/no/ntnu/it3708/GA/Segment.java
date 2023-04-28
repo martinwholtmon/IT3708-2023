@@ -62,8 +62,17 @@ public class Segment {
         int size = this.pixels.size();
         this.centroid = new Color(r / size, g / size, b / size);
     }
+
+    /**
+     * Calculate the edge value.
+     * This should be maximized, so its negated.
      */
     private void calculateEdgeValue() {
+        this.edgeValue = -this.pixels.values().stream()
+                .flatMap(pixel -> pixel.getNeighbors().stream())
+                .filter(edge -> !this.pixels.containsKey(edge.getNeighboringPixel().getId()))
+                .mapToDouble(Node::getWeight)
+                .sum();
     }
 
     /**
