@@ -6,6 +6,7 @@ package no.ntnu.it3708.GA;
 import no.ntnu.it3708.Parameters;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * The type Population.
@@ -51,5 +52,16 @@ public class Population {
      */
     Population nextGeneration() {
         return null;
+    }
+
+
+    @Override
+    public String toString() {
+        return "Population{" +
+                "generationNr=" + generationNr +
+                ", paretoIndividuals=" + paretoIndividuals.stream()
+                .map(Individual::toString)
+                .collect(Collectors.toList()) +
+                '}';
     }
 }

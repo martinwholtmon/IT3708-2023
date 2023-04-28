@@ -140,4 +140,14 @@ public class Individual {
         return deviation;
     }
 
+    @Override
+    public String toString() {
+        return "Individual{" +
+                "segments_size=" + segments.size() +
+                ", fitness=" + fitness +
+                ", edgeValue=" + edgeValue +
+                ", connectivity=" + connectivity +
+                ", deviation=" + deviation +
+                '}';
+    }
 }
