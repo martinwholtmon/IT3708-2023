@@ -4,12 +4,16 @@ package no.ntnu.it3708;
  * The type Parameters.
  */
 public final class Parameters {
+
+    private Parameters() {
+    }
+
     /**
      * The constants for the image handler
      */
     public static final String IMAGE_BASE_FOLDER = "/training_images/";
     public static final String IMAGE_NAME = "Test image.jpg";
-    
+
     /**
      * The constants for the GA
      */
