@@ -50,4 +50,62 @@ public class Segment {
     private void calculateDeviation() {
     }
 
+    /**
+     * Gets pixels.
+     *
+     * @return HashMap<Integer, Pixel>  return the pixels
+     */
+    public HashMap<Integer, Pixel> getPixels() {
+        return pixels;
+    }
+
+
+    /**
+     * Add a pixel to the list
+     *
+     * @param pixelId id of pixel
+     * @param pixel   the pixel
+     */
+    public void addPixels(int pixelId, Pixel pixel) {
+        this.pixels.put(pixelId, pixel);
+    }
+
+    /**
+     * Gets edge value.
+     *
+     * @return double return the edgeValue
+     */
+    public double getEdgeValue() {
+        return edgeValue;
+    }
+
+    /**
+     * Gets connectivity.
+     *
+     * @return double return the connectivity
+     */
+    public double getConnectivity() {
+        return connectivity;
+    }
+
+    /**
+     * Gets deviation.
+     *
+     * @return double return the deviation
+     */
+    public double getDeviation() {
+        return deviation;
+    }
+
+    @Override
+    public String toString() {
+        return "Segment{" +
+                "pixels=" + pixels.keySet() +
+                ", edgePixels=" + edgePixels +
+                ", edgeValue=" + edgeValue +
+                ", connectivity=" + connectivity +
+                ", deviation=" + deviation +
+                ", centroid=" + centroid +
+                '}';
+    }
 }
