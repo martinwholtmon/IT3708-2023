@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * The type Segment.
+ */
 public class Segment {
     private HashMap<Integer, Pixel> pixels;
     private List<Integer> edgePixels; // Pixels aroud the segment (to draw line)
@@ -19,6 +22,9 @@ public class Segment {
     private double deviation;
     private Color centroid;
 
+    /**
+     * Instantiates a new Segment.
+     */
     Segment() {
         this.pixels = new HashMap<>();
         this.edgePixels = new ArrayList<>();
