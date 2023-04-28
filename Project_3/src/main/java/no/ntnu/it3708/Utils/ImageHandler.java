@@ -3,6 +3,8 @@
  */
 package no.ntnu.it3708.Utils;
 
+import no.ntnu.it3708.Parameters;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -10,9 +12,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+/**
+ * The type Image handler.
+ */
 public final class ImageHandler {
-    private static final String IMAGE_BASE_FOLDER = "/training_images/";
-    private static final String IMAGE_NAME = "Test image.jpg";
 
     private ImageHandler() {
     }
@@ -23,12 +26,12 @@ public final class ImageHandler {
      *
      * @param image_id id of folder/image
      * @return image as a 2d array
-     * @throws IOException
-     * @throws URISyntaxException
+     * @throws IOException        the io exception
+     * @throws URISyntaxException the uri syntax exception
      */
     public static Color[][] loadImage(int image_id) throws IOException, URISyntaxException {
         // Read image file
-        String path = IMAGE_BASE_FOLDER + image_id + "/" + IMAGE_NAME;
+        String path = Parameters.IMAGE_BASE_FOLDER + image_id + "/" + Parameters.IMAGE_NAME;
         String filename = ImageHandler.class.getResource(path).toURI().getPath();
         File imageFile = new File(filename);
         BufferedImage image = ImageIO.read(imageFile);
@@ -37,7 +40,7 @@ public final class ImageHandler {
 
     /***
      * Will create a 2d array from a buffered image
-     * 
+     *
      * @param image buffered image
      * @return 2d array of image
      */

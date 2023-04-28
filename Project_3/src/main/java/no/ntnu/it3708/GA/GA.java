@@ -1,45 +1,53 @@
 /**
- * This class handles the genetic algorithm loop and all its functions
+ * This class handles the genetic algorithm loop (main loop)
  */
 package no.ntnu.it3708.GA;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Random;
 
+/**
+ * The type GA.
+ */
 public class GA {
-    static final Integer POP_SIZE = 30;
-    static final Integer MAX_GENERATIONS = 100;
-    static final Float CROSSOVER_RATE = 0.6f;
-    static final Float MUTATION_RATE = 0.1f;
-    static final Random RANDOM = new Random();
-    static ArrayList<Pixel> pixels;
+    /**
+     * The Pixels.
+     */
+    static ArrayList<Pixel> pixels = new ArrayList<>();
     private ArrayList<Population> generations;
 
+    /**
+     * Instantiates a new GA.
+     *
+     * @param image the image
+     */
     public GA(Color[][] image) {
-        pixels = new ArrayList<>();
         this.generations = new ArrayList<>();
         generatePixels(image);
     }
 
+    /**
+     * Start the GA
+     */
     public void start() {
         Population population = new Population();
         this.generations.add(population);
         System.out.println(population);
 
-        while (population.getGenerationNr() < MAX_GENERATIONS) {
-            Population next_population = population.nextGeneration();
-            this.generations.add(population);
-            System.out.println(population);
-        }
+        // while (population.getGenerationNr() < MAX_GENERATIONS) {
+        // Population next_population = population.nextGeneration();
+        // this.generations.add(population);
+        // System.out.println(population);
+        // }
     }
 
     /**
      * Given input image (2d array), it will generate the pixels to operate on
-     * during the image segmentation
+     * during the image segmentation.
+     * <p>
+     * Creates the pixel representation as a 2d array (essentially the "genes")
      *
      * @param image input image as 2d array
-     * @return pixel representation as a 2d array (essentially the "genes")
      */
     private void generatePixels(Color[][] image) {
         int imgHeight = image.length;

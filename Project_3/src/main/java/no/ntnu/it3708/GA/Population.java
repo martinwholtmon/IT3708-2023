@@ -3,6 +3,8 @@
  */
 package no.ntnu.it3708.GA;
 
+import no.ntnu.it3708.Parameters;
+
 import java.util.ArrayList;
 
 /**
@@ -13,6 +15,9 @@ public class Population {
     private ArrayList<Individual> individuals;
     private ArrayList<Individual> paretoIndividuals;
 
+    /**
+     * Instantiates a new Population.
+     */
     public Population() {
         this.individuals = initialPopulation();
         this.paretoIndividuals = new ArrayList<>();
@@ -32,7 +37,7 @@ public class Population {
         ArrayList<Individual> population = new ArrayList<>();
 
         // Generate individuals
-        for (int i = 0; i < GA.POP_SIZE; i++) {
+        for (int i = 0; i < Parameters.POP_SIZE; i++) {
             Individual individual = new Individual();
             population.add(individual);
         }
