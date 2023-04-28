@@ -5,6 +5,7 @@
  */
 package no.ntnu.it3708.GA;
 
+import no.ntnu.it3708.Utils.ImageHandler;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -28,9 +29,6 @@ public class Segment {
     Segment() {
         this.pixels = new HashMap<>();
         this.edgePixels = new ArrayList<>();
-        // this.edgeValue = 0d;
-        // this.connectivity = 0d;
-        // this.deviation = 0d;
     }
 
     /**
@@ -92,6 +90,9 @@ public class Segment {
      * @return the deviation
      */
     private void calculateDeviation() {
+        this.deviation = this.pixels.values().stream()
+                .mapToDouble(pixel -> ImageHandler.colorDistance(pixel.getColor(), centroid))
+                .sum();
     }
 
     /**
