@@ -79,6 +79,11 @@ public class Segment {
      * Calculate the connectivity
      */
     private void calculateConnectivity() {
+        this.connectivity = this.pixels.values().stream()
+                .flatMap(pixel -> pixel.getNeighbors().stream())
+                .filter(edge -> !this.pixels.containsKey(edge.getNeighboringPixel().getId()))
+                .mapToDouble(edge -> 0.125)
+                .sum();
     }
 
     /**
