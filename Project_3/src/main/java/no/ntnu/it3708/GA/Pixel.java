@@ -4,56 +4,89 @@
 package no.ntnu.it3708.GA;
 
 import java.awt.*;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * The type Pixel.
+ */
 public class Pixel {
     private final int id;
     private int x;
     private int y;
     private Color color;
-    private HashMap<Integer, Pixel> neighbors; // 1-8 representing the neighbors: East-West-North-South east-west
+    private List<Node> neighbors; // representing the neighbors: East-West-North-South east-west
 
+    /**
+     * Instantiates a new Pixel.
+     *
+     * @param id    the id
+     * @param x     the x
+     * @param y     the y
+     * @param color the color
+     */
     public Pixel(int id, int x, int y, Color color) {
         this.id = id;
         this.x = x;
         this.y = y;
         this.color = color;
-        this.neighbors = new HashMap<>();
-
-        // init hashmap for the eight neighbors
-        for (int i = 1; i <= 8; i++) {
-            this.neighbors.put(i, null);
-        }
+        this.neighbors = new ArrayList<>();
     }
 
     /**
-     * Add a pixel as neighbor using the positions 1-8
+     * Add a pixel neighbour as an edge
      *
-     * @param pos   position
-     * @param pixel pixel
+     * @param pixel     neighboring pixel
+     * @param direction direction
      */
-    void addNeighboringPixel(int pos, Pixel pixel) {
-        this.neighbors.put(pos, pixel);
+    void addNeighboringPixel(Pixel pixel, Direction direction) {
+        // Add edge
+        this.neighbors.add(new Node(this, pixel, direction));
     }
 
+    /**
+     * Gets id.
+     *
+     * @return the id
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * Gets x.
+     *
+     * @return the x
+     */
     public int getX() {
         return x;
     }
 
+    /**
+     * Gets y.
+     *
+     * @return the y
+     */
     public int getY() {
         return y;
     }
 
+    /**
+     * Gets color.
+     *
+     * @return the color
+     */
     public Color getColor() {
         return color;
     }
 
-    public HashMap<Integer, Pixel> getNeighbors() {
+    /**
+     * Gets neighbors.
+     *
+     * @return the neighbors
+     */
+    public List<Node> getNeighbors() {
         return neighbors;
     }
 
@@ -64,7 +97,11 @@ public class Pixel {
                 ", x=" + x +
                 ", y=" + y +
                 ", color=" + color +
-                ", neighbors=" + neighbors.values().stream().map(Pixel::getId).collect(Collectors.toList()) +
+                ", neighbors=" + neighbors.stream()
+                .map(Node::getPixel)
+                .map(Pixel::getId)
+                .collect(Collectors.toList())
+                +
                 '}';
     }
 }

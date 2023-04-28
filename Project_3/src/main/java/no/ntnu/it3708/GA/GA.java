@@ -64,9 +64,12 @@ public class GA {
     }
 
     /**
-     * Update the pixels with the nearest neighboring pixels
+     * Update the pixels with the nearest neighboring pixels.
+     * This could be refactored, but kept like this for readability.
      *
-     * @param pixels pixels to modify
+     * @param pixels    pixels to modify
+     * @param imgHeight height of image
+     * @param imgWidth  width of image
      */
     private void addNearestNeighboringPixels(Pixel[][] pixels, int imgHeight, int imgWidth) {
         for (int y = 0; y < imgHeight; y++) {
@@ -76,42 +79,42 @@ public class GA {
 
                 // 1 - east
                 if (x + 1 < imgWidth) {
-                    pixel.addNeighboringPixel(1, pixels[y][x + 1]);
+                    pixel.addNeighboringPixel(pixels[y][x + 1], Direction.EAST);
                 }
 
                 // 2 - west
                 if (x - 1 >= 0) {
-                    pixel.addNeighboringPixel(2, pixels[y][x - 1]);
+                    pixel.addNeighboringPixel(pixels[y][x - 1], Direction.WEST);
                 }
 
                 // 3 - north
                 if (y - 1 >= 0) {
-                    pixel.addNeighboringPixel(3, pixels[y - 1][x]);
+                    pixel.addNeighboringPixel(pixels[y - 1][x], Direction.NORTH);
                 }
 
                 // 4 - south
                 if (y + 1 < imgHeight) {
-                    pixel.addNeighboringPixel(4, pixels[y + 1][x]);
+                    pixel.addNeighboringPixel(pixels[y + 1][x], Direction.SOUTH);
                 }
 
                 // 5 - east-top
                 if (x + 1 < imgWidth && y - 1 >= 0) {
-                    pixel.addNeighboringPixel(5, pixels[y - 1][x + 1]);
+                    pixel.addNeighboringPixel(pixels[y - 1][x + 1], Direction.EAST_NORTH);
                 }
 
                 // 6 - east-bottom
                 if (x + 1 < imgWidth && y + 1 < imgHeight) {
-                    pixel.addNeighboringPixel(6, pixels[y + 1][x + 1]);
+                    pixel.addNeighboringPixel(pixels[y + 1][x + 1], Direction.EAST_SOUTH);
                 }
 
                 // 7 - west-top
                 if (x - 1 >= 0 && y - 1 >= 0) {
-                    pixel.addNeighboringPixel(7, pixels[y - 1][x - 1]);
+                    pixel.addNeighboringPixel(pixels[y - 1][x - 1], Direction.EAST_NORTH);
                 }
 
                 // 8 - west-bottom
                 if (x - 1 >= 0 && y + 1 < imgHeight) {
-                    pixel.addNeighboringPixel(8, pixels[y + 1][x - 1]);
+                    pixel.addNeighboringPixel(pixels[y + 1][x - 1], Direction.EAST_SOUTH);
                 }
             }
         }
