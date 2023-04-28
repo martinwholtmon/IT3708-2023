@@ -5,6 +5,8 @@
  */
 package no.ntnu.it3708.GA;
 
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +17,7 @@ public class Segment {
     private double edgeValue;
     private double connectivity;
     private double deviation;
+    private Color centroid;
 
     Segment() {
         this.pixels = new HashMap<>();
@@ -24,14 +27,35 @@ public class Segment {
         // this.deviation = 0d;
     }
 
+    /**
+     * Calculate all the objectives
+     */
     void calculateObjectiveFunctions() {
+        findCentroid();
         calculateEdgeValue();
         calculateConnectivity();
         calculateDeviation();
     }
 
     /**
-     * Calculate the edge value
+     * Will find the centroid in the segment (average color)
+     */
+    private void findCentroid() {
+        int r = 0;
+        int g = 0;
+        int b = 0;
+
+        // Calc average
+        for (Pixel pixel : this.pixels.values()) {
+            Color pixeColor = pixel.getColor();
+            r += pixeColor.getRed();
+            g += pixeColor.getGreen();
+            b += pixeColor.getBlue();
+        }
+
+        int size = this.pixels.size();
+        this.centroid = new Color(r / size, g / size, b / size);
+    }
      */
     private void calculateEdgeValue() {
     }
