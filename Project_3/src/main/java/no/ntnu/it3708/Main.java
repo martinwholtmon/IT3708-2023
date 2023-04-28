@@ -10,16 +10,23 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+/**
+ * The type Main.
+ */
 public class Main {
+    /**
+     * The entry point of application.
+     *
+     * @param args the input arguments
+     */
     public static void main(String[] args) {
         // Set image set to work on
         Integer image_id = 86016;
 
         // Import the images to segment
-        ImageHandler imageHandler = new ImageHandler();
         try {
             // Load image
-            Color[][] image = imageHandler.loadImage(image_id);
+            Color[][] image = ImageHandler.loadImage(image_id);
 
             // Start the GA
             GA moga = new GA(image);
