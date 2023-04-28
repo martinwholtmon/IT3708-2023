@@ -104,4 +104,40 @@ public class Individual {
      */
     private void calculateFitness() {
     }
+
+    /**
+     * @return List<Segment> return the segments
+     */
+    public List<Segment> getSegments() {
+        return segments;
+    }
+
+    /**
+     * @return double return the fitness
+     */
+    public double getFitness() {
+        return fitness;
+    }
+
+    /**
+     * @return double return the edge value
+     */
+    public double getEdgeValue() {
+        return edgeValue;
+    }
+
+    /**
+     * @return double return the connectivity
+     */
+    public double getConnectivity() {
+        return connectivity;
+    }
+
+    /**
+     * @return double return the deviation
+     */
+    public double getDeviation() {
+        return deviation;
+    }
+
 }
