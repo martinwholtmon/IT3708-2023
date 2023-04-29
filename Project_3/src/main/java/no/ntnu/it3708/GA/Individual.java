@@ -107,6 +107,27 @@ public class Individual {
     }
 
     /**
+     * Check if current individual dominates the other.
+     * Dominates if:
+     * - Is at least as good as other in all three objectives
+     * (this <= other (all objectives))
+     * 
+     * - A is strictly better than other in at least one objective
+     * (this < other (>= one objective))
+     * 
+     * @param other individual to compare
+     * @return True: both conditions are true
+     *         False: non-dominated
+     */
+    private boolean dominates(Individual other) {
+        boolean atLeastAsGood = this.getEdgeValue() <= other.getEdgeValue()
+                && this.getConnectivity() <= other.getConnectivity() && this.getDeviation() <= other.getDeviation();
+        boolean strictlyBetter = this.getEdgeValue() < other.getEdgeValue()
+                || this.getConnectivity() < other.getConnectivity() || this.getDeviation() < other.getDeviation();
+        return atLeastAsGood && strictlyBetter;
+    }
+
+    /**
      * @return List<Segment> return the segments
      */
     public List<Segment> getSegments() {
