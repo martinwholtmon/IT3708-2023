@@ -17,6 +17,7 @@ public class Individual {
     private double edgeValue;
     private double connectivity;
     private double deviation;
+    private int rank; // for non-dominated sorting
 
     /**
      * Generate an initial individual
@@ -138,6 +139,20 @@ public class Individual {
      */
     public double getDeviation() {
         return deviation;
+    }
+
+    /**
+     * @param rank the rank to set
+     */
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+
+    /**
+     * @return int return the rank
+     */
+    public int getRank() {
+        return rank;
     }
 
     @Override
