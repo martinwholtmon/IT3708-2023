@@ -11,7 +11,8 @@ public final class Parameters {
     /**
      * The constants for the image handler
      */
-    public static final String IMAGE_BASE_FOLDER = "/training_images/";
+    public static final String IMAGE_FOLDER = "86016";
+    public static final String IMAGE_BASE_FOLDER = "training_images";
     public static final String IMAGE_NAME = "Test image.jpg";
 
     /**

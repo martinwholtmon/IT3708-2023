@@ -20,13 +20,10 @@ public class Main {
      * @param args the input arguments
      */
     public static void main(String[] args) {
-        // Set image set to work on
-        Integer image_id = 86016;
-
         // Import the images to segment
         try {
             // Load image
-            Color[][] image = ImageHandler.loadImage(image_id);
+            Color[][] image = ImageHandler.loadImage();
 
             // Start the GA
             GA moga = new GA(image);

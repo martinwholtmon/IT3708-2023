@@ -24,14 +24,14 @@ public final class ImageHandler {
      * Load an image from the resource folder given an image_id.
      * It will locate the correct folder, and then load the Test image.jpg
      *
-     * @param image_id id of folder/image
      * @return image as a 2d array
      * @throws IOException        the io exception
      * @throws URISyntaxException the uri syntax exception
      */
-    public static Color[][] loadImage(int image_id) throws IOException, URISyntaxException {
+    public static Color[][] loadImage() throws IOException, URISyntaxException {
         // Read image file
-        String path = Parameters.IMAGE_BASE_FOLDER + image_id + "/" + Parameters.IMAGE_NAME;
+        String path = String.format("/%s/%s/%s", Parameters.IMAGE_BASE_FOLDER, Parameters.IMAGE_FOLDER,
+                Parameters.IMAGE_NAME);
         String filename = ImageHandler.class.getResource(path).toURI().getPath();
         File imageFile = new File(filename);
         BufferedImage image = ImageIO.read(imageFile);
