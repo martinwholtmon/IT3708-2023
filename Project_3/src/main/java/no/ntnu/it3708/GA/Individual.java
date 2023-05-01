@@ -18,6 +18,7 @@ public class Individual {
     private double connectivity;
     private double deviation;
     private int rank; // for non-dominated sorting
+    private double crowdingDistance;
 
     /**
      * Generate an initial individual
@@ -119,11 +120,13 @@ public class Individual {
      * @return True: both conditions are true
      *         False: non-dominated
      */
-    private boolean dominates(Individual other) {
+    boolean dominates(Individual other) {
         boolean atLeastAsGood = this.getEdgeValue() <= other.getEdgeValue()
-                && this.getConnectivity() <= other.getConnectivity() && this.getDeviation() <= other.getDeviation();
+                && this.getConnectivity() <= other.getConnectivity()
+                && this.getDeviation() <= other.getDeviation();
         boolean strictlyBetter = this.getEdgeValue() < other.getEdgeValue()
-                || this.getConnectivity() < other.getConnectivity() || this.getDeviation() < other.getDeviation();
+                || this.getConnectivity() < other.getConnectivity()
+                || this.getDeviation() < other.getDeviation();
         return atLeastAsGood && strictlyBetter;
     }
 
@@ -176,6 +179,20 @@ public class Individual {
         return rank;
     }
 
+    /**
+     * @return double return the crowding distance
+     */
+    public void setCrowdingDistance(double crowdingDistance) {
+        this.crowdingDistance = crowdingDistance;
+    }
+
+    /**
+     * @return double return the crowding distance
+     */
+    public double getCrowdingDistance() {
+        return crowdingDistance;
+    }
+
     @Override
     public String toString() {
         return "Individual{" +
@@ -184,6 +201,8 @@ public class Individual {
                 ", edgeValue=" + edgeValue +
                 ", connectivity=" + connectivity +
                 ", deviation=" + deviation +
+                ", rank=" + rank +
+                ", crowdingDistance=" + crowdingDistance +
                 '}';
     }
 }
