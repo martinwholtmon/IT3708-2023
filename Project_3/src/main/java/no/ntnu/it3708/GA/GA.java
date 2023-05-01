@@ -3,6 +3,8 @@
  */
 package no.ntnu.it3708.GA;
 
+import no.ntnu.it3708.Parameters;
+
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -34,11 +36,11 @@ public class GA {
         this.generations.add(population);
         System.out.println(population);
 
-        // while (population.getGenerationNr() < MAX_GENERATIONS) {
-        // Population next_population = population.nextGeneration();
-        // this.generations.add(population);
-        // System.out.println(population);
-        // }
+        while (population.getGenerationNr() < Parameters.MAX_GENERATIONS) {
+            Population next_population = population.nextGeneration();
+            this.generations.add(population);
+            System.out.println(population);
+        }
     }
 
     /**
