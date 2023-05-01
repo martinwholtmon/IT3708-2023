@@ -62,9 +62,7 @@ public class Population {
             ArrayList<Individual> parents = parentSelection(2);
 
             // Crossover
-            if (utils.randomDouble() < Parameters.CROSSOVER_RATE) {
-
-            }
+            List<Segment> newGenes = crossover(parents.get(0), parents.get(1));
 
             // Mutation
             if (utils.randomDouble() < Parameters.MUTATION_RATE) {
@@ -113,6 +111,109 @@ public class Population {
             parents.add(best);
         }
         return parents;
+    }
+
+    /**
+     * Given two parents, we will create one child (uniformly)
+     * - Combine segments from parents, shuffle/randomize segment order
+     * - Add clean segments to offspring (does not contain any already added pixels)
+     * -
+     *
+     * @param parent1 parent one
+     * @param parent2 parent two
+     * @return a child, or rather the childs genes.
+     */
+    private List<Segment> crossover(Individual parent1, Individual parent2) {
+        List<Segment> newSegments = new ArrayList<>();
+
+        // Combine segments from parents, shuffle/randomize segment order
+        Map<Integer, Segment> pixelSegmentMap = new HashMap<>();
+        List<Segment> combinedSegments = new ArrayList<>();
+        combinedSegments.addAll(parent1.getSegments());
+        combinedSegments.addAll(parent2.getSegments());
+        Collections.shuffle(combinedSegments);
+
+        // Get all "clean" segments and add them to the newSegments
+        boolean[] usedPixels = new boolean[GA.pixels.size()];
+        int nrAddedPixels = 0;
+
+        for (Iterator<Segment> it = combinedSegments.iterator(); it.hasNext(); ) {
+            Segment segment = it.next();
+            boolean isClean = true;
+
+            // Check if pixels in segment has already been added
+            for (int pixel : segment.getPixels().keySet()) {
+                if (usedPixels[pixel]) {
+                    isClean = false;
+                    break;
+                }
+            }
+
+            // if clean, add
+            if (isClean) {
+                Segment newSegment = new Segment();
+                for (Pixel pixel : segment.getPixels().values()) {
+                    pixelSegmentMap.put(pixel.getId(), newSegment);
+                    newSegment.addPixels(pixel.getId(), pixel);
+                    usedPixels[pixel.getId()] = true;
+                    nrAddedPixels++;
+                }
+                newSegments.add(newSegment);
+                it.remove(); // remove added segment
+            }
+        }
+
+        // Deal with remaining pixels
+        for (Segment segment : combinedSegments) {
+            //Check if we have added all pixels
+            if (nrAddedPixels == usedPixels.length) {
+                break;
+            }
+
+            // Add non-used pixels
+            Segment newSegment = new Segment();
+            for (Pixel pixel : segment.getPixels().values()) {
+                if (!usedPixels[pixel.getId()]) {
+                    pixelSegmentMap.put(pixel.getId(), newSegment);
+                    newSegment.addPixels(pixel.getId(), pixel);
+                    usedPixels[pixel.getId()] = true;
+                    nrAddedPixels++;
+                }
+            }
+            if (newSegment.getPixels().size() > 0) {
+                newSegments.add(newSegment);
+            }
+        }
+
+        // If too many segments, merge segments.
+        int maxNrSegments = Math.max(parent1.getSegments().size(), parent2.getSegments().size());
+        int minNrSegments = Math.min(parent1.getSegments().size(), parent2.getSegments().size());
+        int nrSegments = utils.randomInt(minNrSegments, maxNrSegments);
+        if (nrSegments < newSegments.size()) {
+            mergeSegments(newSegments, nrSegments, pixelSegmentMap);
+        }
+        return newSegments;
+    }
+
+    /**
+     * Merge neighboring segments with the lowest color distance
+     *
+     * @param segments   segments to operate on
+     * @param nrSegments reduce nr. segments to this number
+     */
+    private void mergeSegments(List<Segment> segments, int nrSegments, Map<Integer, Segment> pixelSegmentMap) {
+    }
+
+    /**
+     * Find all the segments neighbors
+     *
+     * @param segments all segments
+     * @param segment  segment to find neighbors to
+     * @return list of neighboring segments
+     */
+    private List<Segment> findNeighboringSegments(List<Segment> segments, Segment segment, Map<Integer, Segment> pixelSegmentMap) {
+        Set<Segment> neighboringSegments = new HashSet<>();
+        return new ArrayList<>(neighboringSegments);
     }
 
     /**
