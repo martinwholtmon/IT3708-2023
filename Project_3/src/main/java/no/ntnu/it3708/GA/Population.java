@@ -138,7 +138,7 @@ public class Population {
         boolean[] usedPixels = new boolean[GA.pixels.size()];
         int nrAddedPixels = 0;
 
-        for (Iterator<Segment> it = combinedSegments.iterator(); it.hasNext(); ) {
+        for (Iterator<Segment> it = combinedSegments.iterator(); it.hasNext();) {
             Segment segment = it.next();
             boolean isClean = true;
 
@@ -166,7 +166,7 @@ public class Population {
 
         // Deal with remaining pixels
         for (Segment segment : combinedSegments) {
-            //Check if we have added all pixels
+            // Check if we have added all pixels
             if (nrAddedPixels == usedPixels.length) {
                 break;
             }
@@ -210,13 +210,15 @@ public class Population {
             }
 
             // find the two segments to combine
-            Segment s1 = null, s2 = null;
+            Segment s1 = null;
+            Segment s2 = null;
             double minDistance = Double.MAX_VALUE;
 
             for (Segment segment : segments) {
                 List<Segment> neighboringSegments = findNeighboringSegments(segments, segment, pixelSegmentMap);
                 for (Segment neighboringSegment : neighboringSegments) {
-                    double distance = ImageHandler.colorDistance(segment.getCentroid(), neighboringSegment.getCentroid());
+                    double distance = ImageHandler.colorDistance(segment.getCentroid(),
+                            neighboringSegment.getCentroid());
                     if (distance < minDistance) {
                         minDistance = distance;
                         s1 = segment;
@@ -294,7 +296,7 @@ public class Population {
             boolean isDominated = false;
 
             // use iterators so we can modify the list while iterating
-            for (Iterator<Individual> it = dominatingIndividuals.iterator(); it.hasNext(); ) {
+            for (Iterator<Individual> it = dominatingIndividuals.iterator(); it.hasNext();) {
                 Individual dominatingInd = it.next(); // get a dominating Individual to compare
 
                 // if same, go next
