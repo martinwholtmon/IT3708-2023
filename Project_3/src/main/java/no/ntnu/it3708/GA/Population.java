@@ -243,6 +243,17 @@ public class Population {
      */
     private List<Segment> findNeighboringSegments(List<Segment> segments, Segment segment, Map<Integer, Segment> pixelSegmentMap) {
         Set<Segment> neighboringSegments = new HashSet<>();
+
+        // Iterate over the pixels to find neighboring segments
+        for (Pixel pixel : segment.getPixels().values()) {
+            // Check all edges, same segment?
+            for (Node node : pixel.getNeighbors()) {
+                Segment nodeSegment = pixelSegmentMap.get(node.getNeighboringPixel().getId());
+                if (nodeSegment != segment) {
+                    neighboringSegments.add(segment);
+                }
+            }
+        }
         return new ArrayList<>(neighboringSegments);
     }
 
