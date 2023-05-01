@@ -4,6 +4,7 @@
 package no.ntnu.it3708.GA;
 
 import no.ntnu.it3708.Parameters;
+import no.ntnu.it3708.Utils.utils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -58,6 +59,37 @@ public class Population {
         return null;
     }
 
+    /**
+     * This will perform parent selection by tournament.
+     * The size of the tournament is controlled by the parameter TOURNAMENET_SIZE.
+     *
+     * @param size number of parents
+     * @return parents
+     */
+    private ArrayList<Individual> parentSelection(int size) {
+        ArrayList<Individual> parents = new ArrayList<>();
+
+        for (int i = 0; i < size; i++) {
+            // Select individuals for tournament
+            ArrayList<Individual> tournamentIndividuals = new ArrayList<>();
+            Set<Integer> selectedInts = new HashSet<>();
+            for (int j = 0; j < Parameters.TOURNAMENET_SIZE; j++) {
+                int randIndex;
+                do {
+                    randIndex = utils.randomInt(Parameters.POP_SIZE);
+                } while (selectedInts.contains(randIndex));
+                selectedInts.add(randIndex);
+                tournamentIndividuals.add(this.individuals.get(randIndex));
+            }
+
+            // Pick the best individual:
+            //  - Minimize rank
+            //  - Break tie by maxing crowding distance
+            Individual best = Collections.min(tournamentIndividuals, Comparator.comparing(Individual::getRank).thenComparing(Individual::getCrowdingDistance));
+            parents.add(best);
+        }
+        return parents;
+    }
 
     /**
      * Performs non-dominated sorting and updates the individuals rank.
