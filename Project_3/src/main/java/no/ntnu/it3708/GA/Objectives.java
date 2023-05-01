@@ -2,12 +2,12 @@ package no.ntnu.it3708.GA;
 
 import java.util.Comparator;
 
-public enum Objective {
+public enum Objectives {
     EdgeValue,
     Connectivity,
     Deviation;
 
-    public static Comparator<Individual> getComparator(Objective objective) {
+    public static Comparator<Individual> getComparator(Objectives objective) {
         return switch (objective) {
             case EdgeValue -> Comparator.comparingDouble(Individual::getEdgeValue);
             case Connectivity -> Comparator.comparingDouble(Individual::getConnectivity);
@@ -15,7 +15,7 @@ public enum Objective {
         };
     }
 
-    public static double getObjective(Objective objective, Individual individual) {
+    public static double getObjective(Objectives objective, Individual individual) {
         return switch (objective) {
             case EdgeValue -> individual.getEdgeValue();
             case Connectivity -> individual.getConnectivity();
