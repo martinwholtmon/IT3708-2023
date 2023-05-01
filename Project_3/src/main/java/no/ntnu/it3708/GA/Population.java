@@ -45,6 +45,7 @@ public class Population {
 
         // Non-dominated sorting + crowding distance
         this.paretoFronts = nonDominatedSorting(population);
+        calculateCrowdingDistance(this.paretoFronts);
         return population;
     }
 
@@ -56,6 +57,7 @@ public class Population {
     Population nextGeneration() {
         return null;
     }
+
 
     /**
      * Performs non-dominated sorting and updates the individuals rank.
@@ -122,13 +124,52 @@ public class Population {
         return dominatingIndividuals;
     }
 
+    private void calculateCrowdingDistance(List<List<Individual>> paretoFronts) {
+        for (List<Individual> front : paretoFronts) {
+            // reset distances
+            for (Individual individual : front) {
+                individual.setCrowdingDistance(0);
+            }
+
+            // assign crowding distance for the objectives
+            for (Objective segmentationCriteria : Objective.values()) {
+                assignCrowdingDistanceObjective(front, segmentationCriteria);
+            }
+
+        }
+    }
+
+    private void assignCrowdingDistanceObjective(List<Individual> paretoFront, Objective segmentationCriteria) {
+        // sort: lowest -> highest
+        paretoFront.sort(Objective.getComparator(segmentationCriteria));
+
+        // Get min and max
+        Individual minInd = paretoFront.get(0);
+        Individual maxInd = paretoFront.get(paretoFront.size() - 1);
+
+        // Set max and min
+        minInd.setCrowdingDistance(Integer.MAX_VALUE);
+        maxInd.setCrowdingDistance(Integer.MAX_VALUE);
+
+        // find diff between min and max
+        double diff = Objective.getObjective(segmentationCriteria, maxInd) - Objective.getObjective(segmentationCriteria, minInd);
+
+        // Iterate over the individuals
+        double segCriteriaDiff;
+        for (int i = 1; i < paretoFront.size() - 1; i++) {
+            Double distance = Objective.getObjective(segmentationCriteria, paretoFront.get(i)) - Objective.getObjective(segmentationCriteria, paretoFront.get(i - 1)) / diff;
+            paretoFront.get(i).setCrowdingDistance(paretoFront.get(i).getCrowdingDistance() + distance);
+        }
+    }
+
     @Override
     public String toString() {
         return "Population{" +
                 "generationNr=" + generationNr +
-                ", paretoIndividuals=" + paretoIndividuals.stream()
-                .map(Individual::toString)
-                .collect(Collectors.toList()) +
+//                ", paretoIndividuals=" + paretoFronts.get(0).stream()
+//                .map(Individual::toString)
+//                .collect(Collectors.toList())
+//                +
                 '}';
     }
 }
