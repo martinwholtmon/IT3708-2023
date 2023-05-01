@@ -44,7 +44,7 @@ public class Segment {
     /**
      * Will find the centroid in the segment (average color)
      */
-    private void findCentroid() {
+    void findCentroid() {
         int r = 0;
         int g = 0;
         int b = 0;
@@ -140,6 +140,15 @@ public class Segment {
      */
     public double getDeviation() {
         return deviation;
+    }
+
+    /**
+     * Gets centroid.
+     *
+     * @return the centroid
+     */
+    public Color getCentroid() {
+        return centroid;
     }
 
     @Override
