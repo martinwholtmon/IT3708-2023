@@ -5,8 +5,8 @@ package no.ntnu.it3708.GA;
 
 import no.ntnu.it3708.Parameters;
 
-import java.util.ArrayList;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * The type Population.
@@ -14,14 +14,14 @@ import java.util.stream.Collectors;
 public class Population {
     private final Integer generationNr;
     private ArrayList<Individual> individuals;
-    private ArrayList<Individual> paretoIndividuals;
+    private List<List<Individual>> paretoFronts;
 
     /**
      * Instantiates a new Population.
      */
     public Population() {
         this.individuals = initialPopulation();
-        this.paretoIndividuals = new ArrayList<>();
+        this.paretoFronts = new ArrayList<>();
         this.generationNr = 0;
     }
 
@@ -42,6 +42,9 @@ public class Population {
             Individual individual = new Individual();
             population.add(individual);
         }
+
+        // Non-dominated sorting + crowding distance
+        this.paretoFronts = nonDominatedSorting(population);
         return population;
     }
 
@@ -54,6 +57,70 @@ public class Population {
         return null;
     }
 
+    /**
+     * Performs non-dominated sorting and updates the individuals rank.
+     * It will rank the individuals based on how much it dominates the others.
+     *
+     * @param individuals
+     */
+    private List<List<Individual>> nonDominatedSorting(ArrayList<Individual> individuals) {
+        List<List<Individual>> paretoFronts = new ArrayList<>();
+
+        // Iterate over the individuals and rank them
+        AtomicInteger rank = new AtomicInteger(1);
+        ArrayList<Individual> remainingIndividuals = new ArrayList<>(individuals);
+        while (!remainingIndividuals.isEmpty()) {
+            List<Individual> currDominatingIndividuals = findDominatingIndividuals(remainingIndividuals);
+            currDominatingIndividuals.forEach(i -> i.setRank(rank.get()));
+            remainingIndividuals.removeAll(currDominatingIndividuals);
+            rank.incrementAndGet();
+            paretoFronts.add(currDominatingIndividuals);
+        }
+        return paretoFronts;
+    }
+
+    /**
+     * This method will find all the individuals that are dominating.
+     *
+     * @param individuals individuals to compare
+     * @return list of dominating individuals
+     */
+    private List<Individual> findDominatingIndividuals(ArrayList<Individual> individuals) {
+        List<Individual> dominatingIndividuals = new ArrayList<>();
+
+        // Iterate over the individuals
+        for (Individual individual : individuals) {
+            boolean isDominated = false;
+
+            // use iterators so we can modify the list while iterating
+            for (Iterator<Individual> it = dominatingIndividuals.iterator(); it.hasNext(); ) {
+                Individual dominatingInd = it.next(); // get a dominating Individual to compare
+
+                // if same, go next
+                if (individual == dominatingInd) {
+                    continue;
+                }
+
+                // if current individual got dominated, break
+                if (dominatingInd.dominates(individual)) {
+                    isDominated = true;
+                    break;
+                }
+
+                // Current individual dominates
+                // old individual no longer dominates, remove
+                if (individual.dominates(dominatingInd)) {
+                    it.remove();
+                }
+            }
+
+            // if individual was not dominated, add to list
+            if (!isDominated) {
+                dominatingIndividuals.add(individual);
+            }
+        }
+        return dominatingIndividuals;
+    }
 
     @Override
     public String toString() {
