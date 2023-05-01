@@ -56,6 +56,29 @@ public class Population {
      * @return new generation
      */
     Population nextGeneration() {
+        ArrayList<Individual> offsprings = new ArrayList<>();
+        for (int i = 0; i < Parameters.POP_SIZE; i++) {
+            // Parent selection: tournament selection
+            ArrayList<Individual> parents = parentSelection(2);
+
+            // Crossover
+            if (utils.randomDouble() < Parameters.CROSSOVER_RATE) {
+
+            }
+
+            // Mutation
+            if (utils.randomDouble() < Parameters.MUTATION_RATE) {
+
+            }
+
+            // Add new offsprings
+        }
+
+        // ? Merge population ?
+
+        // Non-dominated sorting + crowding distance calculation
+
+        // Child selection: by crowding distance
         return null;
     }
 
