@@ -4,6 +4,7 @@
 package no.ntnu.it3708.GA;
 
 import no.ntnu.it3708.Parameters;
+import no.ntnu.it3708.Utils.ImageHandler;
 import no.ntnu.it3708.Utils.utils;
 
 import java.util.*;
@@ -202,6 +203,35 @@ public class Population {
      * @param nrSegments reduce nr. segments to this number
      */
     private void mergeSegments(List<Segment> segments, int nrSegments, Map<Integer, Segment> pixelSegmentMap) {
+        while (segments.size() > nrSegments) {
+            // Calculate centroids for every segment
+            for (Segment segment : segments) {
+                segment.findCentroid();
+            }
+
+            // find the two segments to combine
+            Segment s1 = null, s2 = null;
+            double minDistance = Double.MAX_VALUE;
+
+            for (Segment segment : segments) {
+                List<Segment> neighboringSegments = findNeighboringSegments(segments, segment, pixelSegmentMap);
+                for (Segment neighboringSegment : neighboringSegments) {
+                    double distance = ImageHandler.colorDistance(segment.getCentroid(), neighboringSegment.getCentroid());
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        s1 = segment;
+                        s2 = neighboringSegment;
+                    }
+                }
+            }
+
+            // Combine: Add s2 to s1
+            for (Pixel pixel : s2.getPixels().values()) {
+                pixelSegmentMap.put(pixel.getId(), s1); // update map
+                s1.addPixels(pixel.getId(), pixel);
+            }
+            segments.remove(s2);
+        }
     }
 
     /**
