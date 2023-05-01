@@ -4,7 +4,6 @@ package no.ntnu.it3708;
  * The type Parameters.
  */
 public final class Parameters {
-
     /**
      * The constants for the image handler
      */

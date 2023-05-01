@@ -112,13 +112,13 @@ public class Individual {
      * Dominates if:
      * - Is at least as good as other in all three objectives
      * (this <= other (all objectives))
-     * 
+     * <p>
      * - A is strictly better than other in at least one objective
      * (this < other (>= one objective))
-     * 
+     *
      * @param other individual to compare
      * @return True: both conditions are true
-     *         False: non-dominated
+     * False: non-dominated
      */
     boolean dominates(Individual other) {
         boolean atLeastAsGood = this.getEdgeValue() <= other.getEdgeValue()
@@ -166,13 +166,6 @@ public class Individual {
     }
 
     /**
-     * @param rank the rank to set
-     */
-    public void setRank(int rank) {
-        this.rank = rank;
-    }
-
-    /**
      * @return int return the rank
      */
     public int getRank() {
@@ -180,10 +173,10 @@ public class Individual {
     }
 
     /**
-     * @return double return the crowding distance
+     * @param rank the rank to set
      */
-    public void setCrowdingDistance(double crowdingDistance) {
-        this.crowdingDistance = crowdingDistance;
+    public void setRank(int rank) {
+        this.rank = rank;
     }
 
     /**
@@ -191,6 +184,13 @@ public class Individual {
      */
     public double getCrowdingDistance() {
         return crowdingDistance;
+    }
+
+    /**
+     * @return double return the crowding distance
+     */
+    public void setCrowdingDistance(double crowdingDistance) {
+        this.crowdingDistance = crowdingDistance;
     }
 
     @Override

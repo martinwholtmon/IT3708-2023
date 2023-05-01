@@ -106,9 +106,10 @@ public class Population {
             }
 
             // Pick the best individual:
-            //  - Minimize rank
-            //  - Break tie by maxing crowding distance
-            Individual best = Collections.min(tournamentIndividuals, Comparator.comparing(Individual::getRank).thenComparing(Individual::getCrowdingDistance));
+            // - Minimize rank
+            // - Break tie by maxing crowding distance
+            Individual best = Collections.min(tournamentIndividuals,
+                    Comparator.comparing(Individual::getRank).thenComparing(Individual::getCrowdingDistance));
             parents.add(best);
         }
         return parents;
@@ -187,16 +188,16 @@ public class Population {
             }
 
             // assign crowding distance for the objectives
-            for (Objective segmentationCriteria : Objective.values()) {
+            for (Objectives segmentationCriteria : Objectives.values()) {
                 assignCrowdingDistanceObjective(front, segmentationCriteria);
             }
 
         }
     }
 
-    private void assignCrowdingDistanceObjective(List<Individual> paretoFront, Objective segmentationCriteria) {
+    private void assignCrowdingDistanceObjective(List<Individual> paretoFront, Objectives segmentationCriteria) {
         // sort: lowest -> highest
-        paretoFront.sort(Objective.getComparator(segmentationCriteria));
+        paretoFront.sort(Objectives.getComparator(segmentationCriteria));
 
         // Get min and max
         Individual minInd = paretoFront.get(0);
@@ -207,12 +208,14 @@ public class Population {
         maxInd.setCrowdingDistance(Integer.MAX_VALUE);
 
         // find diff between min and max
-        double diff = Objective.getObjective(segmentationCriteria, maxInd) - Objective.getObjective(segmentationCriteria, minInd);
+        double diff = Objectives.getObjective(segmentationCriteria, maxInd)
+                - Objectives.getObjective(segmentationCriteria, minInd);
 
         // Iterate over the individuals
         double segCriteriaDiff;
         for (int i = 1; i < paretoFront.size() - 1; i++) {
-            Double distance = Objective.getObjective(segmentationCriteria, paretoFront.get(i)) - Objective.getObjective(segmentationCriteria, paretoFront.get(i - 1)) / diff;
+            Double distance = Objectives.getObjective(segmentationCriteria, paretoFront.get(i))
+                    - Objectives.getObjective(segmentationCriteria, paretoFront.get(i - 1)) / diff;
             paretoFront.get(i).setCrowdingDistance(paretoFront.get(i).getCrowdingDistance() + distance);
         }
     }
@@ -221,10 +224,10 @@ public class Population {
     public String toString() {
         return "Population{" +
                 "generationNr=" + generationNr +
-//                ", paretoIndividuals=" + paretoFronts.get(0).stream()
-//                .map(Individual::toString)
-//                .collect(Collectors.toList())
-//                +
+                // ", paretoIndividuals=" + paretoFronts.get(0).stream()
+                // .map(Individual::toString)
+                // .collect(Collectors.toList())
+                // +
                 '}';
     }
 }
